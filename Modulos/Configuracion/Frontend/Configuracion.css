@@ -7,3 +7,6 @@
 .company-logo span[hidden]{display:none!important}
 .company-logo img{position:absolute;inset:0;display:block;width:100%;height:100%;margin:0;padding:10px;object-fit:contain;object-position:center;background:var(--background-card)}
 .company-logo img[hidden]{display:none!important}
+/* Nodix redesign: configuración agrupada por contexto. */
+.config-page { min-height:100vh;padding:42px clamp(22px,4vw,64px);background:#f5f8fb!important; }.config-header,.config-card { max-width:1100px!important; }.config-header h1 { font-size:32px!important;letter-spacing:-.04em;color:#071426; }.config-card { border-radius:18px!important;box-shadow:0 10px 30px rgb(7 20 38 / 5%)!important; }.config-card-header { padding-bottom:24px!important; }.company-layout { grid-template-columns:220px 1fr!important;gap:42px!important; }.company-logo { border-radius:18px!important; }.company-fields input { border-radius:10px!important;background:#f8fafc!important; }.company-fields input:focus { background:#fff!important; }.btn-primary,.btn-secondary { border-radius:10px!important; }
+@media(max-width:700px){.company-layout{grid-template-columns:1fr!important;gap:24px!important}}

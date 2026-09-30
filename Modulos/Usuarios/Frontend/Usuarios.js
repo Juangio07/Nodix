@@ -1,7 +1,7 @@
 "use strict";
 
-const STORAGE_KEY = "AppBase_usuarios_frontend_v1";
-const ROLES_STORAGE_KEY = "AppBase_roles_frontend_v1";
+const STORAGE_KEY = "Nodix_usuarios_frontend_v1";
+const ROLES_STORAGE_KEY = "Nodix_roles_frontend_v1";
 const tabla = document.getElementById("tablaUsuarios");
 const estadoVacio = document.getElementById("estadoVacio");
 const contador = document.getElementById("contadorUsuarios");

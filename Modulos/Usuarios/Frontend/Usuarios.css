@@ -411,3 +411,10 @@ tbody tr:hover {
   }
 }
 .modal-backdrop:has(.confirm-modal) .confirm-modal { transform: translateY(calc(var(--topbar-height) / -2)); }
+/* Nodix redesign: gestión de usuarios con foco en lectura y operaciones. */
+.usuarios-page { min-height:100vh; padding:42px clamp(22px,4vw,64px); background:#f5f8fb; }
+.usuarios-header,.usuarios-toolbar,.usuarios-card { max-width:1380px; margin-left:auto; margin-right:auto; }.usuarios-header { display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:30px; }.usuarios-header h1 { font-size:32px;letter-spacing:-.04em;color:#071426; }.usuarios-header p { margin-top:8px;color:#718198; }.usuarios-eyebrow { color:var(--brand-primary);font-size:11px;font-weight:800;letter-spacing:.14em; }.usuarios-add,.roles-add { min-height:46px!important;border-radius:12px!important;box-shadow:0 10px 24px rgb(2 171 76 / 20%)!important; }.usuarios-toolbar { display:flex;align-items:center;gap:12px;margin-bottom:16px; }.usuarios-search { flex:1;max-width:520px;border-radius:12px!important;background:#fff!important; }.usuarios-card { overflow:hidden;background:#fff;border:1px solid #e2e8ef!important;border-radius:16px!important;box-shadow:0 10px 30px rgb(7 20 38 / 5%)!important; }.usuarios-table-wrap { overflow:auto; }.usuarios-card table { min-width:850px; }.usuarios-card th { padding:15px 20px!important;background:#f7fafc!important;color:#748398!important; }.usuarios-card td { padding:18px 20px!important; }.usuarios-card tbody tr:hover { background:#f4fbf7!important; }
+@media(max-width:700px){.usuarios-page{padding:28px 18px}.usuarios-header{align-items:flex-start;flex-direction:column}.usuarios-add{width:100%;justify-content:center}.usuarios-toolbar{align-items:stretch;flex-direction:column}.usuarios-search{max-width:none;width:100%}}
+/* Nodix Spectrum */
+.usuarios-add,.roles-add { box-shadow:0 10px 24px rgb(245 158 11 / 24%)!important; }
+.usuarios-card tbody tr:hover { background:#f7f5ff!important; }

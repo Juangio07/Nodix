@@ -1,6 +1,6 @@
 "use strict";
 
-const STORAGE_KEY = "AppBase_roles_frontend_v1";
+const STORAGE_KEY = "Nodix_roles_frontend_v1";
 const MODULES = ["Inicio", "Productos", "Estadísticas", "Usuarios", "Roles", "Auditoría", "Membresía", "Configuración"];
 const PERMISSIONS = ["Ver", "Registrar", "Editar", "Eliminar", "Activar/Inactivar"];
 const tabla = document.getElementById("tablaRoles");

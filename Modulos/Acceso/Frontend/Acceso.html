@@ -1,251 +1,54 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>AppBase | Gestión empresarial</title>
-
-
-    <!-- =====================================================
-         FONT AWESOME
-         ===================================================== -->
-
-    <link
-        rel="stylesheet"
-        href="../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css"
-    >
-
-
-    <!-- =====================================================
-         ESTILOS GENERALES
-         ===================================================== -->
-
-    <link
-        rel="stylesheet"
-        href="../../../Shared/Css/Variables.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="../../../Shared/Css/Global.css"
-    >
-
-
-    <!-- =====================================================
-         ESTILOS DEL ACCESO
-         ===================================================== -->
-
-    <link
-        rel="stylesheet"
-        href="Acceso.css"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nodix | Gestión empresarial</title>
+    <link rel="stylesheet" href="../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../../../Shared/Css/Variables.css">
+    <link rel="stylesheet" href="../../../Shared/Css/Global.css">
+    <link rel="stylesheet" href="Acceso.css">
     <script defer src="../../../Shared/Config/AppConfig.js"></script>
     <script defer src="../../../Shared/Config/FixelarGlobal.js"></script>
-
 </head>
-
-
 <body>
-
-
-    <!-- =====================================================
-         ACCESO
-         ===================================================== -->
-
-    <main class="Acceso">
-
-        <aside class="acceso-brand-panel">
-            <div class="acceso-brand-copy"><span class="eyebrow">GESTIÓN EMPRESARIAL</span><h2>Una forma más clara de mover tu negocio <span>hacia adelante.</span></h2><p>Ventas, inventario, caja y decisiones importantes en un solo lugar.</p></div>
-            <div class="acceso-brand-footer"><span class="brand-status-dot"></span><span>Tu operación, siempre en sincronía</span></div>
-        </aside>
-
-
-        <!-- =================================================
-             TARJETA DE ACCESO
-             ================================================= -->
-
-        <section class="Acceso-card">
-
-
-            <!-- =================================================
-                 MARCA AppBase DINÁMICA
-                 ================================================= -->
-
-            <div class="marca">
-
-                <img
-                    src="../../../Assets/Logos/ImagotipoClaro.png"
-                    alt="AppBase"
-                    class="acceso-imagotipo"
-                >
-
+    <main class="Acceso acceso-redesign">
+        <section class="acceso-showcase acceso-web-hero" aria-label="Nodix">
+            <header class="acceso-showcase-header">
+                <img class="acceso-showcase-logo" src="../../../Assets/Logos/ImagotipoOscuro.png" alt="Nodix">
+                <nav class="acceso-hero-nav" aria-label="Información de Nodix"><span>Producto</span><span>Operación inteligente</span></nav>
+                <span class="acceso-product-pill"><i class="fa-solid fa-sparkles" aria-hidden="true"></i> Plataforma empresarial</span>
+            </header>
+            <div class="acceso-showcase-content">
+                <span class="acceso-kicker">EL CENTRO DE TU OPERACIÓN</span>
+                <h1>Menos fricción.<br><strong>Más claridad.</strong></h1>
+                <p>Nodix reúne la información de tu negocio en una experiencia simple, conectada y preparada para ayudarte a decidir mejor.</p>
+                <div class="acceso-benefits" aria-label="Beneficios de Nodix"><span><i class="fa-solid fa-bolt" aria-hidden="true"></i> Información accionable</span><span><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Todo bajo control</span></div>
             </div>
-
-            <div class="acceso-mobile-intro"><span class="eyebrow">GESTIÓN EMPRESARIAL</span><p>Todo tu negocio, en un solo lugar.</p></div>
-
-
-            <!-- =================================================
-                 ENCABEZADO
-                 ================================================= -->
-
-            <div class="encabezado">
-
-                <h1>
-                    Bienvenido
-                </h1>
-
-                <p>
-                    Gestiona tu negocio con claridad y control.
-                </p>
-
+            <div class="acceso-product-preview" aria-hidden="true">
+                <div class="preview-top"><span class="preview-dot"></span><span class="preview-label">RESUMEN DE OPERACIÓN</span><i class="fa-solid fa-ellipsis" aria-hidden="true"></i></div>
+                <div class="preview-value">$48.260.000 <span>+12,8%</span></div>
+                <div class="preview-caption">Ingresos del mes</div>
+                <div class="preview-chart"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                <div class="preview-footer"><span><b></b> Ventas</span><span><b></b> Operación actualizada</span></div>
             </div>
-
-
-            <!-- =================================================
-                 FORMULARIO
-                 ================================================= -->
-
-            <form
-                id="loginForm"
-                autocomplete="off"
-            >
-
-
-                <!-- =================================================
-                     USUARIO
-                     ================================================= -->
-
-                <div class="campo">
-
-                    <label for="usuario">
-                        Correo electrónico
-                    </label>
-
-
-                    <div class="input-wrAppBaseer">
-
-                        <input
-                            type="text"
-                            id="usuario"
-                            name="usuario"
-                            placeholder="correo@empresa.com"
-                            autocomplete="username"
-                            required
-                        >
-
-                    </div>
-
-                </div>
-
-
-                <!-- =================================================
-                     CONTRASEÑA
-                     ================================================= -->
-
-                <div class="campo">
-
-                    <label for="password">
-                        Contraseña
-                    </label>
-
-
-                    <div class="input-wrAppBaseer password-wrAppBaseer">
-
-
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            placeholder="Ingrese su contraseña"
-                            autocomplete="current-password"
-                            required
-                        >
-
-
-                        <!-- =========================================
-                             MOSTRAR / OCULTAR CONTRASEÑA
-                             ========================================= -->
-
-                        <button
-                            type="button"
-                            id="mostrarPassword"
-                            class="mostrar-password"
-                            aria-label="Mostrar contraseña"
-                            title="Mostrar contraseña"
-                        >
-
-                            <i
-                                class="fa-solid fa-toggle-off"
-                                aria-hidden="true"
-                            ></i>
-
-                        </button>
-
-
-                    </div>
-
-                </div>
-
-
-                <!-- =================================================
-                     BOTÓN INICIAR SESIÓN
-                     ================================================= -->
-
-                <button
-                    type="submit"
-                    class="btn-ingresar"
-                >
-
-                    Iniciar sesión
-
-                </button>
-
-                <div class="acceso-security-note"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><span>Acceso seguro para tu negocio</span></div>
-
-
-            </form>
-
-
-            <!-- =================================================
-                 MENSAJE
-                 ================================================= -->
-
-            <p
-                id="mensaje"
-                class="mensaje"
-                aria-live="polite"
-            ></p>
-
-
-            <!-- =================================================
-                 PIE
-                 ================================================= -->
-
-            <div class="pie-acceso" aria-label="Producto de Fixelar">
-                <span>By</span>
-                <img src="../../../Assets/Logos/ImagotipoClaroFixelar.png" alt="Fixelar" class="pie-acceso-logo">
-            </div>
-
-
+            <footer class="acceso-showcase-footer"><span class="brand-status-dot"></span><span>Tu operación, siempre en sincronía</span></footer>
         </section>
-
+        <section class="acceso-auth-area" aria-labelledby="tituloAcceso">
+            <div class="acceso-auth-card">
+                <div class="acceso-mobile-brand"><img src="../../../Assets/Logos/Logo.png" alt="Nodix"><span>Nodix</span></div>
+                <div class="acceso-auth-heading"><span class="acceso-auth-overline">ACCESO A NODIX</span><h2 id="tituloAcceso">Bienvenido de nuevo</h2><p>Ingresa tus datos para continuar con tu jornada.</p></div>
+                <form id="loginForm" autocomplete="off">
+                    <div class="campo"><label for="usuario">Correo electrónico</label><div class="input-wrNodixer"><i class="fa-regular fa-envelope campo-icono" aria-hidden="true"></i><input type="text" id="usuario" name="usuario" placeholder="correo@empresa.com" autocomplete="username" required></div></div>
+                    <div class="campo"><label for="password">Contraseña</label><div class="input-wrNodixer password-wrNodixer"><i class="fa-solid fa-lock campo-icono" aria-hidden="true"></i><input type="password" id="password" name="password" placeholder="Ingresa tu contraseña" autocomplete="current-password" required><button type="button" id="mostrarPassword" class="mostrar-password" aria-label="Mostrar contraseña" title="Mostrar contraseña"><i class="fa-solid fa-toggle-off" aria-hidden="true"></i></button></div></div>
+                    <button type="submit" class="btn-ingresar"><span>Iniciar sesión</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+                    <div class="acceso-security-note"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><span>Acceso seguro para tu negocio</span></div>
+                </form>
+                <p id="mensaje" class="mensaje" aria-live="polite"></p>
+                <div class="pie-acceso" aria-label="Producto de Fixelar"><span>By</span><img src="../../../Assets/Logos/ImagotipoOscuroFixelar.png" alt="Fixelar" class="pie-acceso-logo"></div>
+            </div>
+        </section>
     </main>
-
-
-    <!-- =====================================================
-         JAVASCRIPT
-         ===================================================== -->
-
     <script src="Acceso.js"></script>
-
-
 </body>
-
 </html>

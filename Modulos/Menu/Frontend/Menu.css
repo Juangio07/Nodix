@@ -1,5 +1,5 @@
 /* ============================================================
-   AppBase
+   Nodix
    DASHBOARD / MENÚ PRINCIPAL
    ============================================================ */
 
@@ -30,7 +30,7 @@ select {
 }
 
 
-.AppBase {
+.Nodix {
 
     width: 100%;
     height: 100vh;
@@ -118,7 +118,7 @@ select {
    LOGO COMPLETO
    ============================================================ */
 
-.logo-AppBase-dinamico {
+.logo-Nodix-dinamico {
 
     display: flex;
 
@@ -134,7 +134,7 @@ select {
    K DINÁMICA
    ============================================================ */
 
-.AppBase-k {
+.Nodix-k {
 
     display: block;
 
@@ -183,7 +183,7 @@ select {
 
 /* K cuando el menú está abierto */
 
-.AppBase-k-grande {
+.Nodix-k-grande {
 
     width: 34px;
     height: 34px;
@@ -191,10 +191,10 @@ select {
 
 
 /* ============================================================
-   PALABRA AppBase BLANCA
+   PALABRA Nodix BLANCA
    ============================================================ */
 
-.AppBase-logotipo-blanco {
+.Nodix-logotipo-blanco {
 
     width: 92px;
 
@@ -225,7 +225,7 @@ select {
 }
 
 
-.AppBase-k-mini {
+.Nodix-k-mini {
 
     width: 40px;
     height: 40px;
@@ -2023,7 +2023,7 @@ select {
 }
 
 
-.table-wrAppBaseer {
+.table-wrNodixer {
 
     width: 100%;
 
@@ -2035,7 +2035,7 @@ select {
 }
 
 
-.table-wrAppBaseer::-webkit-scrollbar {
+.table-wrNodixer::-webkit-scrollbar {
 
     width: 0;
     height: 0;
@@ -2364,9 +2364,13 @@ tbody tr:last-child td {
 }
 
 /* Recursos oficiales: imagotipo expandido y K contraída. */
-.AppBase-imagotipo { width: 154px; height: auto; display: block; object-fit: contain; }
-.AppBase-logo-mini { width: 42px; height: 42px; display: block; object-fit: contain; }
-.sidebar.collapsed .AppBase-logo-mini { width: 40px; height: 40px; }
+.Nodix-imagotipo { width: 154px; height: auto; display: block; object-fit: contain; }
+.Nodix-logo-mini { width: 42px; height: 42px; display: block; object-fit: contain; }
+.sidebar.collapsed .Nodix-logo-mini { width: 40px; height: 40px; }
 #confirmacionModulo .logout-icon { background: var(--danger-light); color: var(--danger); }
 #confirmacionModulo .logout-confirm { background: var(--danger); }
 #confirmacionModulo .logout-confirm:hover { background: color-mix(in srgb, var(--danger) 85%, black); }
+/* Nodix redesign: shell de navegación y dashboard. */
+.Nodix { background:#f5f8fb!important; }.sidebar { background:linear-gradient(180deg,#071426,#0b1e3f)!important;box-shadow:8px 0 30px rgb(7 20 38 / 10%); }.sidebar-nav { padding:18px 14px!important; }.nav-item { margin:4px 0!important;border-radius:10px!important;color:#a9b9ca!important; }.nav-item.active,.nav-item:hover { background:rgb(98 236 30 / 12%)!important;color:#fff!important; }.nav-item.active::before { background:var(--brand-primary-light)!important; }.topbar { height:82px!important;background:#fff!important;border-bottom:1px solid #e3eaf1!important; }.main-content { background:#f5f8fb!important; }.dashboard { padding:38px clamp(22px,4vw,64px)!important; }.dashboard-heading h1 { color:#071426!important;letter-spacing:-.04em; }.stats-grid { gap:16px!important; }.stat-card,.section-card,.panel { border:1px solid #e2e8ef!important;border-radius:16px!important;box-shadow:0 10px 28px rgb(7 20 38 / 5%)!important; }.stat-card { background:#fff!important; }.quick-grid .quick-action { border-radius:12px!important;background:#f8fafc!important; }.panel-header { padding-bottom:18px!important; }.search-box { border-radius:10px!important;background:#f8fafc!important; }.empresa-mini { border-top-color:rgb(255 255 255 / 10%)!important; }
+/* Nodix Spectrum */
+.Nodix { background:#f5f6fb!important; }.sidebar { background:linear-gradient(180deg,#0b1020,#17143a)!important; }.nav-item { color:#a9b2cd!important; }.nav-item.active,.nav-item:hover { background:rgb(245 158 11 / 18%)!important; }.nav-item.active::before { background:#ffc928!important; }.main-content,.dashboard { background:#f5f6fb!important; }.stat-card,.section-card,.panel { border-color:#e2e5f0!important; }.quick-grid .quick-action,.search-box { background:#fafaff!important; }

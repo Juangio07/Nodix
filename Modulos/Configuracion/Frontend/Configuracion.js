@@ -1,6 +1,6 @@
 "use strict";
 
-const STORAGE_KEY = "AppBase_configuracion_empresa_v1";
+const STORAGE_KEY = "Nodix_configuracion_empresa_v1";
 const campos = ["nit", "nombre", "propietario", "telefono", "correo", "ubicacion"];
 const formulario = document.getElementById("formularioEmpresa");
 const logoInput = document.getElementById("logoEmpresa");

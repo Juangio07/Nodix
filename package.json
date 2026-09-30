@@ -1,8 +1,8 @@
 {
-  "name": "AppBase-platform",
+  "name": "Nodix-platform",
   "version": "0.1.0",
   "private": true,
-  "description": "AppBase, aplicación de gestión empresarial desarrollada por Fixelar.",
+  "description": "Nodix, aplicación de gestión empresarial desarrollada por Fixelar.",
   "main": "Electron/main.js",
   "scripts": {
     "start": "electron .",

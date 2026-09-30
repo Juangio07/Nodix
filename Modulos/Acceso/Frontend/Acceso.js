@@ -1,5 +1,5 @@
 /* ============================================================
-   AppBase
+   Nodix
    INTERFAZ DE ACCESO
    ============================================================ */
 
@@ -9,7 +9,7 @@
    ============================================================ */
 
 const STORAGE_KEY =
-    "AppBase_configuracion_empresa_v1";
+    "Nodix_configuracion_empresa_v1";
 
 
 /* ============================================================
@@ -204,7 +204,7 @@ function cargarPersonalizacion() {
     /*
        Si todavía no existe personalización,
        Variables.css mantiene los colores
-       originales de AppBase.
+       originales de Nodix.
     */
 
     if (!configuracionGuardada) {
@@ -419,13 +419,13 @@ function iniciarAcceso() {
        Primero cargamos la personalización.
 
        Esto cambia:
-       - K de AppBase
+       - K de Nodix
        - Botón
        - Focus de inputs
        - Toggle
        - Bordes
        - Resplandores
-       - Texto AppBase inferior
+       - Texto Nodix inferior
     */
 
     cargarPersonalizacion();

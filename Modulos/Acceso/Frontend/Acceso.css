@@ -1,618 +1,477 @@
-/* ============================================================
-   AppBase
-   INTERFAZ DE ACCESO
-   ============================================================ */
+/* =========================================================
+   NODIX / ACCESO
+   Sistema construido sobre Variables.css y Global.css.
+   ========================================================= */
 
+:root {
+    --login-ink: #0b1020;
+    --login-ink-soft: #17143a;
+    --login-line: rgb(11 16 32 / 12%);
+    --login-copy: #637089;
+    --login-surface: #ffffff;
+    --login-field: #f8f9fc;
+    --login-yellow: #ffc928;
+    --login-orange: #f59e0b;
+}
 
-/* ============================================================
-   CONTENEDOR PRINCIPAL
-   ============================================================ */
+body {
+    min-width: 320px;
+    min-height: 100%;
+    overflow-x: hidden;
+    background: var(--login-ink);
+}
 
 .Acceso {
-
-    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(440px, 0.9fr);
     min-height: 100vh;
+    background: var(--login-surface);
+}
 
+/* Panel de marca: mantiene el logo claro legible y reserva una zona estable. */
+.acceso-brand-panel {
+    position: relative;
     display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100vh;
+    padding: clamp(34px, 5vw, 76px);
+    overflow: hidden;
+    color: var(--text-white);
+    background:
+        radial-gradient(circle at 76% 16%, rgb(245 158 11 / 20%) 0 2px, transparent 3px),
+        radial-gradient(circle at 76% 16%, transparent 0 150px, rgb(255 201 40 / 12%) 151px 152px, transparent 153px),
+        linear-gradient(145deg, var(--login-ink) 0%, var(--login-ink-soft) 100%);
+}
 
-    justify-content: center;
+.acceso-brand-panel::before,
+.acceso-brand-panel::after {
+    position: absolute;
+    display: block;
+    content: "";
+    pointer-events: none;
+    border-radius: 50%;
+}
+
+.acceso-brand-panel::before {
+    width: 430px;
+    height: 430px;
+    right: -210px;
+    bottom: -180px;
+    border: 1px solid rgb(255 201 40 / 18%);
+    box-shadow: 0 0 0 34px rgb(255 201 40 / 4%), 0 0 0 68px rgb(255 201 40 / 3%);
+}
+
+.acceso-brand-panel::after {
+    width: 9px;
+    height: 9px;
+    top: 22%;
+    right: 19%;
+    background: var(--login-yellow);
+    box-shadow: 0 0 0 8px rgb(255 201 40 / 12%);
+}
+
+.acceso-brand-copy,
+.acceso-brand-footer {
+    position: relative;
+    z-index: 1;
+}
+
+.acceso-brand-copy {
+    width: min(100%, 560px);
+    margin: auto 0;
+}
+
+.acceso-brand-copy .eyebrow,
+.acceso-mobile-intro .eyebrow {
+    display: inline-flex;
     align-items: center;
-
-    padding: 24px;
-
-    box-sizing: border-box;
-
-    background:
-
-        radial-gradient(
-            circle at 50% 15%,
-            color-mix(
-                in srgb,
-                var(--brand-primary) 11%,
-                transparent
-            ),
-            transparent 32%
-        ),
-
-        linear-gradient(
-            145deg,
-            var(--surface-dark) 0%,
-            var(--surface-graphite) 55%,
-            var(--surface-dark) 100%
-        );
+    gap: 10px;
+    color: var(--login-yellow);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
 }
 
+.acceso-brand-copy .eyebrow::before {
+    width: 28px;
+    height: 2px;
+    content: "";
+    background: var(--login-yellow);
+}
 
-/* ============================================================
-   TARJETA
-   ============================================================ */
+.acceso-brand-copy h2 {
+    max-width: 560px;
+    margin: 24px 0 22px;
+    color: var(--text-white);
+    font-size: clamp(38px, 4.4vw, 66px);
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -0.055em;
+}
 
+.acceso-brand-copy h2 span {
+    color: var(--login-yellow);
+}
+
+.acceso-brand-copy p {
+    max-width: 420px;
+    color: #b8c0d8;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.acceso-brand-footer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #b8c0d8;
+    font-size: 12px;
+}
+
+.brand-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--login-yellow);
+    box-shadow: 0 0 0 5px rgb(255 201 40 / 14%);
+}
+
+/* Panel de formulario: columna estable, sin estirar campos innecesariamente. */
 .Acceso-card {
-
-    width: 100%;
-    max-width: 390px;
-
-    padding:
-        30px
-        32px
-        24px;
-
-    box-sizing: border-box;
-
-    background:
-        rgba(16, 23, 19, 0.96);
-
-    border:
-        1px solid
-        color-mix(
-            in srgb,
-            var(--brand-primary) 18%,
-            transparent
-        );
-
-    border-radius: 20px;
-
-    box-shadow:
-
-        0 25px 70px
-        rgba(0, 0, 0, 0.40),
-
-        0 0 50px
-        color-mix(
-            in srgb,
-            var(--brand-primary) 4%,
-            transparent
-        );
-
-    transition:
-        border-color var(--transition-normal),
-        box-shadow var(--transition-normal);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: min(100%, 560px);
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 56px clamp(28px, 5vw, 82px);
+    background: var(--login-surface);
 }
-
-
-/* ============================================================
-   MARCA
-   ============================================================ */
 
 .marca {
-
-    display: flex;
-
-    justify-content: center;
-    align-items: center;
-
-    margin-bottom: 25px;
-}
-
-
-/* ============================================================
-   LOGO AppBase DINÁMICO
-   ============================================================ */
-
-.marca-AppBase-dinamica {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    gap: 9px;
-
-    white-space: nowrap;
-}
-
-
-/* ============================================================
-   K DINÁMICA
-   ============================================================ */
-
-.AppBase-k-acceso {
-
-    width: 42px;
-    height: 42px;
-
-    display: block;
-
-    flex-shrink: 0;
-
-    background:
-        linear-gradient(
-            135deg,
-            var(--brand-primary-light),
-            var(--brand-primary),
-            var(--brand-primary-hover)
-        );
-
-
-    /* Chrome / Edge / Electron */
-
-    -webkit-mask-image:
-        url("../../../Assets/Iconos/App.png");
-
-    -webkit-mask-repeat:
-        no-repeat;
-
-    -webkit-mask-position:
-        center;
-
-    -webkit-mask-size:
-        contain;
-
-
-    /* Estándar */
-
-    mask-image:
-        url("../../../Assets/Iconos/App.png");
-
-    mask-repeat:
-        no-repeat;
-
-    mask-position:
-        center;
-
-    mask-size:
-        contain;
-}
-
-
-/* ============================================================
-   TEXTO AppBase
-   ============================================================ */
-
-.AppBase-nombre-acceso {
-
-    color:
-        var(--text-white);
-
-    font-size: 25px;
-
-    font-weight: 700;
-
-    letter-spacing:
-        -0.5px;
-}
-
-
-/* ============================================================
-   ENCABEZADO
-   ============================================================ */
-
-.encabezado {
-
-    text-align: center;
-
-    margin-bottom: 27px;
-}
-
-
-.encabezado h1 {
-
-    margin:
-        0
-        0
-        7px;
-
-    color:
-        var(--text-white);
-
-    font-size: 26px;
-
-    font-weight: 700;
-
-    letter-spacing:
-        -0.5px;
-}
-
-
-.encabezado p {
-
-    margin: 0;
-
-    color:
-        #8F9A93;
-
-    font-size: 14px;
-}
-
-
-/* ============================================================
-   CAMPOS
-   ============================================================ */
-
-.campo {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 8px;
-
-    margin-bottom: 17px;
-}
-
-
-.campo label {
-
-    color:
-        #E7ECE8;
-
-    font-size: 13px;
-
-    font-weight: 600;
-}
-
-
-/* ============================================================
-   INPUT WRAppBaseER
-   ============================================================ */
-
-.input-wrAppBaseer {
-
-    position: relative;
-
-    width: 100%;
-}
-
-
-/* ============================================================
-   INPUT
-   ============================================================ */
-
-.campo input {
-
-    width: 100%;
-    height: 46px;
-
-    padding:
-        0 14px;
-
-    box-sizing: border-box;
-
-    background:
-        var(--surface-dark);
-
-    border:
-        1px solid #263029;
-
-    border-radius: 10px;
-
-    color:
-        var(--text-white);
-
-    font-size: 14px;
-
-    outline: none;
-
-    transition:
-        border-color var(--transition-fast),
-        box-shadow var(--transition-fast),
-        background var(--transition-fast);
-}
-
-
-.campo input::placeholder {
-
-    color:
-        var(--text-secondary);
-}
-
-
-.campo input:hover {
-
-    border-color:
-        #364139;
-}
-
-
-.campo input:focus {
-
-    background:
-        #0B100D;
-
-    border-color:
-        var(--brand-primary);
-
-    box-shadow:
-        0 0 0 3px
-        color-mix(
-            in srgb,
-            var(--brand-primary) 12%,
-            transparent
-        );
-}
-
-
-/* ============================================================
-   CONTRASEÑA
-   ============================================================ */
-
-.password-wrAppBaseer input {
-
-    padding-right: 48px;
-}
-
-
-/* ============================================================
-   BOTÓN MOSTRAR / OCULTAR CONTRASEÑA
-   ============================================================ */
-
-.mostrar-password {
-
-    position: absolute;
-
-    top: 50%;
-    right: 8px;
-
-    transform:
-        translateY(-50%);
-
-    width: 36px;
-    height: 36px;
-
-    display: flex;
-
-    justify-content: center;
-    align-items: center;
-
-    padding: 0;
-
-    border: none;
-
-    border-radius: 8px;
-
-    background:
-        transparent;
-
-    color:
-        #8F9A93;
-
-    font-size: 15px;
-
-    cursor: pointer;
-
-    transition:
-        background var(--transition-fast),
-        color var(--transition-fast);
-}
-
-
-.mostrar-password:hover {
-
-    background:
-        color-mix(
-            in srgb,
-            var(--brand-primary) 9%,
-            transparent
-        );
-
-    color:
-        var(--brand-primary-light);
-}
-
-
-/* Contraseña oculta */
-
-.mostrar-password .fa-toggle-off {
-
-    color:
-        #8F9A93;
-}
-
-
-/* Contraseña visible */
-
-.mostrar-password .fa-toggle-on {
-
-    color:
-        var(--brand-primary);
-}
-
-
-/* ============================================================
-   BOTÓN INICIAR SESIÓN
-   ============================================================ */
-
-.btn-ingresar {
-
-    width: 100%;
-    height: 47px;
-
-    margin-top: 5px;
-
-    border: none;
-
-    border-radius: 10px;
-
-    background:
-        linear-gradient(
-            135deg,
-            var(--brand-primary),
-            var(--brand-primary-light)
-        );
-
-    color:
-        var(--brand-on-primary);
-
-    font-size: 14px;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    transition:
-        transform var(--transition-fast),
-        box-shadow var(--transition-fast),
-        filter var(--transition-fast);
-}
-
-
-.btn-ingresar:hover {
-
-    filter:
-        brightness(1.06);
-
-    box-shadow:
-        0 8px 24px
-        color-mix(
-            in srgb,
-            var(--brand-primary) 22%,
-            transparent
-        );
-}
-
-
-.btn-ingresar:active {
-
-    transform:
-        scale(0.985);
-}
-
-
-/* ============================================================
-   MENSAJE
-   ============================================================ */
-
-.mensaje {
-
-    min-height: 20px;
-
-    margin:
-        15px
-        0
-        0;
-
-    text-align: center;
-
-    color:
-        var(--warning);
-
-    font-size: 13px;
-}
-
-
-/* ============================================================
-   PIE
-   ============================================================ */
-
-.pie-acceso {
-
-    margin-top: 18px;
-
-    padding-top: 18px;
-
-    border-top:
-        1px solid rgba(255, 255, 255, 0.06);
-
-    display: flex;
-
-    justify-content: center;
-
-    gap: 5px;
-
-    color:
-        var(--text-secondary);
-
-    font-size: 11px;
-}
-
-
-.pie-acceso strong {
-
-    color:
-        var(--brand-primary);
-
-    font-weight: 600;
-}
-
-
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
-
-@media (max-width: 500px) {
-
-    .Acceso {
-
-        padding: 16px;
-    }
-
-
-    .Acceso-card {
-
-        max-width: 360px;
-
-        padding:
-            26px
-            24px
-            22px;
-    }
-
-
-    .AppBase-k-acceso {
-
-        width: 38px;
-        height: 38px;
-    }
-
-
-    .AppBase-nombre-acceso {
-
-        font-size: 23px;
-    }
+    margin-bottom: 54px;
 }
 
 .acceso-imagotipo {
-    width: min(245px, 78%);
-    height: auto;
     display: block;
+    width: min(206px, 72%);
+    height: auto;
+    max-height: 82px;
+    object-fit: contain;
+    object-position: left center;
+}
+
+.acceso-mobile-intro {
+    display: none;
+}
+
+.encabezado {
+    margin-bottom: 30px;
+}
+
+.encabezado h1 {
+    margin-bottom: 9px;
+    color: var(--login-ink);
+    font-size: clamp(28px, 3vw, 36px);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.045em;
+}
+
+.encabezado p {
+    color: var(--login-copy);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+#loginForm {
+    width: 100%;
+}
+
+.campo {
+    margin-bottom: 20px;
+}
+
+.campo label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--login-ink);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.input-wrNodixer {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 52px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--login-field);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+.input-wrNodixer:focus-within {
+    border-color: var(--brand-primary);
+    background: var(--login-surface);
+    box-shadow: var(--focus-brand);
+}
+
+.campo input {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    padding: 0 15px;
+    border: 0;
+    outline: 0;
+    color: var(--text-primary);
+    font-size: 14px;
+    background: transparent;
+}
+
+.campo input::placeholder {
+    color: var(--text-muted);
+}
+
+.password-wrNodixer input {
+    padding-right: 4px;
+}
+
+.mostrar-password {
+    display: grid;
+    flex: 0 0 46px;
+    place-items: center;
+    width: 46px;
+    height: 100%;
+    border: 0;
+    color: var(--text-light);
+    background: transparent;
+}
+
+.mostrar-password:hover,
+.mostrar-password:focus-visible {
+    color: var(--brand-primary-hover);
+}
+
+.btn-ingresar {
+    width: 100%;
+    height: 52px;
+    margin-top: 8px;
+    border: 0;
+    border-radius: var(--radius-md);
+    color: var(--brand-on-primary);
+    font-size: 14px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-hover));
+    box-shadow: var(--shadow-brand);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.btn-ingresar:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-ingresar:active {
+    transform: translateY(0);
+}
+
+.acceso-security-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 18px;
+    color: var(--text-light);
+    font-size: 11px;
+}
+
+.acceso-security-note i {
+    color: var(--brand-primary);
+}
+
+.mensaje {
+    min-height: 20px;
+    margin-top: 16px;
+    color: var(--danger);
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.pie-acceso {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 38px;
+    color: var(--text-light);
+    font-size: 11px;
+}
+
+.pie-acceso-logo {
+    display: block;
+    width: 78px;
+    height: auto;
+    max-height: 24px;
     object-fit: contain;
 }
 
-.AppBase-k-acceso { object-fit: contain; background: none; mask: none; -webkit-mask: none; }
+@media (max-width: 900px) {
+    .Acceso {
+        grid-template-columns: 1fr;
+    }
 
-/* Composición premium alineada con la identidad oficial de AppBase. */
-.Acceso { gap: clamp(32px, 7vw, 112px); }
-.acceso-brand-panel { width: min(420px, 34vw); min-height: 560px; display: flex; flex-direction: column; justify-content: space-between; color: var(--text-white); }
-.acceso-brand-top { display: flex; align-items: center; gap: 12px; }
-.acceso-brand-mark { width: 38px; height: 38px; display: block; background: linear-gradient(135deg, var(--app-accent-light), var(--app-accent)); -webkit-mask: url("../../../Assets/Iconos/App.png") center / contain no-repeat; mask: url("../../../Assets/Iconos/App.png") center / contain no-repeat; }
-.acceso-brand-name { font-size: 25px; font-weight: 700; letter-spacing: -.6px; }
-.acceso-brand-copy { margin: auto 0; padding: 64px 0; }
-.eyebrow { color: var(--app-accent); font-size: 11px; font-weight: 700; letter-spacing: 2.6px; }
-.acceso-brand-copy h2 { max-width: 410px; margin: 18px 0; font-size: clamp(34px, 3.2vw, 52px); line-height: 1.08; letter-spacing: -1.8px; }
-.acceso-brand-copy h2 span { color: var(--app-accent); }
-.acceso-brand-copy p { max-width: 340px; color: #AFC4DE; font-size: 15px; line-height: 1.7; }
-.acceso-brand-footer { display: flex; align-items: center; gap: 9px; color: #AFC4DE; font-size: 12px; }
-.brand-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--app-accent); box-shadow: 0 0 0 5px color-mix(in srgb, var(--app-accent) 18%, transparent); }
-.acceso-mobile-intro { display: none; }
-.acceso-security-note { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 18px; color: #8FA8C5; font-size: 11px; }
-.acceso-security-note i { color: var(--app-accent); }
-.pie-acceso { align-items: center; gap: 7px; }
-.pie-acceso-logo { width: 72px; height: auto; display: block; object-fit: contain; }
-.Acceso { background: radial-gradient(circle at 50% 15%, color-mix(in srgb, var(--brand-primary) 11%, transparent), transparent 32%), linear-gradient(145deg, var(--login-background-start), var(--login-background-middle) 55%, var(--login-background-end)); }
-.acceso-brand-copy h2 { color: var(--login-title); }
-.acceso-brand-copy h2 span,.eyebrow,.acceso-security-note i { color: var(--login-accent); }
-.acceso-brand-copy p,.acceso-brand-footer,.acceso-mobile-intro p { color: var(--login-muted); }
-.Acceso-card { max-width: 410px; background: linear-gradient(155deg, rgba(15,37,71,.98), rgba(7,20,38,.98)); border-radius: 16px; }
-.AppBase-nombre-acceso { color: var(--text-white); }
-@media (max-width: 880px) { .Acceso { gap: 0; } .acceso-brand-panel { display: none; } .acceso-mobile-intro { display: block; margin: -4px 0 26px; text-align: center; } .acceso-mobile-intro p { margin-top: 8px; color: #AFC4DE; font-size: 13px; } }
+    .acceso-brand-panel {
+        display: none;
+    }
+
+    .Acceso-card {
+        width: min(100%, 560px);
+        padding: 48px clamp(24px, 8vw, 72px);
+    }
+
+    .acceso-mobile-intro {
+        display: block;
+        margin: -18px 0 28px;
+    }
+
+    .acceso-mobile-intro p {
+        margin-top: 8px;
+        color: var(--login-copy);
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .Acceso-card {
+        padding: 32px 22px;
+    }
+
+    .marca {
+        margin-bottom: 42px;
+    }
+
+    .acceso-imagotipo {
+        width: 176px;
+    }
+
+    .encabezado {
+        margin-bottom: 24px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .input-wrNodixer,
+    .btn-ingresar {
+        transition: none;
+    }
+}
+
+/* Composición alternativa: showcase de marca + tarjeta de acceso. */
+.acceso-redesign { grid-template-columns: minmax(0, 1fr) minmax(500px, 0.82fr); background:var(--login-ink); }
+.acceso-showcase { position:relative; display:flex; flex-direction:column; min-height:100vh; padding:42px clamp(34px, 5vw, 82px); overflow:hidden; color:var(--text-white); background:linear-gradient(145deg,#0b1020,#17143a 70%,#211b4a); }
+.acceso-showcase::before { position:absolute; width:520px; height:520px; right:-210px; top:18%; border:1px solid rgb(255 201 40 / 22%); border-radius:50%; content:""; box-shadow:0 0 0 42px rgb(255 201 40 / 5%),0 0 0 84px rgb(255 201 40 / 3%); }
+.acceso-showcase::after { position:absolute; width:11px; height:11px; right:25%; top:24%; border-radius:50%; background:#ffc928; box-shadow:0 0 0 9px rgb(255 201 40 / 14%); content:""; }
+.acceso-showcase-header,.acceso-showcase-content,.acceso-showcase-footer { position:relative; z-index:1; }
+.acceso-showcase-header { display:flex; align-items:center; justify-content:space-between; gap:20px; }
+.acceso-showcase-logo { width:min(178px,42%); height:auto; max-height:66px; object-fit:contain; object-position:left center; }
+.acceso-product-pill { display:inline-flex; align-items:center; gap:8px; padding:9px 12px; border:1px solid rgb(255 255 255 / 12%); border-radius:var(--radius-pill); color:#c8cee0; font-size:11px; }
+.acceso-product-pill i { color:#ffc928; }
+.acceso-showcase-content { width:min(100%,620px); margin:auto 0; }
+.acceso-kicker,.acceso-auth-overline { color:#ffc928; font-size:11px; font-weight:800; letter-spacing:.16em; }
+.acceso-showcase-content h1 { max-width:600px; margin:22px 0 22px; color:#fff; font-size:clamp(42px,5vw,76px); line-height:.98; letter-spacing:-.065em; }
+.acceso-showcase-content h1 strong { color:#ffc928; font-weight:700; }
+.acceso-showcase-content p { max-width:440px; color:#b8c0d8; font-size:16px; line-height:1.7; }
+.acceso-benefits { display:flex; flex-wrap:wrap; gap:10px 24px; margin-top:30px; color:#d8dced; font-size:12px; }.acceso-benefits span { display:inline-flex; align-items:center; gap:8px; }.acceso-benefits i { color:#ffc928; }
+.acceso-showcase-footer { display:flex; align-items:center; gap:10px; color:#b8c0d8; font-size:12px; }
+.acceso-auth-area { display:grid; place-items:center; min-height:100vh; padding:40px clamp(24px,5vw,82px); background:#f5f6fb; }
+.acceso-auth-card { width:min(100%,430px); padding:0; }.acceso-auth-heading { margin-bottom:30px; }.acceso-auth-heading h2 { margin:12px 0 8px; color:#0b1020; font-size:clamp(29px,3vw,38px); letter-spacing:-.05em; }.acceso-auth-heading p { color:#637089; font-size:14px; }
+.acceso-mobile-brand { display:none; }.campo-icono { flex:0 0 18px; margin-left:15px; color:#9aa4b8; font-size:14px; }.input-wrNodixer input { padding-left:11px; }.btn-ingresar { display:flex; align-items:center; justify-content:space-between; padding:0 18px 0 20px; }.btn-ingresar i { font-size:13px; transition:transform var(--transition-fast); }.btn-ingresar:hover i { transform:translateX(3px); }.pie-acceso { margin-top:42px; }
+@media (max-width:900px) { .acceso-redesign { display:block; background:#f5f6fb; }.acceso-showcase { display:none; }.acceso-auth-area { min-height:100vh; }.acceso-mobile-brand { display:flex; align-items:center; gap:9px; margin-bottom:56px; color:#0b1020; font-size:18px; font-weight:800; }.acceso-mobile-brand img { width:34px; height:34px; object-fit:contain; }.acceso-auth-card { width:min(100%,440px); } }
+@media (max-width:480px) { .acceso-auth-area { padding:28px 22px; }.acceso-mobile-brand { margin-bottom:42px; }.acceso-auth-heading { margin-bottom:24px; } }
+
+/* Hero SaaS: identidad de producto, no un panel corporativo convencional. */
+.acceso-web-hero { padding-top:34px; background:radial-gradient(circle at 78% 38%,rgb(112 87 232 / 22%),transparent 28%),linear-gradient(145deg,#090d1a 0%,#12172d 58%,#211b4a 100%); }
+.acceso-web-hero::before { width:620px;height:620px;right:-280px;top:10%;border-color:rgb(255 201 40 / 15%); }
+.acceso-web-hero .acceso-showcase-header { align-items:center; }
+.acceso-web-hero .acceso-showcase-logo { width:150px;max-height:52px; }
+.acceso-hero-nav { display:flex;align-items:center;gap:22px;margin-left:auto;margin-right:22px;color:#9da8c3;font-size:11px; }.acceso-hero-nav span:first-child { color:#fff; }.acceso-hero-nav span:first-child::after { display:inline-block;width:4px;height:4px;margin:0 0 2px 7px;border-radius:50%;content:"";background:#ffc928; }
+.acceso-web-hero .acceso-product-pill { white-space:nowrap; }
+.acceso-web-hero .acceso-showcase-content { margin:clamp(64px,9vh,116px) 0 24px; }.acceso-web-hero .acceso-showcase-content h1 { font-size:clamp(48px,5.4vw,78px);line-height:.94; }.acceso-web-hero .acceso-showcase-content p { max-width:470px;color:#aeb8d2; }
+.acceso-product-preview { position:absolute; z-index:2; right:clamp(34px,6vw,96px); bottom:clamp(92px,13vh,150px); width:min(310px,34%); padding:20px; border:1px solid rgb(255 255 255 / 14%); border-radius:18px; color:#fff; background:linear-gradient(145deg,rgb(35 42 73 / 92%),rgb(20 25 48 / 94%)); box-shadow:0 24px 60px rgb(0 0 0 / 26%),inset 0 1px rgb(255 255 255 / 8%); transform:rotate(-3deg); }
+.preview-top,.preview-footer { display:flex;align-items:center;gap:8px; }.preview-top { color:#8d98b4;font-size:8px;letter-spacing:.1em; }.preview-top i { margin-left:auto;color:#aeb8d2; }.preview-dot { width:7px;height:7px;border-radius:50%;background:#ffc928;box-shadow:0 0 0 4px rgb(255 201 40 / 12%); }.preview-value { margin-top:25px;font-size:25px;font-weight:700;letter-spacing:-.04em; }.preview-value span { margin-left:6px;color:#ffc928;font-size:10px;letter-spacing:0; }.preview-caption { margin-top:4px;color:#8994b0;font-size:10px; }.preview-chart { display:flex;align-items:end;gap:7px;height:70px;margin:20px 0 15px;padding:0 4px;border-bottom:1px solid rgb(255 255 255 / 10%); }.preview-chart i { flex:1;border-radius:4px 4px 0 0;background:linear-gradient(#ffc928,#f59e0b);opacity:.78; }.preview-chart i:nth-child(1){height:30%}.preview-chart i:nth-child(2){height:44%}.preview-chart i:nth-child(3){height:38%}.preview-chart i:nth-child(4){height:64%}.preview-chart i:nth-child(5){height:54%}.preview-chart i:nth-child(6){height:76%}.preview-chart i:nth-child(7){height:68%}.preview-chart i:nth-child(8){height:92%}.preview-footer { justify-content:space-between;color:#8d98b4;font-size:9px; }.preview-footer b { display:inline-block;width:5px;height:5px;margin-right:3px;border-radius:50%;background:#ffc928; }.preview-footer span:last-child b { background:#8b7cff; }
+.acceso-web-hero .acceso-showcase-footer { margin-top:auto; }.acceso-web-hero .acceso-benefits { margin-top:26px; }
+@media (max-width:1100px) { .acceso-product-preview { right:34px;width:270px; }.acceso-hero-nav { display:none; } }
+@media (max-width:900px) { .acceso-product-preview { display:none; } }
+
+/* Nodix Light: composición clara basada en azul noche, blanco y amarillo de marca. */
+.acceso-redesign { grid-template-columns:minmax(0,1.08fr) minmax(470px,.92fr); background:#f8f9fc; }
+.acceso-web-hero { color:#0b1020; background:linear-gradient(120deg,#fffef9 0%,#fcfcf8 50%,#f8f9fc 100%); }
+.acceso-web-hero::before { border-color:rgb(255 201 40 / 24%); box-shadow:0 0 0 42px rgb(255 201 40 / 5%),0 0 0 84px rgb(255 201 40 / 3%); }
+.acceso-web-hero::after { background:#ffc928; box-shadow:0 0 0 9px rgb(255 201 40 / 14%); }
+.acceso-web-hero .acceso-showcase-header { border-bottom:1px solid rgb(11 16 32 / 8%); padding-bottom:22px; }
+.acceso-web-hero .acceso-showcase-logo { width:150px; }
+.acceso-hero-nav { color:#71809a; }.acceso-hero-nav span:first-child { color:#0b1020; }.acceso-product-pill { border-color:rgb(11 16 32 / 10%); color:#637089; }.acceso-product-pill i { color:#c7a400; }
+.acceso-web-hero .acceso-showcase-content h1 { color:#0b1020; }.acceso-web-hero .acceso-showcase-content h1 strong,.acceso-kicker { color:#c7a400; }.acceso-web-hero .acceso-showcase-content p { color:#637089; }.acceso-benefits { color:#526078; }.acceso-benefits i { color:#c7a400; }.acceso-web-hero .acceso-showcase-footer { color:#637089; }.acceso-web-hero .brand-status-dot { background:#ffc928; box-shadow:0 0 0 5px rgb(255 201 40 / 15%); }
+.acceso-product-preview { border-color:rgb(11 16 32 / 10%); color:#0b1020; background:#fff; box-shadow:0 22px 50px rgb(11 16 32 / 12%),0 2px 8px rgb(11 16 32 / 5%); }.preview-top,.preview-footer,.preview-caption { color:#8290a7; }.preview-dot { background:#ffc928; }.preview-chart { border-bottom-color:#e8ebf1; }.preview-chart i { background:linear-gradient(180deg,#ffe27a 0%,#f09a16 100%); }.preview-value span { color:#c7a400; }
+.acceso-auth-area { background:linear-gradient(120deg,#f8f9fc 0%,#fbfbfa 100%); }.acceso-auth-card { padding:34px 38px; border:1px solid rgb(11 16 32 / 7%); border-radius:20px; background:#fff; box-shadow:0 18px 50px rgb(11 16 32 / 7%); }.acceso-auth-heading h2 { color:#0b1020; }.acceso-auth-heading p { color:#71809a; }.acceso-auth-overline { color:#c7a400; }
+.input-wrNodixer { background:#fafbfc; }.btn-ingresar { position:relative; justify-content:center; text-align:center; background:linear-gradient(110deg,#f2c500 0%,#ffd84d 46%,#f09a16 100%); }.btn-ingresar i { position:absolute; right:18px; }.btn-ingresar:hover i { transform:translateX(3px); }
+.pie-acceso { color:#8290a7; }
+@media (max-width:900px) { .acceso-auth-area { background:#f8f9fc; }.acceso-auth-card { border:0;box-shadow:none;padding:0;background:transparent; } }
+@media (max-width:480px) { .btn-ingresar i { right:16px; } }
+
+/* Acceso minimalista: el degradado del isotipo es el único protagonista. */
+.acceso-redesign { grid-template-columns:minmax(0,1.02fr) minmax(430px,.98fr); background:#fafbfc; }
+.acceso-web-hero { padding:38px clamp(30px,5vw,76px); background:#fafbfc; }
+.acceso-web-hero::before { display:none; }.acceso-web-hero::after { top:21%;right:15%;width:8px;height:8px;background:#ffd21a;box-shadow:0 0 0 7px rgb(255 210 26 / 13%); }
+.acceso-web-hero .acceso-showcase-header { padding-bottom:0;border:0; }.acceso-web-hero .acceso-showcase-logo { width:138px;max-height:50px; }.acceso-hero-nav,.acceso-product-pill { display:none; }
+.acceso-web-hero .acceso-showcase-content { width:min(100%,540px);margin:auto 0; }.acceso-web-hero .acceso-showcase-content h1 { margin:18px 0 18px;font-size:clamp(42px,4.7vw,64px);line-height:1.01;letter-spacing:-.06em; }.acceso-web-hero .acceso-showcase-content h1 strong { background:linear-gradient(110deg,#ffd21a 0%,#ffef72 42%,#f09a16 100%);-webkit-background-clip:text;background-clip:text;color:transparent; }.acceso-web-hero .acceso-showcase-content p { max-width:390px;font-size:15px;line-height:1.65; }.acceso-benefits { display:none; }
+.acceso-product-preview { right:clamp(30px,5vw,76px);bottom:clamp(96px,14vh,142px);width:238px;padding:16px;transform:rotate(-2deg);opacity:.92; }.preview-value { margin-top:18px;font-size:21px; }.preview-chart { height:54px;margin:14px 0 12px; }.preview-footer { font-size:8px; }
+.acceso-auth-area { padding:32px clamp(24px,5vw,70px);background:#fafbfc; }.acceso-auth-card { width:min(100%,400px);padding:0;border:0;border-radius:0;box-shadow:none;background:transparent; }.acceso-auth-heading { margin-bottom:26px; }.acceso-auth-heading h2 { margin-top:10px;font-size:32px; }.acceso-auth-heading p { font-size:13px; }.campo { margin-bottom:16px; }.input-wrNodixer { height:50px;border-radius:10px; }.btn-ingresar { height:50px;margin-top:10px;border-radius:10px;box-shadow:0 8px 18px rgb(240 154 22 / 18%); }.acceso-security-note { margin-top:15px; }.pie-acceso { margin-top:34px; }
+@media (max-width:900px) { .acceso-web-hero { display:none; }.acceso-auth-area { background:#fafbfc; }.acceso-auth-card { width:min(100%,400px);padding:0; }.acceso-mobile-brand { margin-bottom:44px; } }
+
+/* Tercera propuesta: bloque de identidad en amarillo-naranja y acceso blanco. */
+.acceso-redesign { grid-template-columns:minmax(0,1fr) minmax(430px,.76fr); background:#fff; }
+.acceso-web-hero { display:flex; padding:34px clamp(30px,5vw,82px); color:#111827; background:linear-gradient(135deg,#fff200 0%,#ffe500 38%,#ff9d00 72%,#ff6a00 100%); }
+.acceso-web-hero::before { display:block; width:460px;height:460px;right:-170px;top:auto;bottom:-190px;border:2px solid rgb(255 255 255 / 34%);box-shadow:0 0 0 34px rgb(255 255 255 / 13%),0 0 0 68px rgb(255 255 255 / 8%); }.acceso-web-hero::after { display:block;top:21%;right:17%;background:#fff;box-shadow:0 0 0 8px rgb(255 255 255 / 20%); }
+.acceso-web-hero .acceso-showcase-header { padding:0;border:0; }.acceso-web-hero .acceso-showcase-logo { width:142px;max-height:48px; }.acceso-hero-nav,.acceso-product-pill { display:none; }
+.acceso-web-hero .acceso-showcase-content { width:min(100%,520px);margin:auto 0; }.acceso-web-hero .acceso-kicker { color:#111827;font-size:10px;letter-spacing:.18em; }.acceso-web-hero .acceso-showcase-content h1 { max-width:510px;margin:20px 0 18px;color:#111827;font-size:clamp(45px,5.2vw,74px);line-height:.96;letter-spacing:-.07em; }.acceso-web-hero .acceso-showcase-content h1 strong { color:#fff; }.acceso-web-hero .acceso-showcase-content p { max-width:380px;color:#302915;font-size:15px;line-height:1.65; }.acceso-benefits { display:none; }.acceso-web-hero .acceso-showcase-footer { color:#302915; }.acceso-web-hero .brand-status-dot { background:#fff;box-shadow:0 0 0 5px rgb(255 255 255 / 24%); }
+.acceso-product-preview { display:none; }
+.acceso-auth-area { display:flex;align-items:center;justify-content:center;padding:44px clamp(28px,6vw,94px);background:#fff; }.acceso-auth-card { width:min(100%,390px);padding:0;border:0;box-shadow:none;background:transparent; }.acceso-auth-heading { margin-bottom:32px; }.acceso-auth-overline { color:#ff6a00; }.acceso-auth-heading h2 { margin-top:10px;color:#111827;font-size:34px; }.acceso-auth-heading p { color:#667085; }.input-wrNodixer { height:52px;border-radius:11px;background:#fafafa; }.input-wrNodixer:focus-within { border-color:#ffb000;box-shadow:0 0 0 4px rgb(255 174 0 / 15%); }.campo-icono { color:#a1a8b5; }.btn-ingresar { height:52px;border-radius:11px;background:linear-gradient(110deg,#ffe500 0%,#ffd900 42%,#ff6a00 100%);box-shadow:0 10px 22px rgb(255 106 0 / 16%);color:#111827; }.btn-ingresar:hover { background:linear-gradient(110deg,#ffe500 0%,#ffcf00 42%,#ff6a00 100%); }.acceso-security-note i { color:#ff6a00; }.pie-acceso { margin-top:42px; }
+@media (max-width:900px) { .acceso-redesign { display:block;background:#fff; }.acceso-web-hero { display:none; }.acceso-auth-area { min-height:100vh;padding:34px 24px; }.acceso-auth-card { width:min(100%,390px); }.acceso-mobile-brand { margin-bottom:48px; }.acceso-mobile-brand span { color:#111827; }.acceso-mobile-brand img { width:36px;height:36px; } }
+
+/* Nodix Professional: blanco, gris frío y un solo acento de marca. */
+.acceso-redesign { grid-template-columns:minmax(0,1fr) minmax(430px,.78fr); background:#fff; }
+.acceso-web-hero { display:flex; padding:40px clamp(34px,6vw,96px); color:#172033; background:#f7f8fa; }
+.acceso-web-hero::before { display:none; }.acceso-web-hero::after { top:19%;right:16%;width:7px;height:7px;background:#ffe500;box-shadow:0 0 0 6px rgb(255 229 0 / 15%); }
+.acceso-web-hero .acceso-showcase-header { padding:0 0 24px;border-bottom:1px solid #e8ebf0; }.acceso-web-hero .acceso-showcase-logo { width:136px;max-height:46px; }.acceso-hero-nav,.acceso-product-pill { display:none; }
+.acceso-web-hero .acceso-showcase-content { width:min(100%,500px);margin:auto 0; }.acceso-web-hero .acceso-kicker { color:#667085;font-size:10px;letter-spacing:.17em; }.acceso-web-hero .acceso-showcase-content h1 { max-width:480px;margin:20px 0 16px;color:#172033;font-size:clamp(42px,4.7vw,64px);line-height:1.02;letter-spacing:-.06em; }.acceso-web-hero .acceso-showcase-content h1 strong { color:#d7b900; }.acceso-web-hero .acceso-showcase-content p { max-width:370px;color:#667085;font-size:14px;line-height:1.7; }.acceso-benefits { display:none; }.acceso-web-hero .acceso-showcase-footer { color:#8a94a6; }.acceso-web-hero .brand-status-dot { width:7px;height:7px;background:#ffe500;box-shadow:0 0 0 4px rgb(255 229 0 / 15%); }
+.acceso-auth-area { display:flex;align-items:center;justify-content:center;padding:48px clamp(28px,6vw,90px);background:#fff; }.acceso-auth-card { width:min(100%,380px);padding:0;border:0;box-shadow:none;background:transparent; }.acceso-auth-heading { margin-bottom:30px; }.acceso-auth-overline { color:#8a7600;font-size:10px; }.acceso-auth-heading h2 { margin-top:10px;color:#172033;font-size:32px; }.acceso-auth-heading p { color:#727c8e;font-size:13px; }.campo { margin-bottom:17px; }.campo label { color:#344054; }.input-wrNodixer { height:50px;border-color:#dfe3e9;border-radius:9px;background:#fff; }.input-wrNodixer:focus-within { border-color:#e1c900;box-shadow:0 0 0 3px rgb(255 229 0 / 16%); }.btn-ingresar { height:50px;margin-top:9px;border-radius:9px;background:linear-gradient(105deg,#ffe500 0%,#ffd82a 70%,#ff9a3d 100%);box-shadow:0 7px 15px rgb(255 174 0 / 13%);color:#172033;font-size:13px; }.btn-ingresar:hover { background:linear-gradient(105deg,#ffe500 0%,#ffd82a 70%,#ff9a3d 100%); }.acceso-security-note { color:#98a2b3; }.acceso-security-note i { color:#b29c00; }.pie-acceso { margin-top:40px;color:#98a2b3; }
+@media (max-width:900px) { .acceso-redesign { background:#fff; }.acceso-web-hero { display:none; }.acceso-auth-area { min-height:100vh;padding:36px 24px; }.acceso-auth-card { width:min(100%,380px); }.acceso-mobile-brand { margin-bottom:48px; } }
+
+/* Nodix Control: composición SaaS profesional con preview del producto. */
+body { background:#edf1f5; }
+.acceso-redesign { grid-template-columns:minmax(0,1.18fr) minmax(450px,.82fr); gap:18px; padding:18px; background:#edf1f5; }
+.acceso-web-hero { min-height:calc(100vh - 36px); padding:30px clamp(30px,4vw,64px); border:1px solid #e0e5eb; border-radius:22px; background:#fff; box-shadow:0 12px 32px rgb(16 24 40 / 5%); }
+.acceso-web-hero::before { display:block; width:420px;height:420px;right:-160px;top:-120px;border:1px solid rgb(255 229 0 / 25%);box-shadow:0 0 0 32px rgb(255 229 0 / 6%),0 0 0 64px rgb(255 229 0 / 3%); }.acceso-web-hero::after { top:28%;right:18%;background:#ffe500;box-shadow:0 0 0 7px rgb(255 229 0 / 14%); }
+.acceso-web-hero .acceso-showcase-header { padding:0; border:0; }.acceso-web-hero .acceso-showcase-logo { width:142px;max-height:48px; }.acceso-hero-nav { display:flex; }.acceso-product-pill { display:inline-flex; border-color:#e6e9ee; background:#fafbfc; }.acceso-product-pill i { color:#ff9a3d; }
+.acceso-web-hero .acceso-showcase-content { margin:clamp(50px,8vh,92px) 0 30px; }.acceso-web-hero .acceso-kicker { color:#7a8495; }.acceso-web-hero .acceso-showcase-content h1 { max-width:590px;margin:18px 0 18px;color:#172033;font-size:clamp(46px,5vw,74px);line-height:.96;letter-spacing:-.07em; }.acceso-web-hero .acceso-showcase-content h1 strong { background:linear-gradient(110deg,#ffe500 0%,#ffd52a 52%,#ff8d32 100%);-webkit-background-clip:text;background-clip:text;color:transparent; }.acceso-web-hero .acceso-showcase-content p { max-width:430px;color:#667085;font-size:15px;line-height:1.65; }.acceso-benefits { display:flex;gap:18px;margin-top:25px;color:#526078;font-size:11px; }.acceso-benefits i { color:#ff9a3d; }
+.acceso-product-preview { display:block; position:relative; right:auto;bottom:auto;width:min(100%,360px);margin:0 0 0 auto;padding:18px;transform:rotate(-1deg);border:1px solid #e5e9ef;background:#fbfcfd;box-shadow:0 18px 42px rgb(16 24 40 / 10%); }.preview-value { font-size:24px; }.preview-chart { height:56px; }.preview-footer { color:#8994a5; }.acceso-web-hero .acceso-showcase-footer { margin-top:auto; color:#8a94a6; }
+.acceso-auth-area { min-height:calc(100vh - 36px); padding:30px clamp(24px,4vw,60px); border:1px solid #e0e5eb; border-radius:22px; background:#fff; box-shadow:0 12px 32px rgb(16 24 40 / 5%); }.acceso-auth-card { width:min(100%,380px);padding:0; }.acceso-mobile-brand { display:none; }.acceso-auth-heading { margin-bottom:32px; }.acceso-auth-overline { color:#8a7600;letter-spacing:.14em; }.acceso-auth-heading h2 { margin-top:11px;font-size:34px;letter-spacing:-.055em; }.acceso-auth-heading p { margin-top:8px;color:#737d8e; }.campo { margin-bottom:18px; }.campo label { margin-bottom:8px;color:#344054; }.input-wrNodixer { height:52px;border-radius:10px;background:#fbfcfd; }.input-wrNodixer:focus-within { border-color:#f0c900;box-shadow:0 0 0 4px rgb(255 229 0 / 15%); }.btn-ingresar { height:52px;margin-top:10px;border-radius:10px;background:linear-gradient(105deg,#ffe500 0%,#ffd62e 55%,#ff9737 100%);box-shadow:0 10px 20px rgb(255 151 55 / 17%); }.btn-ingresar:hover { background:linear-gradient(105deg,#ffe500 0%,#ffd62e 55%,#ff9737 100%); }.acceso-security-note { margin-top:16px; }.pie-acceso { margin-top:46px; }
+@media (max-width:1100px) { .acceso-hero-nav { display:none; }.acceso-product-preview { width:min(100%,310px); } }
+@media (max-width:900px) { .acceso-redesign { display:block;padding:0;background:#fff; }.acceso-web-hero { display:none; }.acceso-auth-area { min-height:100vh;border:0;border-radius:0;box-shadow:none; }.acceso-mobile-brand { display:flex; } }
+
+/* Ajustes finales de identidad Nodix. */
+.acceso-web-hero .acceso-showcase-logo { width:178px;max-height:60px; }
+.acceso-auth-overline { color:#ff6a00; }
+.btn-ingresar { color:#fff; }.btn-ingresar i { color:#fff; }
+
+/* Corrección cromática: elimina dorados residuales y concentra el naranja en acciones. */
+.acceso-auth-overline { color:#ff6a00!important; }
+.acceso-web-hero .acceso-kicker { color:#667085!important; }
+.acceso-web-hero .acceso-showcase-content h1 strong { color:#ff6a00; background:linear-gradient(110deg,#ffe500 0%,#fff1a8 45%,#ff6a00 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent; }
+.acceso-product-pill i,.acceso-benefits i,.acceso-security-note i { color:#ff6a00!important; }
+.input-wrNodixer:focus-within { border-color:#ffcf00!important; box-shadow:0 0 0 4px rgb(255 207 0 / 16%)!important; }

@@ -1,5 +1,5 @@
 /* ============================================================
-   AppBase
+   Nodix
    DASHBOARD / MENÚ PRINCIPAL
    ============================================================ */
 
@@ -9,7 +9,7 @@
    ============================================================ */
 
 const STORAGE_KEY =
-    "AppBase_configuracion_empresa_v1";
+    "Nodix_configuracion_empresa_v1";
 
 
 /* ============================================================
@@ -409,7 +409,7 @@ function cargarPersonalizacion() {
 
     /*
        Si todavía no existe configuración,
-       AppBase conserva sus valores predeterminados.
+       Nodix conserva sus valores predeterminados.
     */
 
     if (!configuracionGuardada) {

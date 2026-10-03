@@ -12,6 +12,7 @@ const inventoryApi = window.NodixInventoryScope;
 const currencyApi = window.NodixCurrencyInput;
 
 const productSearch = document.getElementById("productSearch");
+const categorySelect = document.getElementById("categorySelect");
 const productSelect = document.getElementById("productSelect");
 const productPreview = document.getElementById("productPreview");
 const productEmpty = document.getElementById("productEmpty");
@@ -30,6 +31,7 @@ let articles = [];
 let clients = [];
 let sales = [];
 let cart = [];
+let selectedCategoryId = "";
 let selectedArticleId = "";
 let toastTimer;
 
@@ -62,15 +64,28 @@ function reloadData() {
     sales = records(SALE_KEY, SALE_LEGACY_KEY).map(normalizeSale).sort((first, second) => String(second.fecha).localeCompare(String(first.fecha)));
 }
 
+function renderCategoryOptions() {
+    const activeCategories = categories.filter(category => category.estado === "active");
+    categorySelect.innerHTML = `<option value="">${activeCategories.length ? "Selecciona una categoría" : "No hay categorías activas"}</option>${activeCategories.map(category => `<option value="${safe(category.id)}">${safe(category.nombre || "Sin nombre")}</option>`).join("")}`;
+    categorySelect.value = selectedCategoryId;
+    categorySelect.disabled = !activeCategories.length;
+}
+
 function renderProductOptions() {
     const query = productSearch.value.trim().toLowerCase();
-    const activeArticles = articles.filter(article => article.estado === "active" && `${article.codigo} ${article.descripcion} ${categoryName(article.categoriaId)}`.toLowerCase().includes(query));
-    productSelect.innerHTML = `<option value="">${activeArticles.length ? "Selecciona un artículo" : "No hay artículos disponibles"}</option>${activeArticles.map(article => `<option value="${safe(article.id)}" ${article.stock <= 0 ? "disabled" : ""}>${safe(article.codigo || "Sin código")} · ${safe(article.descripcion || "Sin descripción")} · ${money(article.precioVenta)} · ${number(article.stock)} disp.</option>`).join("")}`;
+    const activeArticles = articles.filter(article => article.estado === "active" && article.categoriaId === selectedCategoryId && `${article.codigo} ${article.descripcion}`.toLowerCase().includes(query));
+    const categoryReady = Boolean(selectedCategoryId);
+    productSearch.disabled = !categoryReady;
+    productSearch.placeholder = categoryReady ? "Escribe código o descripción..." : "Selecciona una categoría primero...";
+    productSelect.innerHTML = `<option value="">${!categoryReady ? "Primero selecciona una categoría" : activeArticles.length ? "Selecciona un artículo" : "No hay artículos en esta categoría"}</option>${activeArticles.map(article => `<option value="${safe(article.id)}" ${article.stock <= 0 ? "disabled" : ""}>${safe(article.codigo || "Sin código")} · ${safe(article.descripcion || "Sin descripción")} · ${money(article.precioVenta)} · ${number(article.stock)} disp.</option>`).join("")}`;
     if (selectedArticleId && activeArticles.some(article => article.id === selectedArticleId && article.stock > 0)) productSelect.value = selectedArticleId;
     else { selectedArticleId = ""; productSelect.value = ""; }
     document.getElementById("availableReferences").textContent = articles.filter(article => article.estado === "active" && article.stock > 0).length;
-    productEmpty.hidden = articles.some(article => article.estado === "active" && article.stock > 0);
-    productSelect.disabled = !activeArticles.length;
+    const availableInCategory = activeArticles.some(article => article.stock > 0);
+    productEmpty.hidden = !categoryReady || availableInCategory;
+    if (categoryReady && !activeArticles.length) productEmpty.innerHTML = '<i class="fa-solid fa-box-open" aria-hidden="true"></i><strong>Esta categoría aún no tiene artículos</strong><span>Crea un artículo desde el módulo Artículos y asígnalo a esta categoría.</span>';
+    else if (categoryReady && !availableInCategory) productEmpty.innerHTML = '<i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i><strong>Sin stock disponible</strong><span>Registra mercancía para los artículos de esta categoría antes de venderlos.</span>';
+    productSelect.disabled = !categoryReady || !activeArticles.length;
     renderSelectedProduct();
 }
 
@@ -109,7 +124,7 @@ function renderRecentSales() {
     document.getElementById("recentSales").innerHTML = recent.map(sale => `<div class="recent-item"><div><strong>${safe(sale.numero)}</strong><small>${safe(dateLabel(sale.fecha))} · ${safe(sale.tipo)}</small></div><div><strong>${safe(sale.clienteNombre || "Consumidor final")}</strong><small>${number(sale.items.reduce((sum, line) => sum + line.cantidad, 0))} productos · ${safe(sale.metodoPago)}</small></div><strong class="recent-total">${money(sale.total)}</strong><span class="recent-status">Confirmada</span></div>`).join("");
 }
 
-function resetInvoice() { cart = []; selectedArticleId = ""; productSearch.value = ""; productQuantity.value = "1"; productMessage.textContent = ""; formMessage.textContent = ""; clientSelect.value = ""; document.getElementById("invoiceType").value = "Venta de mostrador"; document.getElementById("paymentMethod").value = "Efectivo"; document.getElementById("invoiceNumber").textContent = "Nueva"; renderProductOptions(); renderCart(); }
+function resetInvoice() { cart = []; selectedCategoryId = ""; selectedArticleId = ""; productSearch.value = ""; productQuantity.value = "1"; productMessage.textContent = ""; formMessage.textContent = ""; clientSelect.value = ""; document.getElementById("invoiceType").value = "Venta de mostrador"; document.getElementById("paymentMethod").value = "Efectivo"; document.getElementById("invoiceNumber").textContent = "Nueva"; renderCategoryOptions(); renderProductOptions(); renderCart(); }
 function addSelectedProduct() {
     const article = articles.find(item => item.id === selectedArticleId);
     const quantity = Math.floor(Number(productQuantity.value) || 0);
@@ -162,6 +177,7 @@ function confirmCurrentSale() {
 
 function showToast(text) { clearTimeout(toastTimer); toast.textContent = text; toast.classList.add("show"); toastTimer = setTimeout(() => toast.classList.remove("show"), 2500); }
 
+categorySelect.addEventListener("change", () => { selectedCategoryId = categorySelect.value; selectedArticleId = ""; productSearch.value = ""; productQuantity.value = "1"; productMessage.textContent = ""; renderProductOptions(); });
 productSearch.addEventListener("input", renderProductOptions);
 productSelect.addEventListener("change", () => { selectedArticleId = productSelect.value; productQuantity.value = "1"; renderSelectedProduct(); });
 productQuantity.addEventListener("input", () => { const article = articles.find(item => item.id === selectedArticleId); if (article) productQuantity.value = String(Math.min(Math.max(Math.floor(Number(productQuantity.value) || 1), 1), Math.max(article.stock, 1))); });
@@ -173,6 +189,7 @@ document.getElementById("newSale").addEventListener("click", resetInvoice);
 
 reloadData();
 renderClients();
+renderCategoryOptions();
 renderProductOptions();
 renderCart();
 renderRecentSales();

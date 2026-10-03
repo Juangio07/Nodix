@@ -40,8 +40,9 @@
             <span class="inventory-badge"><i class="fa-solid fa-cubes" aria-hidden="true"></i><b id="availableReferences">0</b> referencias activas</span>
           </div>
           <div class="product-picker">
-            <label class="field field-search"><span>Buscar artículo</span><div class="input-with-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="productSearch" type="search" autocomplete="off" placeholder="Escribe código o descripción..."></div></label>
-            <label class="field field-product"><span>Artículo <b>*</b></span><select id="productSelect" required><option value="">Selecciona un artículo</option></select></label>
+            <label class="field field-category"><span>1. Categoría <b>*</b></span><select id="categorySelect" required><option value="">Selecciona una categoría</option></select></label>
+            <label class="field field-product"><span>2. Artículo <b>*</b></span><select id="productSelect" required disabled><option value="">Primero selecciona una categoría</option></select></label>
+            <label class="field field-search"><span>Buscar dentro de la categoría</span><div class="input-with-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="productSearch" type="search" autocomplete="off" placeholder="Selecciona una categoría primero..." disabled></div></label>
           </div>
           <div class="product-preview" id="productPreview" hidden>
             <div class="product-icon"><i class="fa-solid fa-box-open" aria-hidden="true"></i></div>

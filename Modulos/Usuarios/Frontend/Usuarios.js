@@ -10,6 +10,7 @@ const emptyTitle = document.getElementById("emptyTitle");
 const emptyText = document.getElementById("emptyText");
 const search = document.getElementById("searchUsers");
 const statusFilter = document.getElementById("statusFilter");
+const roleSelect = document.getElementById("idRol");
 const message = document.getElementById("formMessage");
 const toast = document.getElementById("toast");
 let users = readUsers();
@@ -25,11 +26,52 @@ function readUsers() {
     }
 }
 
+function readRoles() {
+    try {
+        const stored = JSON.parse(localStorage.getItem("Nodix_roles_v1") || "[]");
+        return Array.isArray(stored) ? stored.map(role => ({
+            id: String(role.id || role.idRol || "").trim(),
+            nombre: String(role.nombre || "").trim(),
+            estado: role.estado === "inactive" ? "inactive" : "active"
+        })).filter(role => role.id && role.nombre) : [];
+    } catch {
+        return [];
+    }
+}
+
+function findRole(reference, roles = readRoles()) {
+    const value = String(reference || "").trim().toLowerCase();
+    return roles.find(role => role.id.toLowerCase() === value || role.nombre.toLowerCase() === value) || null;
+}
+
+function renderRoleOptions(selectedReference = roleSelect.value) {
+    const roles = readRoles();
+    const selectedRole = findRole(selectedReference, roles);
+    const availableRoles = roles.filter(role => role.estado === "active");
+    if (selectedRole && !availableRoles.some(role => role.id === selectedRole.id)) availableRoles.unshift(selectedRole);
+    availableRoles.sort((first, second) => first.nombre.localeCompare(second.nombre, "es"));
+    roleSelect.innerHTML = "<option value=\"\">Selecciona un rol</option>";
+    availableRoles.forEach(role => {
+        const option = document.createElement("option");
+        option.value = role.id;
+        option.textContent = role.estado === "inactive" ? `${role.nombre} (Inactivo)` : role.nombre;
+        roleSelect.appendChild(option);
+    });
+    if (!availableRoles.length) {
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "No hay roles creados";
+        option.disabled = true;
+        roleSelect.appendChild(option);
+    }
+    if (selectedRole) roleSelect.value = selectedRole.id;
+}
+
 function normalizeUser(user) {
     const name = String(user.nombre || "").trim();
     return {
         idUsuario: String(user.idUsuario || `USR-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`),
-        idRol: String(user.idRol || "Sin rol"),
+        idRol: String(user.idRol || ""),
         documento: String(user.documento || ""),
         nombre: name,
         telefono: String(user.telefono || ""),
@@ -64,7 +106,7 @@ function filteredUsers() {
 function render() {
     const visibleUsers = filteredUsers();
     const activeCount = users.filter(user => user.estado === "active").length;
-    const roleCount = new Set(users.map(user => user.idRol).filter(role => role && role !== "Sin rol")).size;
+    const roleCount = new Set(users.map(user => user.idRol).filter(Boolean)).size;
     document.getElementById("totalUsers").textContent = users.length;
     document.getElementById("activeUsers").textContent = activeCount;
     document.getElementById("usedRoles").textContent = roleCount;
@@ -74,7 +116,7 @@ function render() {
         <td><div class="person-cell"><span class="avatar">${escapeHtml(initials(user.nombre))}</span><span><strong>${escapeHtml(user.nombre || "Sin nombre")}</strong><small>@${escapeHtml(user.usuario || "sin-usuario")}</small></span></div></td>
         <td class="document-cell">${escapeHtml(user.documento || "—")}</td>
         <td class="phone-cell">${escapeHtml(user.telefono || "—")}</td>
-        <td><span class="role-pill">${escapeHtml(user.idRol || "Sin rol")}</span></td>
+        <td><span class="role-pill">${escapeHtml((findRole(user.idRol) || {}).nombre || user.idRol || "Sin rol")}</span></td>
         <td><span class="status-pill ${user.estado === "inactive" ? "inactive" : ""}">${user.estado === "inactive" ? "Inactivo" : "Activo"}</span></td>
         <td><div class="row-actions"><button class="icon-button" type="button" data-action="edit" data-id="${escapeHtml(user.idUsuario)}" title="Editar usuario" aria-label="Editar usuario"><i class="fa-solid fa-pen" aria-hidden="true"></i></button><button class="icon-button" type="button" data-action="toggle" data-id="${escapeHtml(user.idUsuario)}" title="${user.estado === "inactive" ? "Activar usuario" : "Desactivar usuario"}" aria-label="${user.estado === "inactive" ? "Activar usuario" : "Desactivar usuario"}"><i class="fa-solid fa-power-off" aria-hidden="true"></i></button><button class="icon-button" type="button" data-action="delete" data-id="${escapeHtml(user.idUsuario)}" title="Eliminar usuario" aria-label="Eliminar usuario"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></div></td>
       </tr>`).join("");
@@ -108,10 +150,11 @@ function resetForm() {
 
 function openDialog(user) {
     resetForm();
+    renderRoleOptions(user ? user.idRol : "");
     if (user) {
         editingId = user.idUsuario;
         document.getElementById("dialogTitle").textContent = "Editar usuario";
-        fields.forEach(field => { if (field !== "contrasena") document.getElementById(field).value = user[field] || ""; });
+        fields.forEach(field => { if (field !== "contrasena" && field !== "idRol") document.getElementById(field).value = user[field] || ""; });
         document.getElementById("contrasena").required = false;
         document.getElementById("contrasena").placeholder = "Dejar vacía para conservarla";
     }
@@ -178,4 +221,5 @@ form.addEventListener("submit", event => {
     showToast(current ? "Usuario actualizado" : "Usuario creado");
 });
 
+renderRoleOptions();
 render();

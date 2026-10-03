@@ -31,3 +31,7 @@ html,body,.nodix-app{height:100%;max-height:100%;overflow:hidden!important}.work
 .side-workspace>span.has-logo img{display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;object-position:center!important;border-radius:inherit!important;background:#fff!important}
 /* El iframe ocupa únicamente el espacio bajo la barra superior; el scroll queda dentro del módulo. */
 #moduleFrame.active:not([hidden]){flex:1 1 auto!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:hidden!important}
+/* El panel lateral y la barra superior comparten una misma superficie visual. */
+.side{border:0!important;box-shadow:none!important}
+.workspace-main{border-left:0!important}
+.main-top{border-bottom:0!important;box-shadow:none!important}

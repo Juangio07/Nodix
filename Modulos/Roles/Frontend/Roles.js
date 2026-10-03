@@ -64,7 +64,7 @@ function render() {
         <td class="document-cell">${escapeHtml(role.descripcion || "Sin descripción")}</td>
         <td><span class="role-pill"><i class="fa-solid fa-user-group" aria-hidden="true"></i> ${assignedTo(role)}</span></td>
         <td><span class="status-pill ${role.estado === "inactive" ? "inactive" : ""}">${role.estado === "inactive" ? "Inactivo" : "Activo"}</span></td>
-        <td><div class="row-actions"><button class="icon-button" type="button" data-action="edit" data-id="${escapeHtml(role.id)}" title="Editar rol" aria-label="Editar rol"><i class="fa-solid fa-pen" aria-hidden="true"></i></button><button class="icon-button" type="button" data-action="toggle" data-id="${escapeHtml(role.id)}" title="Cambiar estado" aria-label="Cambiar estado"><i class="fa-solid fa-power-off" aria-hidden="true"></i></button></div></td>
+        <td><div class="row-actions"><button class="icon-button" type="button" data-action="edit" data-id="${escapeHtml(role.id)}" title="Editar rol" aria-label="Editar rol"><i class="fa-solid fa-pen" aria-hidden="true"></i></button><button class="icon-button" type="button" data-action="toggle" data-id="${escapeHtml(role.id)}" title="${role.estado === "inactive" ? "Activar rol" : "Desactivar rol"}" aria-label="${role.estado === "inactive" ? "Activar rol" : "Desactivar rol"}"><i class="fa-solid fa-power-off" aria-hidden="true"></i></button><button class="icon-button" type="button" data-action="delete" data-id="${escapeHtml(role.id)}" title="Eliminar rol" aria-label="Eliminar rol"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></div></td>
       </tr>`).join("");
     const hasRows = visibleRoles.length > 0;
     emptyState.hidden = hasRows;
@@ -96,6 +96,14 @@ rows.addEventListener("click", event => {
     if (!role) return;
     if (button.dataset.action === "edit") openDialog(role);
     if (button.dataset.action === "toggle") { role.estado = role.estado === "active" ? "inactive" : "active"; persist(); render(); showToast(role.estado === "active" ? "Rol activado" : "Rol desactivado"); }
+    if (button.dataset.action === "delete") {
+        if (assignedTo(role) > 0) { showToast("No puedes eliminar un rol con usuarios asignados."); return; }
+        if (!window.confirm(`¿Eliminar el rol ${role.nombre || "seleccionado"}?`)) return;
+        roles = roles.filter(item => item.id !== role.id);
+        persist();
+        render();
+        showToast("Rol eliminado");
+    }
 });
 
 function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(roles)); }

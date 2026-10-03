@@ -76,7 +76,7 @@ function render() {
         <td class="phone-cell">${escapeHtml(user.telefono || "—")}</td>
         <td><span class="role-pill">${escapeHtml(user.idRol || "Sin rol")}</span></td>
         <td><span class="status-pill ${user.estado === "inactive" ? "inactive" : ""}">${user.estado === "inactive" ? "Inactivo" : "Activo"}</span></td>
-        <td><div class="row-actions"><button class="icon-button" type="button" data-action="edit" data-id="${escapeHtml(user.idUsuario)}" title="Editar usuario" aria-label="Editar usuario"><i class="fa-solid fa-pen" aria-hidden="true"></i></button><button class="icon-button" type="button" data-action="toggle" data-id="${escapeHtml(user.idUsuario)}" title="Cambiar estado" aria-label="Cambiar estado"><i class="fa-solid fa-power-off" aria-hidden="true"></i></button></div></td>
+        <td><div class="row-actions"><button class="icon-button" type="button" data-action="edit" data-id="${escapeHtml(user.idUsuario)}" title="Editar usuario" aria-label="Editar usuario"><i class="fa-solid fa-pen" aria-hidden="true"></i></button><button class="icon-button" type="button" data-action="toggle" data-id="${escapeHtml(user.idUsuario)}" title="${user.estado === "inactive" ? "Activar usuario" : "Desactivar usuario"}" aria-label="${user.estado === "inactive" ? "Activar usuario" : "Desactivar usuario"}"><i class="fa-solid fa-power-off" aria-hidden="true"></i></button><button class="icon-button" type="button" data-action="delete" data-id="${escapeHtml(user.idUsuario)}" title="Eliminar usuario" aria-label="Eliminar usuario"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></div></td>
       </tr>`).join("");
     const hasRows = visibleUsers.length > 0;
     emptyState.hidden = hasRows;
@@ -152,6 +152,12 @@ rows.addEventListener("click", event => {
         persist();
         render();
         showToast(user.estado === "active" ? "Usuario activado" : "Usuario desactivado");
+    }
+    if (button.dataset.action === "delete" && window.confirm(`¿Eliminar al usuario ${user.nombre || "seleccionado"}?`)) {
+        users = users.filter(item => item.idUsuario !== user.idUsuario);
+        persist();
+        render();
+        showToast("Usuario eliminado");
     }
 });
 

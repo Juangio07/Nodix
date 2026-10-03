@@ -20,8 +20,17 @@
 
     function readScoped(key, legacyKey) {
         const business = getBusiness();
-        const stored = parse(localStorage.getItem(key) || "{}", {});
-        let records = Array.isArray(stored[business.id]) ? stored[business.id] : [];
+        const storedValue = parse(localStorage.getItem(key) || "{}", {});
+        const stored = storedValue && typeof storedValue === "object" ? storedValue : {};
+        let records = Array.isArray(stored)
+            ? stored
+            : (Array.isArray(stored[business.id]) ? stored[business.id] : []);
+        // Compatibilidad: las primeras versiones guardaban los registros como
+        // un arreglo único. Se asocian al negocio activo y se migran una sola
+        // vez al formato aislado por negocio.
+        if (Array.isArray(stored) && records.length) {
+            writeScoped(key, records);
+        }
         if (!records.length && legacyKey && !localStorage.getItem(key)) {
             const legacy = parse(localStorage.getItem(legacyKey) || "[]", []);
             if (Array.isArray(legacy) && legacy.length) {
@@ -34,7 +43,12 @@
 
     function writeScoped(key, records) {
         const business = getBusiness();
-        const stored = parse(localStorage.getItem(key) || "{}", {});
+        const storedValue = parse(localStorage.getItem(key) || "{}", {});
+        // Nunca agregamos el identificador del negocio como propiedad de un
+        // arreglo: JSON.stringify omite esas propiedades y puede perder datos.
+        const stored = Array.isArray(storedValue)
+            ? {}
+            : (storedValue && typeof storedValue === "object" ? storedValue : {});
         stored[business.id] = Array.isArray(records) ? records : [];
         localStorage.setItem(key, JSON.stringify(stored));
         return business;

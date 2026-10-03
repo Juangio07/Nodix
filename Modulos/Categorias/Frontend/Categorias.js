@@ -9,6 +9,8 @@ const emptyState = document.getElementById("emptyState");
 const search = document.getElementById("searchCategories");
 const message = document.getElementById("formMessage");
 const toast = document.getElementById("toast");
+function createStatusFilter() { const wrapper = document.createElement("label"); wrapper.className = "filter-box"; wrapper.innerHTML = '<i class="fa-solid fa-sliders" aria-hidden="true"></i><span class="sr-only">Filtrar por estado</span><select id="statusFilter"><option value="all">Todos los estados</option><option value="active">Activas</option><option value="inactive">Inactivas</option></select>'; document.querySelector(".directory-tools").appendChild(wrapper); return wrapper.querySelector("select"); }
+const statusFilter = createStatusFilter();
 let business = scopeApi.getBusiness();
 let categories = readCategories();
 let editingId = "";
@@ -21,7 +23,7 @@ function readArticles() { return scopeApi.readScoped("Nodix_articulos_v2", "Nodi
 function persist() { business = scopeApi.writeScoped(STORAGE_KEY, categories.map((category, index) => ({ ...category, negocioId: business.id, negocioNombre: business.name, orden: index + 1 }))); }
 function reindex() { categories.sort((first, second) => first.orden - second.orden || first.nombre.localeCompare(second.nombre, "es")); categories.forEach((category, index) => { category.orden = index + 1; }); }
 function articleCount(categoryId) { return readArticles().filter(article => article.categoriaId === categoryId).length; }
-function filteredCategories() { const query = search.value.trim().toLowerCase(); return categories.filter(category => `${category.nombre} ${category.descripcion}`.toLowerCase().includes(query)); }
+function filteredCategories() { const query = search.value.trim().toLowerCase(); return categories.filter(category => `${category.nombre} ${category.descripcion}`.toLowerCase().includes(query) && (statusFilter.value === "all" || category.estado === statusFilter.value)); }
 function render() {
     const visible = filteredCategories();
     const articles = readArticles();
@@ -30,9 +32,9 @@ function render() {
     document.getElementById("assignedArticles").textContent = articles.filter(article => article.categoriaId && categories.some(category => category.id === article.categoriaId)).length;
     document.getElementById("businessScope").innerHTML = `<i class="fa-solid fa-building" aria-hidden="true"></i> ${safe(business.name)}`;
     document.getElementById("resultsCount").textContent = `${visible.length} ${visible.length === 1 ? "registro" : "registros"}`;
-    rows.innerHTML = visible.map(category => { const assigned = articleCount(category.id); const index = categories.findIndex(item => item.id === category.id); return `<tr><td class="order-cell">${category.orden}</td><td class="category-name">${safe(category.nombre || "Sin nombre")}</td><td class="category-description">${safe(category.descripcion || "Sin descripción")}</td><td><span class="role-pill"><i class="fa-solid fa-box" aria-hidden="true"></i> ${assigned}</span></td><td><span class="status-pill ${category.estado === "inactive" ? "inactive" : ""}">${category.estado === "inactive" ? "Inactiva" : "Activa"}</span></td><td><div class="row-actions"><button class="icon-button move-action" type="button" data-action="up" data-id="${safe(category.id)}" aria-label="Subir categoría" ${index === 0 ? "disabled" : ""}><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></button><button class="icon-button move-action" type="button" data-action="down" data-id="${safe(category.id)}" aria-label="Bajar categoría" ${index === categories.length - 1 ? "disabled" : ""}><i class="fa-solid fa-arrow-down" aria-hidden="true"></i></button><button class="icon-button" type="button" data-action="edit" data-id="${safe(category.id)}" aria-label="Editar categoría"><i class="fa-solid fa-pen" aria-hidden="true"></i></button><button class="icon-button" type="button" data-action="delete" data-id="${safe(category.id)}" aria-label="Eliminar categoría"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></div></td></tr>`; }).join("");
+    rows.innerHTML = visible.map(category => { const assigned = articleCount(category.id); return `<tr><td class="order-cell">${category.orden}</td><td class="category-name">${safe(category.nombre || "Sin nombre")}</td><td class="category-description">${safe(category.descripcion || "Sin descripción")}</td><td><span class="role-pill"><i class="fa-solid fa-box" aria-hidden="true"></i> ${assigned}</span></td><td><span class="status-pill ${category.estado === "inactive" ? "inactive" : ""}">${category.estado === "inactive" ? "Inactiva" : "Activa"}</span></td><td><div class="row-actions"><button class="icon-button" type="button" data-action="edit" data-id="${safe(category.id)}" title="Editar categoría" aria-label="Editar categoría"><i class="fa-solid fa-pen" aria-hidden="true"></i></button><button class="icon-button" type="button" data-action="toggle" data-id="${safe(category.id)}" title="${category.estado === "inactive" ? "Activar categoría" : "Desactivar categoría"}" aria-label="${category.estado === "inactive" ? "Activar categoría" : "Desactivar categoría"}"><i class="fa-solid fa-power-off" aria-hidden="true"></i></button><button class="icon-button" type="button" data-action="delete" data-id="${safe(category.id)}" title="Eliminar categoría" aria-label="Eliminar categoría"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></div></td></tr>`; }).join("");
     emptyState.hidden = visible.length > 0;
-    if (!visible.length) { const filteredBySearch = Boolean(search.value.trim()); document.getElementById("emptyTitle").textContent = filteredBySearch ? "No encontramos coincidencias" : "Aún no hay categorías"; document.getElementById("emptyText").textContent = filteredBySearch ? "Prueba con otra búsqueda." : "Crea una categoría para comenzar a organizar tus artículos."; document.getElementById("emptyAction").hidden = filteredBySearch; }
+    if (!visible.length) { const filteredBySearch = Boolean(search.value.trim()) || statusFilter.value !== "all"; document.getElementById("emptyTitle").textContent = filteredBySearch ? "No encontramos coincidencias" : "Aún no hay categorías"; document.getElementById("emptyText").textContent = filteredBySearch ? "Prueba con otros términos o limpia el filtro." : "Crea una categoría para comenzar a organizar tus artículos."; document.getElementById("emptyAction").hidden = filteredBySearch; }
 }
 function showToast(text) { clearTimeout(toastTimer); toast.textContent = text; toast.classList.add("show"); toastTimer = setTimeout(() => toast.classList.remove("show"), 2600); }
 function resetForm() { editingId = ""; form.reset(); document.getElementById("dialogTitle").textContent = "Agregar categoría"; message.textContent = ""; }
@@ -46,14 +48,14 @@ document.getElementById("closeDialog").addEventListener("click", closeDialog);
 document.getElementById("cancelDialog").addEventListener("click", closeDialog);
 dialog.addEventListener("click", event => { if (event.target === dialog) closeDialog(); });
 search.addEventListener("input", render);
+statusFilter.addEventListener("change", render);
 rows.addEventListener("click", event => {
     const button = event.target.closest("button[data-action]");
     if (!button || button.disabled) return;
     const category = categories.find(item => item.id === button.dataset.id);
     if (!category) return;
     if (button.dataset.action === "edit") openDialog(category);
-    if (button.dataset.action === "up") moveCategory(category.id, -1);
-    if (button.dataset.action === "down") moveCategory(category.id, 1);
+    if (button.dataset.action === "toggle") { category.estado = category.estado === "active" ? "inactive" : "active"; persist(); render(); showToast(category.estado === "active" ? "Categoría activada" : "Categoría desactivada"); }
     if (button.dataset.action === "delete") {
         const assigned = articleCount(category.id);
         if (assigned > 0) { showToast("No puedes eliminar una categoría con artículos asignados."); return; }

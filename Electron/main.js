@@ -8,6 +8,7 @@ function createWindow() {
     height: 820,
     minWidth: 900,
     minHeight: 600,
+    show: false,
     autoHideMenuBar: true,
     icon: path.join(__dirname, "..", "Assets", "Iconos", "App.ico"),
     webPreferences: {
@@ -15,6 +16,10 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false
     }
+  });
+  window.once("ready-to-show", () => {
+    window.maximize();
+    window.show();
   });
   return window.loadFile(path.join(__dirname, "..", "Modulos", "Acceso", "Frontend", "Acceso.html"));
 }

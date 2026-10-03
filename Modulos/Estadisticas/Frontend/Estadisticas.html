@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nodix</title>
+  <link rel="stylesheet" href="../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+  <link rel="stylesheet" href="../../../Shared/Css/Variables.css">
+  <link rel="stylesheet" href="../../../Shared/Css/Global.css">
+  <link rel="stylesheet" href="Estadisticas.css">
+  <script defer src="../../../Shared/Config/AppConfig.js"></script>
+  <script defer src="../../../Shared/Config/FixelarGlobal.js"></script>
+  <script src="../../../Shared/Config/BusinessScope.js"></script>
+</head>
+<body>
+  <main class="reports-page">
+    <header class="reports-header">
+      <div class="heading-copy">
+        <span class="eyebrow"><i class="fa-solid fa-chart-line" aria-hidden="true"></i> ANALÍTICA DEL NEGOCIO</span>
+        <h1>Estadísticas</h1>
+        <p>Entiende el comportamiento de tus ventas, gastos y operación en un solo lugar.</p>
+      </div>
+      <div class="business-badge" id="businessBadge"><i class="fa-solid fa-building" aria-hidden="true"></i><span id="businessName">Negocio demo</span></div>
+    </header>
+
+    <section class="report-controls" aria-label="Filtros del reporte">
+      <div class="control-heading">
+        <span class="section-kicker">PERIODO DEL REPORTE</span>
+        <strong id="periodLabel">Últimos 30 días</strong>
+      </div>
+      <div class="quick-filters" role="group" aria-label="Periodos rápidos">
+        <button type="button" data-range="today">Hoy</button>
+        <button type="button" data-range="7">7 días</button>
+        <button class="active" type="button" data-range="30">30 días</button>
+        <button type="button" data-range="month">Este mes</button>
+      </div>
+      <div class="date-fields">
+        <label><span>Fecha inicial</span><input id="startDate" type="date"></label>
+        <span class="date-separator" aria-hidden="true">→</span>
+        <label><span>Fecha final</span><input id="endDate" type="date"></label>
+        <button class="primary-button" id="applyReport" type="button"><i class="fa-solid fa-filter" aria-hidden="true"></i> Aplicar</button>
+        <button class="secondary-button icon-only" id="resetReport" type="button" title="Restablecer periodo" aria-label="Restablecer periodo"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i></button>
+      </div>
+      <p class="report-feedback" id="reportFeedback" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="report-metrics" aria-label="Resumen del periodo">
+      <article class="metric-card metric-card-primary"><div class="metric-icon"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i></div><div><span>Ingresos por ventas</span><strong id="totalSales">$0</strong><small>total del periodo</small></div><em id="salesChange">—</em></article>
+      <article class="metric-card"><div class="metric-icon blue"><i class="fa-solid fa-receipt" aria-hidden="true"></i></div><div><span>Ventas realizadas</span><strong id="transactionCount">0</strong><small>transacciones registradas</small></div></article>
+      <article class="metric-card"><div class="metric-icon orange"><i class="fa-solid fa-ticket" aria-hidden="true"></i></div><div><span>Ticket promedio</span><strong id="averageTicket">$0</strong><small>promedio por venta</small></div></article>
+      <article class="metric-card"><div class="metric-icon violet"><i class="fa-solid fa-wallet" aria-hidden="true"></i></div><div><span>Gastos operativos</span><strong id="totalExpenses">$0</strong><small>registrados en el periodo</small></div></article>
+      <article class="metric-card metric-card-result"><div class="metric-icon dark"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i></div><div><span>Resultado estimado</span><strong id="netResult">$0</strong><small>ventas menos gastos</small></div></article>
+    </section>
+
+    <section class="reports-grid">
+      <article class="report-panel trend-panel">
+        <header class="panel-header"><div><span class="section-kicker">EVOLUCIÓN</span><h2>Ingresos en el tiempo</h2><p id="trendDescription">Comportamiento de las ventas dentro del periodo seleccionado.</p></div><span class="panel-tag"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i><span id="trendGranularity">Diario</span></span></header>
+        <div class="chart-wrap"><div class="chart-axis" aria-hidden="true"><span>$0</span><span id="axisMid">$0</span><span id="axisHigh">$0</span></div><div class="bar-chart" id="salesChart" aria-label="Gráfico de ingresos"></div></div>
+        <div class="panel-empty" id="trendEmpty" hidden><i class="fa-solid fa-chart-column" aria-hidden="true"></i><strong>No hay ventas en este periodo</strong><span>Cuando registres ventas aparecerán aquí.</span></div>
+        <footer class="chart-footer"><span><i class="chart-dot"></i> Ingresos registrados</span><strong id="bestDay">Sin datos suficientes</strong></footer>
+      </article>
+
+      <article class="report-panel mix-panel">
+        <header class="panel-header"><div><span class="section-kicker">DISTRIBUCIÓN</span><h2>Ventas por categoría</h2><p>Participación del ingreso del periodo.</p></div><i class="fa-solid fa-chart-pie panel-header-icon" aria-hidden="true"></i></header>
+        <div class="mix-summary"><div class="donut-chart" id="donutChart"><div><strong id="mixTotal">$0</strong><small>CONSOLIDADO</small></div></div><div class="mix-list" id="mixList"></div></div>
+        <div class="panel-empty compact" id="mixEmpty" hidden><i class="fa-solid fa-layer-group" aria-hidden="true"></i><span>Sin ventas categorizadas en este periodo.</span></div>
+      </article>
+    </section>
+
+    <section class="details-grid">
+      <article class="report-panel table-panel">
+        <header class="panel-header"><div><span class="section-kicker">DESEMPEÑO</span><h2>Artículos más vendidos</h2><p>Los productos con mayor movimiento.</p></div><span class="table-count" id="topProductsCount">0 artículos</span></header>
+        <div class="report-table-wrap"><table><caption class="sr-only">Artículos más vendidos</caption><thead><tr><th>Artículo</th><th>Unidades</th><th>Ingresos</th><th>Participación</th></tr></thead><tbody id="topProductsRows"></tbody></table></div>
+        <div class="panel-empty compact" id="productsEmpty" hidden><i class="fa-solid fa-box-open" aria-hidden="true"></i><span>No hay detalle de artículos para este periodo.</span></div>
+      </article>
+      <article class="report-panel table-panel">
+        <header class="panel-header"><div><span class="section-kicker">CONTROL FINANCIERO</span><h2>Gastos del periodo</h2><p>Identifica en qué se está utilizando el dinero.</p></div><span class="table-count" id="expenseCount">0 movimientos</span></header>
+        <div class="expense-list" id="expenseList"></div>
+        <div class="panel-empty compact" id="expensesEmpty" hidden><i class="fa-solid fa-wallet" aria-hidden="true"></i><span>No hay gastos registrados en este periodo.</span></div>
+      </article>
+    </section>
+
+    <section class="report-note" id="reportNote"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><div><strong>Reporte del negocio activo</strong><span>La información se calcula con los registros guardados en Nodix y se actualiza al cambiar el periodo.</span></div></section>
+  </main>
+  <script src="Estadisticas.js"></script>
+</body>
+</html>

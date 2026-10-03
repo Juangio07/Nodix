@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nodix</title>
+  <link rel="stylesheet" href="../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+  <link rel="stylesheet" href="../../../Shared/Css/Variables.css">
+  <link rel="stylesheet" href="../../../Shared/Css/Global.css">
+  <link rel="stylesheet" href="Ventas.css">
+</head>
+<body>
+  <main class="sales-page">
+    <header class="sales-header">
+      <div class="heading-copy">
+        <span class="eyebrow"><i class="fa-solid fa-receipt" aria-hidden="true"></i> OPERACIÓN COMERCIAL</span>
+        <h1>Ventas</h1>
+        <p>Registra una venta de forma clara y descuenta automáticamente las unidades disponibles.</p>
+      </div>
+      <button class="secondary-button" id="newSale" type="button">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+        Nueva factura
+      </button>
+    </header>
+
+    <section class="sales-steps" aria-label="Flujo de venta">
+      <div class="step active"><span>1</span><div><strong>Agrega productos</strong><small>Elige artículos y cantidades</small></div></div>
+      <i class="fa-solid fa-chevron-right step-arrow" aria-hidden="true"></i>
+      <div class="step"><span>2</span><div><strong>Revisa la factura</strong><small>Confirma cliente y valores</small></div></div>
+      <i class="fa-solid fa-chevron-right step-arrow" aria-hidden="true"></i>
+      <div class="step"><span>3</span><div><strong>Confirma la venta</strong><small>Actualiza el inventario</small></div></div>
+      <div class="sale-number"><small>FACTURA EN CURSO</small><strong id="invoiceNumber">Nueva</strong></div>
+    </section>
+
+    <section class="sales-layout">
+      <div class="sales-main-column">
+        <section class="panel product-panel" aria-labelledby="productPanelTitle">
+          <div class="panel-heading">
+            <div><span class="section-kicker">PASO 1</span><h2 id="productPanelTitle">Agrega productos</h2><p>Busca el artículo y define cuántas unidades salen del inventario.</p></div>
+            <span class="inventory-badge"><i class="fa-solid fa-cubes" aria-hidden="true"></i><b id="availableReferences">0</b> referencias activas</span>
+          </div>
+          <div class="product-picker">
+            <label class="field field-search"><span>Buscar artículo</span><div class="input-with-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="productSearch" type="search" autocomplete="off" placeholder="Escribe código o descripción..."></div></label>
+            <label class="field field-product"><span>Artículo <b>*</b></span><select id="productSelect" required><option value="">Selecciona un artículo</option></select></label>
+          </div>
+          <div class="product-preview" id="productPreview" hidden>
+            <div class="product-icon"><i class="fa-solid fa-box-open" aria-hidden="true"></i></div>
+            <div class="product-copy"><strong id="selectedProductName">Selecciona un artículo</strong><span id="selectedProductMeta">Código · Categoría</span></div>
+            <div class="product-fact"><small>Precio de venta</small><strong id="selectedProductPrice">$ 0</strong></div>
+            <div class="product-fact"><small>Disponible</small><strong id="selectedProductStock">0 und.</strong></div>
+            <label class="quantity-field"><span>Cantidad</span><input id="productQuantity" type="number" min="1" value="1" inputmode="numeric"></label>
+            <button class="primary-button add-product" id="addProduct" type="button"><i class="fa-solid fa-cart-plus" aria-hidden="true"></i>Agregar</button>
+          </div>
+          <div class="product-empty" id="productEmpty" hidden><i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i><strong>Primero registra artículos</strong><span>Cuando existan artículos activos con stock, podrás agregarlos a la factura.</span></div>
+          <p class="inline-message" id="productMessage" role="alert"></p>
+        </section>
+
+        <section class="panel cart-panel" aria-labelledby="cartTitle">
+          <div class="panel-heading compact-heading"><div><span class="section-kicker">DETALLE</span><h2 id="cartTitle">Productos de la factura</h2></div><span class="line-count" id="cartCount">0 productos</span></div>
+          <div class="cart-table-wrap">
+            <table class="cart-table">
+              <caption class="sr-only">Productos agregados a la factura</caption>
+              <thead><tr><th>Artículo</th><th>Precio unitario</th><th>Cantidad</th><th>Total</th><th><span class="sr-only">Acciones</span></th></tr></thead>
+              <tbody id="cartRows"></tbody>
+            </table>
+            <div class="cart-empty" id="cartEmpty"><div class="empty-icon"><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i></div><strong>Tu factura está vacía</strong><span>Selecciona un artículo arriba para comenzar la venta.</span></div>
+          </div>
+        </section>
+
+        <section class="panel recent-panel" aria-labelledby="recentTitle">
+          <div class="panel-heading compact-heading"><div><span class="section-kicker">HISTORIAL LOCAL</span><h2 id="recentTitle">Últimas ventas</h2></div><span class="line-count" id="salesCount">0 registros</span></div>
+          <div class="recent-list" id="recentSales"></div>
+          <div class="recent-empty" id="recentEmpty"><i class="fa-solid fa-receipt" aria-hidden="true"></i><span>Aún no hay ventas confirmadas en este negocio.</span></div>
+        </section>
+      </div>
+
+      <aside class="checkout-column">
+        <section class="checkout-card" aria-labelledby="checkoutTitle">
+          <div class="checkout-top"><div><span class="section-kicker">PASO 2 Y 3</span><h2 id="checkoutTitle">Confirmar venta</h2></div><span class="draft-pill"><i class="fa-solid fa-circle" aria-hidden="true"></i> Borrador</span></div>
+          <div class="checkout-fields">
+            <label class="field"><span>Tipo de factura <b>*</b></span><select id="invoiceType"><option value="Venta de mostrador">Venta de mostrador</option><option value="Factura de crédito">Factura de crédito</option></select></label>
+            <label class="field"><span>Cliente</span><select id="clientSelect"><option value="">Consumidor final</option></select><small>Opcional. Puedes asociar la venta a un cliente registrado.</small></label>
+            <label class="field"><span>Medio de pago</span><select id="paymentMethod"><option value="Efectivo">Efectivo</option><option value="Tarjeta">Tarjeta</option><option value="Transferencia">Transferencia</option><option value="Otro">Otro</option></select></label>
+          </div>
+          <div class="checkout-divider"></div>
+          <div class="totals"><div><span>Productos</span><strong id="summaryItems">0</strong></div><div><span>Subtotal</span><strong id="summarySubtotal">$ 0</strong></div><div class="total-row"><span>Total a cobrar</span><strong id="summaryTotal">$ 0</strong></div></div>
+          <button class="confirm-button" id="confirmSale" type="button" disabled><i class="fa-solid fa-check" aria-hidden="true"></i>Confirmar venta</button>
+          <button class="clear-button" id="clearSale" type="button"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i>Limpiar factura</button>
+          <div class="checkout-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><span>Al confirmar, las unidades vendidas se descontarán del stock disponible del artículo.</span></div>
+          <p class="form-message" id="formMessage" role="alert"></p>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="../../../Shared/Config/BusinessScope.js"></script>
+  <script src="../../../Shared/Config/InventoryScope.js"></script>
+  <script src="../../../Shared/Config/CurrencyInput.js"></script>
+  <script src="Ventas.js"></script>
+</body>
+</html>

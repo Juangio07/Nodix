@@ -1,1 +1,238 @@
-<!doctype html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nodix | Dashboard</title><link rel="stylesheet" href="../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="../../../Shared/Css/Variables.css"><link rel="stylesheet" href="../../../Shared/Css/Global.css"><link rel="stylesheet" href="Menu.css"></head><body><div class="nodix-app"><aside class="side"><div class="side-brand"><img src="../../../Assets/Logos/ImagotipoOscuro.png" alt="Nodix"><span>ENTERPRISE</span></div><div class="side-workspace"><span id="businessInitial">N</span><div><b id="businessName">Fixelar</b><small>Administración</small></div><i class="fa-solid fa-chevron-down"></i></div><nav class="side-nav"><small>OPERACIÓN</small><button class="side-link active" data-section="Inicio"><i class="fa-solid fa-table-cells-large"></i>Dashboard</button><button class="side-link" data-section="Productos"><i class="fa-solid fa-basket-shopping"></i>Ventas e Inventario</button><button class="side-link" data-section="Clientes"><i class="fa-solid fa-user-group"></i>Clientes y CRM</button><small>ADMINISTRACIÓN</small><button class="side-link" data-section="Usuarios"><i class="fa-solid fa-users-gear"></i>Usuarios y Accesos</button><button class="side-link" data-section="Roles"><i class="fa-solid fa-shield-halved"></i>Roles y permisos</button><button class="side-link" data-section="Configuración"><i class="fa-solid fa-gear"></i>Configuración</button></nav><div class="side-bottom"><div class="system-state"><span></span><div><b>Estado del sistema</b><small>Nodix POS Global</small></div><em>En línea<br><strong>99.9%</strong></em></div><button class="logout"><i class="fa-solid fa-arrow-right-from-bracket"></i>Cerrar sesión</button></div></aside><main class="workspace-main"><header class="main-top"><label class="global-search"><i class="fa-solid fa-magnifying-glass"></i><input placeholder="Buscar ventas, artículos, clientes o usuarios..."></label><button class="branch"><i class="fa-solid fa-store"></i><span>Sucursal Central - Bogotá</span><i class="fa-solid fa-chevron-down"></i></button><button class="notification"><i class="fa-regular fa-bell"></i><b></b></button><button class="new-sale"><i class="fa-solid fa-plus"></i>Nueva venta</button><div class="profile"><span>V</span><div><b>Valeria Sotomayor</b><small>Super Admin</small></div></div></header><section id="dashboard" class="dashboard-screen"><div class="crumb"><span>INICIO</span><i>/</i><b>DASHBOARD GENERAL</b><em>● en vivo</em></div><div class="hero-title"><div><h1>Hola, Valeria <i class="fa-regular fa-hand"></i></h1><p>Resumen integral de tu operación</p></div><div class="hero-actions"><button><i class="fa-regular fa-calendar"></i>Últimos 30 días <i class="fa-solid fa-chevron-down"></i></button><div><button><i class="fa-solid fa-download"></i>Exportar</button><button><i class="fa-solid fa-sliders"></i>Filtros</button></div></div></div><section class="operation-strip"><article><i class="fa-solid fa-cash-register"></i><div><small>TERMINAL PRINCIPAL</small><b>Caja POS #01 <em>(Activa)</em></b></div><span class="turn">Turno<br><b>Tarde</b></span></article><article><i class="fa-solid fa-boxes-stacked"></i><div><small>INVENTARIO UNIFICADO</small><b>450 Referencias Sincronizadas</b></div></article><button><i class="fa-solid fa-receipt"></i>Cierre de Turno</button><button><i class="fa-solid fa-building-columns"></i>Reconciliación</button></section><section class="metric-grid"><article class="data-card sales-card"><header><small><i></i> INGRESOS DEL DÍA</small><b>↗ +12.8%</b></header><strong>$48.260.000 <small>COP</small></strong><p>Meta mensual: $52.000.000</p><div class="tiny-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></article><article class="data-card"><header><small><i></i> TICKETS EMITIDOS</small><b>↗ +8.4%</b></header><strong>1.428 <small>transacciones</small></strong><p>Ticket promedio en mostrador</p><div class="soft-value">Promedio compra <b>$33.800 COP</b></div></article><article class="data-card"><header><small><i></i> INVENTARIO ACTIVO</small><b class="warn">△ 12 bajas</b></header><strong>8.940 <small>uds en bodega</small></strong><p>Distribuidas en 450 SKUs únicos</p><div class="stock-line"><i></i><i></i><i></i></div></article><article class="data-card"><header><small><i></i> MARGEN BRUTO</small><b>↗ +2.3%</b></header><strong>41.6% <small>margen.</small></strong><p>Utilidad calculada estimada</p><div class="soft-value"><span>Ganancia neta</span><b>$20.076.000</b></div></article></section><section class="analytics-grid"><article class="analytics-card trend-card"><header><div><small>TENDENCIA SEMANAL</small><h2>Evolución de Ventas Semanal &amp; Diaria</h2></div><div class="period-tabs"><button class="selected">Semana<br>Actual</button><button>Semana<br>Pasada</button><button>Mes</button></div></header><div class="legend"><span><i></i>Ventas Reales</span><span><i></i>Objetivo Diario</span><b>◉ Pico: Sábado ($9.450.000 COP)</b></div><div class="large-chart"><span>$10M</span><span>$7.5M</span><span>$5M</span><span>$2.5M</span><div class="chart-bars"><i style="height:42%"><b>Lun</b></i><i style="height:56%"><b>Mar</b></i><i style="height:51%"><b>Mié</b></i><i style="height:73%"><b>Jue</b></i><i style="height:90%"><b>Vie</b></i><i class="peak" style="height:100%"><b>Sáb</b></i><i style="height:78%"><b>Dom</b></i></div></div><footer><i class="fa-regular fa-lightbulb"></i><span><b>Mayor afluencia detectada:</b> Sábados entre 3:00 PM y 7:30 PM.</span><button>Ver turnos&nbsp;›</button></footer></article><article class="analytics-card mix-card"><header><div><small>MIX DE VENTAS</small><h2>Categorías Líderes</h2></div><i class="fa-solid fa-ellipsis"></i></header><div class="donut"><strong>100%<small>CONSOLIDADO</small></strong></div><div class="category"><i class="fa-solid fa-shirt"></i><span><b>Ropa &amp; Textiles</b><small>780 artículos vendidos</small></span><strong>$23.164.800<small>48% PARTICIPACIÓN</small></strong></div><div class="category"><i class="fa-solid fa-shoe-prints"></i><span><b>Calzado &amp; Zapatillas</b><small>420 pares vendidos</small></span><strong>$15.443.200<small>32% PARTICIPACIÓN</small></strong></div><div class="category"><i class="fa-solid fa-bag-shopping"></i><span><b>Bolsos &amp; Accesorios</b><small>228 unidades</small></span><strong>$9.652.000<small>20% PARTICIPACIÓN</small></strong></div></article></section></section><iframe id="moduleFrame" title="Módulo Nodix"></iframe></main></div><script src="Menu.js"></script></body></html>
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Nodix</title>
+    <link
+      rel="stylesheet"
+      href="../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css"
+    />
+    <link rel="stylesheet" href="../../../Shared/Css/Variables.css" />
+    <link rel="stylesheet" href="../../../Shared/Css/Global.css" />
+    <link rel="stylesheet" href="Menu.css" />
+  </head>
+  <body>
+    <div class="nodix-app">
+      <aside class="side">
+        <div class="side-brand">
+          <img
+            src="../../../Assets/Logos/ImagotipoOscuro.png"
+            alt="Nodix"
+          /><span>ENTERPRISE</span>
+        </div>
+        <div class="side-workspace">
+          <span id="businessInitial">N</span>
+          <div>
+            <b id="businessName">Fixelar</b><small>Administración</small>
+          </div>
+          <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <nav class="side-nav">
+          <small>OPERACIÓN</small
+          ><button class="side-link active" data-section="Inicio">
+            <i class="fa-solid fa-table-cells-large"></i>Dashboard</button
+          ><button class="side-link" data-section="Productos">
+            <i class="fa-solid fa-basket-shopping"></i>Ventas e Inventario</button
+          ><button class="side-link" data-section="Clientes">
+            <i class="fa-solid fa-user-group"></i>Clientes y CRM</button
+          ><small>ADMINISTRACIÓN</small
+          ><button class="side-link" data-section="Usuarios">
+            <i class="fa-solid fa-users-gear"></i>Usuarios y Accesos</button
+          ><button class="side-link" data-section="Roles">
+            <i class="fa-solid fa-shield-halved"></i>Roles y permisos</button
+          ><button class="side-link" data-section="Configuración">
+            <i class="fa-solid fa-gear"></i>Configuración
+          </button>
+        </nav>
+        <div class="side-bottom">
+          <div class="system-state">
+            <span></span>
+            <div><b>Estado del sistema</b><small>Nodix POS Global</small></div>
+            <em>En línea<br /><strong>99.9%</strong></em>
+          </div>
+          <button class="logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>Cerrar sesión
+          </button>
+        </div>
+      </aside>
+      <main class="workspace-main">
+        <header class="main-top">
+          <label class="global-search"
+            ><i class="fa-solid fa-magnifying-glass"></i
+            ><input
+              placeholder="Buscar ventas, artículos, clientes o usuarios..." /></label
+          ><button class="branch">
+            <i class="fa-solid fa-store"></i
+            ><span>Sucursal Central - Bogotá</span
+            ><i class="fa-solid fa-chevron-down"></i></button
+          ><button class="notification">
+            <i class="fa-regular fa-bell"></i><b></b></button
+          ><button class="new-sale">
+            <i class="fa-solid fa-plus"></i>Nueva venta
+          </button>
+          <div class="profile">
+            <span>V</span>
+            <div><b>Valeria Sotomayor</b><small>Super Admin</small></div>
+          </div>
+        </header>
+        <section id="dashboard" class="dashboard-screen">
+          <div class="crumb">
+            <span>INICIO</span><i>/</i><b>DASHBOARD GENERAL</b
+            ><em>● en vivo</em>
+          </div>
+          <div class="hero-title">
+            <div>
+              <h1>Hola, Valeria <i class="fa-regular fa-hand"></i></h1>
+              <p>Resumen integral de tu operación</p>
+            </div>
+            <div class="hero-actions">
+              <button>
+                <i class="fa-regular fa-calendar"></i>Últimos 30 días
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+              <div>
+                <button><i class="fa-solid fa-download"></i>Exportar</button
+                ><button><i class="fa-solid fa-sliders"></i>Filtros</button>
+              </div>
+            </div>
+          </div>
+          <section class="operation-strip">
+            <article>
+              <i class="fa-solid fa-cash-register"></i>
+              <div>
+                <small>TERMINAL PRINCIPAL</small
+                ><b>Caja POS #01 <em>(Activa)</em></b>
+              </div>
+              <span class="turn">Turno<br /><b>Tarde</b></span>
+            </article>
+            <article>
+              <i class="fa-solid fa-boxes-stacked"></i>
+              <div>
+                <small>INVENTARIO UNIFICADO</small
+                ><b>450 Referencias Sincronizadas</b>
+              </div>
+            </article>
+            <button><i class="fa-solid fa-receipt"></i>Cierre de Turno</button
+            ><button>
+              <i class="fa-solid fa-building-columns"></i>Reconciliación
+            </button>
+          </section>
+          <section class="metric-grid">
+            <article class="data-card sales-card">
+              <header>
+                <small><i></i> INGRESOS DEL DÍA</small><b>↗ +12.8%</b>
+              </header>
+              <strong>$48.260.000 <small>COP</small></strong>
+              <p>Meta mensual: $52.000.000</p>
+              <div class="tiny-bars">
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              </div>
+            </article>
+            <article class="data-card">
+              <header>
+                <small><i></i> TICKETS EMITIDOS</small><b>↗ +8.4%</b>
+              </header>
+              <strong>1.428 <small>transacciones</small></strong>
+              <p>Ticket promedio en mostrador</p>
+              <div class="soft-value">Promedio compra <b>$33.800 COP</b></div>
+            </article>
+            <article class="data-card">
+              <header>
+                <small><i></i> INVENTARIO ACTIVO</small
+                ><b class="warn">△ 12 bajas</b>
+              </header>
+              <strong>8.940 <small>uds en bodega</small></strong>
+              <p>Distribuidas en 450 SKUs únicos</p>
+              <div class="stock-line"><i></i><i></i><i></i></div>
+            </article>
+            <article class="data-card">
+              <header>
+                <small><i></i> MARGEN BRUTO</small><b>↗ +2.3%</b>
+              </header>
+              <strong>41.6% <small>margen.</small></strong>
+              <p>Utilidad calculada estimada</p>
+              <div class="soft-value">
+                <span>Ganancia neta</span><b>$20.076.000</b>
+              </div>
+            </article>
+          </section>
+          <section class="analytics-grid">
+            <article class="analytics-card trend-card">
+              <header>
+                <div>
+                  <small>TENDENCIA SEMANAL</small>
+                  <h2>Evolución de Ventas Semanal &amp; Diaria</h2>
+                </div>
+                <div class="period-tabs">
+                  <button class="selected">Semana<br />Actual</button
+                  ><button>Semana<br />Pasada</button><button>Mes</button>
+                </div>
+              </header>
+              <div class="legend">
+                <span><i></i>Ventas Reales</span
+                ><span><i></i>Objetivo Diario</span
+                ><b>◉ Pico: Sábado ($9.450.000 COP)</b>
+              </div>
+              <div class="large-chart">
+                <span>$10M</span><span>$7.5M</span><span>$5M</span
+                ><span>$2.5M</span>
+                <div class="chart-bars">
+                  <i style="height: 42%"><b>Lun</b></i
+                  ><i style="height: 56%"><b>Mar</b></i
+                  ><i style="height: 51%"><b>Mié</b></i
+                  ><i style="height: 73%"><b>Jue</b></i
+                  ><i style="height: 90%"><b>Vie</b></i
+                  ><i class="peak" style="height: 100%"><b>Sáb</b></i
+                  ><i style="height: 78%"><b>Dom</b></i>
+                </div>
+              </div>
+              <footer>
+                <i class="fa-regular fa-lightbulb"></i
+                ><span
+                  ><b>Mayor afluencia detectada:</b> Sábados entre 3:00 PM y
+                  7:30 PM.</span
+                ><button>Ver turnos&nbsp;›</button>
+              </footer>
+            </article>
+            <article class="analytics-card mix-card">
+              <header>
+                <div>
+                  <small>MIX DE VENTAS</small>
+                  <h2>Categorías Líderes</h2>
+                </div>
+                <i class="fa-solid fa-ellipsis"></i>
+              </header>
+              <div class="donut">
+                <strong>100%<small>CONSOLIDADO</small></strong>
+              </div>
+              <div class="category">
+                <i class="fa-solid fa-shirt"></i
+                ><span
+                  ><b>Ropa &amp; Textiles</b
+                  ><small>780 artículos vendidos</small></span
+                ><strong>$23.164.800<small>48% PARTICIPACIÓN</small></strong>
+              </div>
+              <div class="category">
+                <i class="fa-solid fa-shoe-prints"></i
+                ><span
+                  ><b>Calzado &amp; Zapatillas</b
+                  ><small>420 pares vendidos</small></span
+                ><strong>$15.443.200<small>32% PARTICIPACIÓN</small></strong>
+              </div>
+              <div class="category">
+                <i class="fa-solid fa-bag-shopping"></i
+                ><span
+                  ><b>Bolsos &amp; Accesorios</b
+                  ><small>228 unidades</small></span
+                ><strong>$9.652.000<small>20% PARTICIPACIÓN</small></strong>
+              </div>
+            </article>
+          </section>
+        </section>
+        <iframe id="moduleFrame" title="Módulo Nodix"></iframe>
+      </main>
+    </div>
+    <script src="Menu.js"></script>
+  </body>
+</html>

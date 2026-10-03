@@ -2,10 +2,10 @@
 
 const frame = document.getElementById("moduleFrame");
 const dashboard = document.getElementById("dashboard");
-const routes = { Articulos: "../../Articulos/Frontend/Articulos.html", Categorias: "../../Categorias/Frontend/Categorias.html", Clientes: "../../Clientes/Frontend/Clientes.html", Gastos: "../../Gastos/Frontend/Gastos.html", Mercancia: "../../Mercancia/Frontend/Mercancia.html", Usuarios: "../../Usuarios/Frontend/Usuarios.html", Roles: "../../Roles/Frontend/Roles.html", Configuración: "../../Configuracion/Frontend/Configuracion.html" };
-const labels = { Inicio: "Inicio", Articulos: "Artículos", Categorias: "Categorías", Clientes: "Clientes", Gastos: "Gastos", Mercancia: "Mercancía", Usuarios: "Usuarios", Roles: "Roles", Configuración: "Configuración" };
-const icons = { Inicio: "fa-house", Articulos: "fa-boxes-stacked", Categorias: "fa-layer-group", Clientes: "fa-address-book", Gastos: "fa-receipt", Mercancia: "fa-truck-ramp-box", Usuarios: "fa-user", Roles: "fa-key", Configuración: "fa-gear" };
-const menuGroups = [{ title: "OPERACIÓN", items: ["Inicio", "Articulos", "Categorias", "Clientes", "Gastos", "Mercancia"] }, { title: "ADMINISTRACIÓN", items: ["Usuarios", "Roles", "Configuración"] }];
+const routes = { Ventas: "../../Ventas/Frontend/Ventas.html", Articulos: "../../Articulos/Frontend/Articulos.html", Categorias: "../../Categorias/Frontend/Categorias.html", Clientes: "../../Clientes/Frontend/Clientes.html", Gastos: "../../Gastos/Frontend/Gastos.html", Mercancia: "../../Mercancia/Frontend/Mercancia.html", Estadisticas: "../../Estadisticas/Frontend/Estadisticas.html", Usuarios: "../../Usuarios/Frontend/Usuarios.html", Roles: "../../Roles/Frontend/Roles.html", Configuración: "../../Configuracion/Frontend/Configuracion.html" };
+const labels = { Inicio: "Inicio", Ventas: "Ventas", Articulos: "Artículos", Categorias: "Categorías", Clientes: "Clientes", Gastos: "Gastos", Mercancia: "Mercancía", Estadisticas: "Estadísticas", Usuarios: "Usuarios", Roles: "Roles", Configuración: "Configuración" };
+const icons = { Inicio: "fa-house", Ventas: "fa-receipt", Articulos: "fa-boxes-stacked", Categorias: "fa-layer-group", Clientes: "fa-address-book", Gastos: "fa-money-bill-wave", Mercancia: "fa-truck-ramp-box", Estadisticas: "fa-chart-line", Usuarios: "fa-user", Roles: "fa-key", Configuración: "fa-gear" };
+const menuGroups = [{ title: "OPERACIÓN", items: ["Inicio", "Ventas", "Articulos", "Categorias", "Clientes", "Gastos", "Mercancia"] }, { title: "ANÁLISIS", items: ["Estadisticas"] }, { title: "ADMINISTRACIÓN", items: ["Usuarios", "Roles", "Configuración"] }];
 
 function setVisible(element, visible) { element.hidden = !visible; element.style.setProperty("display", visible ? "block" : "none", "important"); }
 function setActive(section) { document.querySelectorAll(".side-link").forEach(link => link.classList.toggle("active", link.dataset.section === section)); }
@@ -42,13 +42,18 @@ document.querySelectorAll(".side-link").forEach(link => {
     link.addEventListener("click", () => section === "Inicio" ? showInicio() : showModule(section));
 });
 
+const newSaleButton = document.querySelector(".new-sale");
+if (newSaleButton) newSaleButton.addEventListener("click", () => showModule("Ventas"));
+
 frame.addEventListener("load", () => {
     try {
         const doc = frame.contentDocument;
         if (!doc) return;
         doc.documentElement.style.height = "100%";
+        doc.documentElement.style.minHeight = "100%";
         doc.documentElement.style.overflowY = "auto";
         doc.documentElement.style.scrollbarWidth = "none";
+        doc.body.style.height = "auto";
         doc.body.style.minHeight = "100%";
         doc.body.style.overflowY = "auto";
         doc.body.style.overflowX = "hidden";

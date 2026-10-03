@@ -55,3 +55,5 @@
   --shadow-brand: 0 8px 24px rgb(245 158 11 / 24%);
   --focus-brand: 0 0 0 3px rgb(245 158 11 / 18%);
 }
+/* Alias semánticos usados por los módulos nuevos. Mantienen una única identidad. */
+:root{--brand-primary:var(--warning);--brand-primary-hover:var(--orange);--brand-primary-light:var(--success-light);--brand-on-primary:var(--text-white);--primary-soft:var(--warning-light);--app-dark:#172238;--app-dark-soft:#2c4265}

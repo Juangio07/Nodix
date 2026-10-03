@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,27 +9,10 @@
 </head>
 <body>
   <main class="config-page">
-    <header class="config-header"><div><span class="config-eyebrow">ADMINISTRACIÓN</span><h1>Configuración</h1><p>Administra la información principal de tu empresa.</p></div></header>
-    <section class="config-card">
-      <div class="config-card-header"><div><h2>Información de la empresa</h2><p>Estos datos identifican a tu empresa dentro de Nodix.</p></div><i class="fa-solid fa-building" aria-hidden="true"></i></div>
-      <form id="formularioEmpresa" novalidate>
-        <div class="company-layout">
-          <div class="logo-column"><div class="company-logo" id="vistaLogo"><span id="inicialEmpresa">N</span><img id="imagenEmpresa" alt="Logo de la empresa" hidden></div><input id="logoEmpresa" type="file" accept="image/png,image/jpeg,image/webp" hidden><button class="btn-secondary" id="seleccionarLogo" type="button"><i class="fa-solid fa-image" aria-hidden="true"></i> Agregar logo</button><button class="text-button" id="quitarLogo" type="button" hidden>Quitar logo</button><small>Opcional</small></div>
-          <div class="company-fields">
-            <label><span class="label-caption">NIT/CC <span class="required-mark">*</span></span><input id="nit" type="text" required></label>
-            <label><span class="label-caption">Nombre <span class="required-mark">*</span></span><input id="nombre" type="text" required></label>
-            <label><span class="label-caption">Propietario <span class="required-mark">*</span></span><input id="propietario" type="text" required></label>
-            <label><span class="label-caption">Teléfono <span class="required-mark">*</span></span><input id="telefono" type="tel" required></label>
-            <label><span class="label-caption">Correo <span class="required-mark">*</span></span><input id="correo" type="email" required></label>
-            <label><span class="label-caption">Ubicación <span class="required-mark">*</span></span><input id="ubicacion" type="text" required></label>
-          </div>
-        </div>
-        <p class="form-message" id="mensajeConfiguracion" role="alert"></p>
-        <div class="form-actions"><button class="btn-secondary" id="cancelarCambios" type="button" hidden>Cancelar</button><button class="btn-primary" type="submit"><i class="fa-solid fa-check" aria-hidden="true"></i> Guardar cambios</button></div>
-      </form>
+    <header class="module-header"><div><span class="eyebrow"><i class="fa-solid fa-sliders" aria-hidden="true"></i> IDENTIDAD DEL NEGOCIO</span><h1>Configuración</h1><p>Administra la información que identifica tu empresa dentro de Nodix.</p></div></header>
+    <section class="config-card"><div class="card-head"><div><span class="section-kicker">PERFIL DE EMPRESA</span><h2>Información principal</h2><p>Estos datos se reflejan en la operación y en el espacio activo.</p></div><div class="saved-indicator" id="savedIndicator"><i class="fa-solid fa-check" aria-hidden="true"></i> Guardado</div></div>
+      <form id="companyForm" novalidate><div class="config-layout"><div class="logo-column"><div class="logo-preview" id="logoPreview"><span id="logoInitial">N</span><img id="logoImage" alt="Logo de la empresa" hidden></div><input id="logoInput" type="file" accept="image/png,image/jpeg,image/webp" hidden><button class="secondary-button" id="uploadLogo" type="button"><i class="fa-solid fa-arrow-up-from-bracket" aria-hidden="true"></i> Cargar logo</button><button class="remove-button" id="removeLogo" type="button" hidden>Quitar logo</button><small>PNG, JPG o WEBP · opcional</small></div><div class="fields-grid"><label><span>NIT/CC <b>*</b></span><input id="nit" name="nit" type="text" required placeholder="Número de identificación"></label><label><span>Nombre <b>*</b></span><input id="nombre" name="nombre" type="text" required placeholder="Nombre de la empresa"></label><label><span>Propietario <b>*</b></span><input id="propietario" name="propietario" type="text" required placeholder="Nombre del propietario"></label><label><span>Teléfono <b>*</b></span><input id="telefono" name="telefono" type="tel" required placeholder="Teléfono de contacto"></label><label><span>Correo <b>*</b></span><input id="correo" name="correo" type="email" required placeholder="correo@empresa.com"></label><label class="field-wide"><span>Ubicación <b>*</b></span><input id="ubicacion" name="ubicacion" type="text" required placeholder="Ciudad o dirección del negocio"></label></div></div><p class="form-message" id="formMessage" role="alert"></p><div class="form-actions"><button class="primary-button" type="submit"><i class="fa-solid fa-check" aria-hidden="true"></i> Guardar cambios</button></div></form>
     </section>
-  </main>
-  <div class="config-toast" id="toastConfiguracion" role="status" aria-live="polite"></div>
-  <script src="Configuracion.js"></script>
+  </main><div class="toast" id="toast" role="status" aria-live="polite"></div><script src="Configuracion.js"></script>
 </body>
 </html>

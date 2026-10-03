@@ -1,206 +1,175 @@
 "use strict";
 
-const STORAGE_KEY = "Nodix_usuarios_frontend_v1";
-const ROLES_STORAGE_KEY = "Nodix_roles_frontend_v1";
-const tabla = document.getElementById("tablaUsuarios");
-const estadoVacio = document.getElementById("estadoVacio");
-const contador = document.getElementById("contadorUsuarios");
-const buscador = document.getElementById("buscarUsuarios");
-const filtroEstado = document.getElementById("filtroEstado");
-const paginacion = document.getElementById("paginacion");
-const modal = document.getElementById("modalUsuario");
-const formulario = document.getElementById("formularioUsuario");
-const tituloModal = document.getElementById("tituloModal");
-const mensajeFormulario = document.getElementById("mensajeFormulario");
-const toast = document.getElementById("toastUsuarios");
-const confirmacionEliminar = document.getElementById("confirmacionEliminar");
-const textoConfirmacion = document.getElementById("textoConfirmacion");
-let usuarioPendienteEliminar = null;
-
-const campos = ["idUsuario", "idRol", "documento", "nombre", "telefono", "usuario", "contrasena"];
-const selectorRol = document.getElementById("idRol");
-let roles = cargarRoles();
-let usuarios = cargarUsuarios();
-let paginaActual = 1;
-const usuariosPorPagina = 8;
+const STORAGE_KEY = "Nodix_usuarios_v1";
+const fields = ["idUsuario", "idRol", "documento", "nombre", "telefono", "usuario", "contrasena"];
+const form = document.getElementById("userForm");
+const dialog = document.getElementById("userDialog");
+const rows = document.getElementById("usersRows");
+const emptyState = document.getElementById("emptyState");
+const emptyTitle = document.getElementById("emptyTitle");
+const emptyText = document.getElementById("emptyText");
+const search = document.getElementById("searchUsers");
+const statusFilter = document.getElementById("statusFilter");
+const message = document.getElementById("formMessage");
+const toast = document.getElementById("toast");
+let users = readUsers();
+let editingId = "";
 let toastTimer;
 
-function cargarRoles() {
+function readUsers() {
     try {
-        const guardados = JSON.parse(localStorage.getItem(ROLES_STORAGE_KEY) || "[]");
-        return Array.isArray(guardados) ? guardados.map(rol => ({
-            idRol: rol.idRol ?? rol.IdRol,
-            nombre: rol.nombre ?? rol.Nombre ?? rol.nombreRol ?? rol.NombreRol
-        })).filter(rol => rol.idRol !== undefined && rol.nombre) : [];
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        return Array.isArray(stored) ? stored.map(normalizeUser) : [];
     } catch {
         return [];
     }
 }
 
-function renderizarRoles() {
-    selectorRol.innerHTML = roles.length
-        ? `<option value="">Selecciona un rol</option>${roles.map(rol => `<option value="${escapar(rol.idRol)}">${escapar(rol.nombre)}</option>`).join("")}`
-        : `<option value="">No hay roles disponibles</option>`;
-    selectorRol.disabled = roles.length === 0;
+function normalizeUser(user) {
+    const name = String(user.nombre || "").trim();
+    return {
+        idUsuario: String(user.idUsuario || `USR-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`),
+        idRol: String(user.idRol || "Sin rol"),
+        documento: String(user.documento || ""),
+        nombre: name,
+        telefono: String(user.telefono || ""),
+        usuario: String(user.usuario || ""),
+        contrasena: String(user.contrasena || ""),
+        estado: user.estado === "inactive" ? "inactive" : "active"
+    };
 }
 
-function nombreRol(idRol) {
-    return roles.find(rol => String(rol.idRol) === String(idRol))?.nombre || "Rol no disponible";
+function escapeHtml(value) {
+    return String(value || "").replace(/[&<>'"]/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[character]));
 }
 
-function usuariosFiltrados() {
-    const termino = buscador.value.trim().toLowerCase();
-    return usuarios.filter(usuario => {
-        const coincideTexto = [usuario.nombre, usuario.documento, usuario.usuario].some(valor => String(valor || "").toLowerCase().includes(termino));
-        const coincideEstado = filtroEstado.value === "all" || (filtroEstado.value === "active" ? usuario.activo : !usuario.activo);
-        return coincideTexto && coincideEstado;
+function initials(name) {
+    const parts = String(name || "N").trim().split(/\s+/).filter(Boolean);
+    return (parts.slice(0, 2).map(part => part[0]).join("") || "N").toUpperCase();
+}
+
+function persist() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+}
+
+function filteredUsers() {
+    const query = search.value.trim().toLowerCase();
+    const state = statusFilter.value;
+    return users.filter(user => {
+        const matchesQuery = [user.nombre, user.documento, user.usuario, user.idRol].some(value => value.toLowerCase().includes(query));
+        return matchesQuery && (state === "all" || user.estado === state);
     });
 }
 
-function cargarUsuarios() {
-    try {
-        const guardados = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-        return Array.isArray(guardados) ? guardados.map(usuario => ({ ...usuario, contrasena: "" })) : [];
-    } catch {
-        return [];
+function render() {
+    const visibleUsers = filteredUsers();
+    const activeCount = users.filter(user => user.estado === "active").length;
+    const roleCount = new Set(users.map(user => user.idRol).filter(role => role && role !== "Sin rol")).size;
+    document.getElementById("totalUsers").textContent = users.length;
+    document.getElementById("activeUsers").textContent = activeCount;
+    document.getElementById("usedRoles").textContent = roleCount;
+    document.getElementById("resultsCount").textContent = `${visibleUsers.length} ${visibleUsers.length === 1 ? "registro" : "registros"}`;
+    rows.innerHTML = visibleUsers.map(user => `
+      <tr>
+        <td><div class="person-cell"><span class="avatar">${escapeHtml(initials(user.nombre))}</span><span><strong>${escapeHtml(user.nombre || "Sin nombre")}</strong><small>@${escapeHtml(user.usuario || "sin-usuario")}</small></span></div></td>
+        <td class="document-cell">${escapeHtml(user.documento || "—")}</td>
+        <td class="phone-cell">${escapeHtml(user.telefono || "—")}</td>
+        <td><span class="role-pill">${escapeHtml(user.idRol || "Sin rol")}</span></td>
+        <td><span class="status-pill ${user.estado === "inactive" ? "inactive" : ""}">${user.estado === "inactive" ? "Inactivo" : "Activo"}</span></td>
+        <td><div class="row-actions"><button class="icon-button" type="button" data-action="edit" data-id="${escapeHtml(user.idUsuario)}" title="Editar usuario" aria-label="Editar usuario"><i class="fa-solid fa-pen" aria-hidden="true"></i></button><button class="icon-button" type="button" data-action="toggle" data-id="${escapeHtml(user.idUsuario)}" title="Cambiar estado" aria-label="Cambiar estado"><i class="fa-solid fa-power-off" aria-hidden="true"></i></button></div></td>
+      </tr>`).join("");
+    const hasRows = visibleUsers.length > 0;
+    emptyState.hidden = hasRows;
+    if (!hasRows) {
+        const hasFilters = Boolean(search.value.trim()) || statusFilter.value !== "all";
+        emptyTitle.textContent = hasFilters ? "No encontramos coincidencias" : "Aún no hay usuarios";
+        emptyText.textContent = hasFilters ? "Prueba con otros términos o limpia los filtros." : "Crea el primer acceso para comenzar a organizar tu equipo.";
+        document.getElementById("emptyAction").hidden = hasFilters;
     }
 }
 
-function guardarUsuarios() {
-    const usuariosSinContrasenas = usuarios.map(({ contrasena, ...usuario }) => usuario);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(usuariosSinContrasenas));
+function showToast(text) {
+    clearTimeout(toastTimer);
+    toast.textContent = text;
+    toast.classList.add("show");
+    toastTimer = setTimeout(() => toast.classList.remove("show"), 2400);
 }
 
-function escapar(texto) {
-    return String(texto ?? "").replace(/[&<>'"]/g, caracter => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[caracter]));
+function resetForm() {
+    editingId = "";
+    form.reset();
+    document.getElementById("dialogTitle").textContent = "Agregar usuario";
+    document.getElementById("contrasena").required = true;
+    document.getElementById("contrasena").placeholder = "••••••••";
+    document.getElementById("formMessage").textContent = "";
+    document.getElementById("contrasena").type = "password";
+    document.querySelector("#togglePassword i").className = "fa-solid fa-eye";
 }
 
-function renderizar() {
-    const filtrados = usuariosFiltrados();
-    const totalPaginas = Math.max(1, Math.ceil(filtrados.length / usuariosPorPagina));
-    paginaActual = Math.min(paginaActual, totalPaginas);
-    const inicio = (paginaActual - 1) * usuariosPorPagina;
-    tabla.innerHTML = filtrados.slice(inicio, inicio + usuariosPorPagina).map(usuario => `
-        <tr>
-            <td><span class="user-name">${escapar(usuario.nombre)}</span><span class="user-login">${escapar(usuario.usuario)}</span></td>
-            <td>${escapar(usuario.documento)}</td>
-            <td>${escapar(usuario.telefono || "—")}</td>
-            <td>${escapar(nombreRol(usuario.idRol))}</td>
-            <td><span class="status-badge ${usuario.activo ? "" : "inactive"}"><span class="status-dot"></span>${usuario.activo ? "Activo" : "Inactivo"}</span></td>
-            <td><div class="row-actions">
-                <button class="row-action edit" type="button" data-action="edit" data-id="${escapar(usuario.idUsuario)}" aria-label="Editar ${escapar(usuario.nombre)}"><i class="fa-solid fa-pen" aria-hidden="true"></i></button>
-                <button class="row-action deactivate" type="button" data-action="toggle" data-id="${escapar(usuario.idUsuario)}" aria-label="Cambiar estado de ${escapar(usuario.nombre)}"><i class="fa-solid fa-power-off" aria-hidden="true"></i></button>
-                <button class="row-action delete" type="button" data-action="delete" data-id="${escapar(usuario.idUsuario)}" aria-label="Eliminar ${escapar(usuario.nombre)}"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>
-            </div></td>
-        </tr>`).join("");
-    estadoVacio.hidden = filtrados.length > 0;
-    contador.textContent = `${filtrados.length} ${filtrados.length === 1 ? "usuario" : "usuarios"}`;
-    renderizarPaginacion(totalPaginas, filtrados.length);
-}
-
-function renderizarPaginacion(totalPaginas, totalRegistros) {
-    paginacion.hidden = totalRegistros === 0;
-    if (totalRegistros === 0) return;
-    const grupoInicio = Math.floor((paginaActual - 1) / 3) * 3 + 1;
-    const grupoFin = Math.min(grupoInicio + 2, totalPaginas);
-    const paginaAnterior = paginaActual - 1;
-    const paginaSiguiente = paginaActual + 1;
-    paginacion.innerHTML = `<button class="page-button" type="button" data-page="${paginaAnterior}" ${paginaAnterior < 1 ? "disabled" : ""} aria-label="Página anterior"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>${Array.from({ length: grupoFin - grupoInicio + 1 }, (_, indice) => { const pagina = grupoInicio + indice; return `<button class="page-button ${pagina === paginaActual ? "active" : ""}" type="button" data-page="${pagina}" aria-current="${pagina === paginaActual ? "page" : "false"}">${pagina}</button>`; }).join("")}<button class="page-button" type="button" data-page="${paginaSiguiente}" ${paginaSiguiente > totalPaginas ? "disabled" : ""} aria-label="Página siguiente"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>`;
-}
-
-function abrirModal(usuario) {
-    formulario.reset();
-    mensajeFormulario.textContent = "";
-    tituloModal.textContent = usuario ? "Editar usuario" : "Agregar usuario";
-    campos.forEach(campo => { const elemento = document.getElementById(campo); elemento.value = usuario?.[campo === "contrasena" ? "contrasena" : campo] || ""; });
-    document.getElementById("contrasena").required = !usuario;
-    document.getElementById("confirmarContrasena").required = !usuario;
-    limpiarErrores();
-    modal.hidden = false;
-    document.getElementById("idRol").focus();
-}
-
-function cerrarModal() { modal.hidden = true; }
-
-function mostrarToast(texto) { clearTimeout(toastTimer); toast.textContent = texto; toast.classList.add("show"); toastTimer = setTimeout(() => toast.classList.remove("show"), 2400); }
-
-function limpiarErrores() { formulario.querySelectorAll(".invalid").forEach(elemento => elemento.classList.remove("invalid")); mensajeFormulario.textContent = ""; }
-
-function marcarInvalido(id, mensaje) { const elemento = document.getElementById(id); elemento.classList.add("invalid"); mensajeFormulario.textContent = mensaje; elemento.focus(); return false; }
-
-function alternarContrasena(id, boton) { const campo = document.getElementById(id); const visible = campo.type === "text"; campo.type = visible ? "password" : "text"; boton.setAttribute("aria-label", visible ? "Mostrar contraseña" : "Ocultar contraseña"); boton.title = visible ? "Mostrar contraseña" : "Ocultar contraseña"; boton.querySelector("i").className = `fa-solid fa-toggle-${visible ? "off" : "on"}`; }
-
-document.getElementById("nuevoUsuario").addEventListener("click", () => abrirModal());
-document.getElementById("cerrarModal").addEventListener("click", cerrarModal);
-document.getElementById("cancelarModal").addEventListener("click", cerrarModal);
-document.getElementById("cancelarEliminacion").addEventListener("click", () => { usuarioPendienteEliminar = null; confirmacionEliminar.hidden = true; });
-document.getElementById("confirmarEliminacion").addEventListener("click", () => {
-    if (!usuarioPendienteEliminar) return;
-    usuarios = usuarios.filter(item => item.idUsuario !== usuarioPendienteEliminar.idUsuario);
-    guardarUsuarios(); renderizar(); mostrarToast("Usuario eliminado");
-    usuarioPendienteEliminar = null; confirmacionEliminar.hidden = true;
-});
-modal.addEventListener("click", evento => { if (evento.target === modal) cerrarModal(); });
-buscador.addEventListener("input", () => { paginaActual = 1; renderizar(); });
-filtroEstado.addEventListener("change", () => { paginaActual = 1; renderizar(); });
-document.getElementById("mostrarContrasena").addEventListener("click", evento => alternarContrasena("contrasena", evento.currentTarget));
-document.getElementById("mostrarConfirmarContrasena").addEventListener("click", evento => alternarContrasena("confirmarContrasena", evento.currentTarget));
-paginacion.addEventListener("click", evento => { const boton = evento.target.closest("button[data-page]"); if (!boton || boton.disabled) return; paginaActual = Number(boton.dataset.page); renderizar(); });
-
-formulario.addEventListener("submit", evento => {
-    evento.preventDefault();
-    limpiarErrores();
-    if (!formulario.reportValidity()) { const invalido = formulario.querySelector(":invalid"); if (invalido) invalido.classList.add("invalid"); return; }
-    const id = document.getElementById("idUsuario").value;
-    const usuario = Object.fromEntries(campos.map(campo => [campo, document.getElementById(campo).value.trim()]));
-    if (!/^\d+$/.test(usuario.documento)) return marcarInvalido("documento", "El documento debe contener solo números.");
-    if (usuario.telefono && !/^\d+$/.test(usuario.telefono)) return marcarInvalido("telefono", "El teléfono debe contener solo números.");
-    if (!/^[a-zA-Z0-9]+$/.test(usuario.usuario)) return marcarInvalido("usuario", "El usuario debe contener solo letras y números.");
-    if (usuario.contrasena !== document.getElementById("confirmarContrasena").value) return marcarInvalido("confirmarContrasena", "Las contraseñas no coinciden.");
-    const usuarioNormalizado = usuario.usuario.toLowerCase();
-    const duplicado = usuarios.some(item => String(item.usuario || "").trim().toLowerCase() === usuarioNormalizado && String(item.idUsuario) !== String(id));
-    if (duplicado) { mensajeFormulario.textContent = "El nombre de usuario ya está registrado."; return; }
-    if (id) {
-        const indice = usuarios.findIndex(item => item.idUsuario === id);
-        if (indice >= 0) usuarios[indice] = { ...usuarios[indice], ...usuario };
-        mostrarToast("Usuario actualizado");
-    } else {
-        usuarios.push({ ...usuario, idUsuario: crypto.randomUUID(), activo: true });
-        mostrarToast("Usuario agregado");
+function openDialog(user) {
+    resetForm();
+    if (user) {
+        editingId = user.idUsuario;
+        document.getElementById("dialogTitle").textContent = "Editar usuario";
+        fields.forEach(field => { if (field !== "contrasena") document.getElementById(field).value = user[field] || ""; });
+        document.getElementById("contrasena").required = false;
+        document.getElementById("contrasena").placeholder = "Dejar vacía para conservarla";
     }
-    guardarUsuarios(); renderizar(); cerrarModal();
-});
-
-tabla.addEventListener("click", evento => {
-    const boton = evento.target.closest("button[data-action]");
-    if (!boton) return;
-    const usuario = usuarios.find(item => item.idUsuario === boton.dataset.id);
-    if (!usuario) return;
-    if (boton.dataset.action === "edit") abrirModal(usuario);
-    if (boton.dataset.action === "toggle") { usuario.activo = !usuario.activo; guardarUsuarios(); renderizar(); mostrarToast(`Usuario ${usuario.activo ? "activado" : "desactivado"}`); }
-    if (boton.dataset.action === "delete") mostrarConfirmacionEliminar(usuario);
-});
-
-function mostrarConfirmacionEliminar(usuario) {
-    if (window.parent !== window) {
-        window.parent.postMessage({ type: "fixelar-confirm-delete", message: `Vas a eliminar a ${usuario.nombre}. Esta acción no se puede deshacer.` }, "*");
-        usuarioPendienteEliminar = usuario;
-        return;
-    }
-    usuarioPendienteEliminar = usuario;
-    textoConfirmacion.textContent = `Vas a eliminar a ${usuario.nombre}. Esta acción no se puede deshacer.`;
-    confirmacionEliminar.hidden = false;
-    document.getElementById("cancelarEliminacion").focus();
+    if (typeof dialog.showModal === "function") dialog.showModal();
+    else dialog.setAttribute("open", "");
+    setTimeout(() => document.getElementById("nombre").focus(), 0);
 }
 
-window.addEventListener("message", event => {
-    if (event.data?.type !== "fixelar-confirm-delete-result" || !usuarioPendienteEliminar) return;
-    if (event.data.confirmed) {
-        usuarios = usuarios.filter(item => item.idUsuario !== usuarioPendienteEliminar.idUsuario);
-        guardarUsuarios(); renderizar(); mostrarToast("Usuario eliminado");
-    }
-    usuarioPendienteEliminar = null;
+function closeDialog() {
+    if (typeof dialog.close === "function" && dialog.open) dialog.close();
+    else dialog.removeAttribute("open");
+    resetForm();
+}
+
+document.getElementById("newUser").addEventListener("click", () => openDialog());
+document.getElementById("emptyAction").addEventListener("click", () => openDialog());
+document.getElementById("closeDialog").addEventListener("click", closeDialog);
+document.getElementById("cancelDialog").addEventListener("click", closeDialog);
+dialog.addEventListener("click", event => { if (event.target === dialog) closeDialog(); });
+search.addEventListener("input", render);
+statusFilter.addEventListener("change", render);
+
+document.getElementById("togglePassword").addEventListener("click", () => {
+    const input = document.getElementById("contrasena");
+    const icon = document.querySelector("#togglePassword i");
+    input.type = input.type === "password" ? "text" : "password";
+    icon.className = input.type === "password" ? "fa-solid fa-eye" : "fa-solid fa-eye-slash";
 });
 
-renderizar();
-renderizarRoles();
+rows.addEventListener("click", event => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+    const user = users.find(item => item.idUsuario === button.dataset.id);
+    if (!user) return;
+    if (button.dataset.action === "edit") openDialog(user);
+    if (button.dataset.action === "toggle") {
+        user.estado = user.estado === "active" ? "inactive" : "active";
+        persist();
+        render();
+        showToast(user.estado === "active" ? "Usuario activado" : "Usuario desactivado");
+    }
+});
+
+form.addEventListener("submit", event => {
+    event.preventDefault();
+    message.textContent = "";
+    if (!form.reportValidity()) return;
+    const values = Object.fromEntries(new FormData(form).entries());
+    const current = editingId ? users.find(user => user.idUsuario === editingId) : null;
+    if (!values.idRol.trim()) { message.textContent = "Indica el rol de acceso del usuario."; return; }
+    if (current && users.some(user => user.usuario.toLowerCase() === values.usuario.trim().toLowerCase() && user.idUsuario !== editingId)) { message.textContent = "Ese nombre de usuario ya está en uso."; return; }
+    const record = normalizeUser({ ...current, ...values, idUsuario: editingId || values.idUsuario || `USR-${Date.now()}`, contrasena: values.contrasena || (current && current.contrasena), estado: current ? current.estado : "active" });
+    if (current) users = users.map(user => user.idUsuario === editingId ? record : user);
+    else users = [record, ...users];
+    persist();
+    closeDialog();
+    render();
+    showToast(current ? "Usuario actualizado" : "Usuario creado");
+});
+
+render();

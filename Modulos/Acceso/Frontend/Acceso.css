@@ -475,3 +475,11 @@ body { background:#edf1f5; }
 .acceso-web-hero .acceso-showcase-content h1 strong { color:#ff6a00; background:linear-gradient(110deg,#ffe500 0%,#fff1a8 45%,#ff6a00 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent; }
 .acceso-product-pill i,.acceso-benefits i,.acceso-security-note i { color:#ff6a00!important; }
 .input-wrNodixer:focus-within { border-color:#ffcf00!important; box-shadow:0 0 0 4px rgb(255 207 0 / 16%)!important; }
+
+/* Contraste de marca: amarillo y naranja más vivos sobre superficies neutras. */
+.acceso-web-hero { background:linear-gradient(135deg,#fffef8 0%,#fffbea 52%,#f8f9fc 100%); }
+.acceso-web-hero .acceso-showcase-content h1 strong { background:linear-gradient(105deg,#ffe000 0%,#ffbd00 48%,#ff6a00 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent; }
+.acceso-web-hero::after { background:#ffcf00; box-shadow:0 0 0 8px rgb(255 207 0 / 18%); }
+.acceso-web-hero .brand-status-dot { background:#ffcf00; box-shadow:0 0 0 5px rgb(255 207 0 / 18%); }
+.acceso-product-preview { border-top:3px solid #ffcf00; }.preview-dot { background:#ff6a00; }.preview-chart i { background:linear-gradient(180deg,#ffe000 0%,#ff6a00 100%); }
+.btn-ingresar { background:linear-gradient(105deg,#ffdf00 0%,#ffc400 48%,#ff6a00 100%); box-shadow:0 10px 24px rgb(255 106 0 / 22%); }.btn-ingresar:hover { background:linear-gradient(105deg,#ffe500 0%,#ffca00 48%,#ff6a00 100%); }

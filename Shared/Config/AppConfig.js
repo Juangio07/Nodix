@@ -3,7 +3,7 @@
 window.FIXELAR_APP = Object.freeze({
   name: "Nodix",
   description: "Plantilla oficial de aplicaciones Fixelar",
-  logoFull: "../../../Assets/Logos/ImagotipoClaro.png",
+  logoFull: "../../../Assets/Logos/ImagotipoOscuro.png",
   logoCompact: "../../../Assets/Logos/Logo.png",
   theme: {
     primary: "#F59E0B",

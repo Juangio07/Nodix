@@ -1,172 +1,42 @@
 <!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nodix | Roles</title>
-    <link
-      rel="stylesheet"
-      href="../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css"
-    />
-    <link rel="stylesheet" href="../../../Shared/Css/Variables.css" />
-    <link rel="stylesheet" href="../../../Shared/Css/Global.css" />
-    <link rel="stylesheet" href="Roles.css" />
-    <script defer src="../../../Shared/Config/AppConfig.js"></script>
-    <script defer src="../../../Shared/Config/FixelarGlobal.js"></script>
-  </head>
-  <body>
-    <main class="roles-page">
-      <header class="roles-header">
-        <div>
-          <span class="roles-eyebrow">CONTROL DE ACCESO</span>
-          <h1>Roles</h1>
-          <p>
-            Define el acceso a módulos y las acciones permitidas para cada rol.
-          </p>
-        </div>
-        <button class="btn-primary roles-add" id="nuevoRol" type="button">
-          <i class="fa-solid fa-lock" aria-hidden="true"></i> Agregar
-          rol
-        </button>
-      </header>
-      <section class="roles-toolbar" aria-label="Herramientas de roles">
-        <label class="roles-search"
-          ><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i
-          ><span class="sr-only">Buscar roles</span
-          ><input
-            id="buscarRoles"
-            type="search"
-            placeholder="Buscar por nombre o descripción"
-            autocomplete="off"
-        /></label>
-        <label class="status-filter"
-          ><span class="sr-only">Filtrar por estado</span
-          ><select id="filtroEstado">
-            <option value="all">Todos los estados</option>
-            <option value="active">Activos</option>
-            <option value="inactive">Inactivos</option>
-          </select></label
-        >
-        <span class="roles-count" id="contadorRoles">0 roles</span>
-      </section>
-      <section class="roles-card">
-        <div class="roles-table-wrap">
-          <table>
-            <caption class="sr-only">
-              Listado de roles
-            </caption>
-            <thead>
-              <tr>
-                <th scope="col">Rol</th>
-                <th scope="col">Módulos</th>
-                <th scope="col">Permisos</th>
-                <th scope="col">Estado</th>
-                <th scope="col">Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="tablaRoles"></tbody>
-          </table>
-          <div class="roles-empty" id="estadoVacio">
-            <i class="fa-solid fa-lock" aria-hidden="true"></i
-            ><strong>No hay roles para mostrar</strong
-            ><span>Agrega el primer rol para comenzar.</span>
-          </div>
-        </div>
-      </section>
-      <nav
-        class="pagination"
-        id="paginacion"
-        aria-label="Paginación de roles"
-        hidden
-      ></nav>
-    </main>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nodix | Roles</title>
+  <link rel="stylesheet" href="../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+  <link rel="stylesheet" href="../../../Shared/Css/Variables.css">
+  <link rel="stylesheet" href="../../../Shared/Css/Global.css">
+  <link rel="stylesheet" href="Roles.css">
+  <script defer src="../../../Shared/Config/AppConfig.js"></script>
+  <script defer src="../../../Shared/Config/FixelarGlobal.js"></script>
+</head>
+<body>
+  <main class="users-page roles-page">
+    <header class="users-header roles-header">
+      <div class="heading-copy">
+        <span class="eyebrow"><i class="fa-solid fa-key" aria-hidden="true"></i> EQUIPO Y CONTROL</span>
+        <h1>Roles</h1>
+        <p>Organiza los perfiles que definen el acceso de tu equipo dentro de Nodix.</p>
+      </div>
+      <button class="primary-button" id="newRole" type="button"><i class="fa-solid fa-key" aria-hidden="true"></i> Nuevo rol</button>
+    </header>
 
-    <div class="modal-backdrop" id="modalRol" hidden>
-      <section
-        class="rol-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="tituloModal"
-      >
-        <div class="modal-header">
-          <div>
-            <span class="roles-eyebrow">CONFIGURACIÓN DE ROL</span>
-            <h2 id="tituloModal">Agregar rol</h2>
-          </div>
-          <button
-            class="icon-button"
-            id="cerrarModal"
-            type="button"
-            aria-label="Cerrar formulario"
-          >
-            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-          </button>
-        </div>
-        <form id="formularioRol" novalidate>
-          <input id="idRol" type="hidden" />
-          <div class="role-fields">
-            <label
-              ><span class="label-caption"
-                >Nombre
-                <span class="required-mark" aria-hidden="true">*</span></span
-              ><input id="nombreRol" type="text" required /></label
-            ><label
-              ><span class="label-caption">Descripción</span
-              ><input id="descripcionRol" type="text"
-            /></label>
-          </div>
-          <div class="permissions-heading">
-            <div>
-              <h3>Acceso y permisos</h3>
-              <p>Todos los módulos aparecen habilitados inicialmente.</p>
-            </div>
-            <button
-              class="btn-secondary btn-small"
-              id="restablecerPermisos"
-              type="button"
-            >
-              Habilitar todos
-            </button>
-          </div>
-          <div class="permissions-list" id="listaPermisos"></div>
-          <p class="form-message" id="mensajeFormulario" role="alert"></p>
-          <div class="modal-actions">
-            <button class="btn-secondary" id="cancelarModal" type="button">
-              Cancelar</button
-            ><button class="btn-primary" type="submit">
-              <i class="fa-solid fa-check" aria-hidden="true"></i> Guardar rol
-            </button>
-          </div>
-        </form>
-      </section>
-    </div>
-    <div class="modal-backdrop" id="confirmacionEliminar" hidden>
-      <section
-        class="confirm-modal"
-        role="alertdialog"
-        aria-modal="true"
-        aria-labelledby="tituloConfirmacion"
-      >
-        <div class="confirm-icon">
-          <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-        </div>
-        <h2 id="tituloConfirmacion">Eliminar rol</h2>
-        <p id="textoConfirmacion"></p>
-        <div class="modal-actions">
-          <button class="btn-secondary" id="cancelarEliminacion" type="button">
-            Cancelar</button
-          ><button class="btn-danger" id="confirmarEliminacion" type="button">
-            <i class="fa-solid fa-trash" aria-hidden="true"></i> Eliminar
-          </button>
-        </div>
-      </section>
-    </div>
-    <div
-      class="roles-toast"
-      id="toastRoles"
-      role="status"
-      aria-live="polite"
-    ></div>
-    <script src="Roles.js"></script>
-  </body>
+    <section class="overview-grid" aria-label="Resumen de roles">
+      <article class="overview-card overview-card-main"><div class="overview-icon"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></div><div><span class="overview-label">Perfiles configurados</span><strong id="totalRoles">0</strong><small>roles disponibles</small></div><span class="overview-mark"><i class="fa-solid fa-lock" aria-hidden="true"></i> Controlado</span></article>
+      <article class="overview-card"><div class="overview-icon soft-blue"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></div><div><span class="overview-label">Roles activos</span><strong id="activeRoles">0</strong><small>perfiles habilitados</small></div></article>
+      <article class="overview-card"><div class="overview-icon soft-orange"><i class="fa-solid fa-user-group" aria-hidden="true"></i></div><div><span class="overview-label">Usuarios asignados</span><strong id="assignedUsers">0</strong><small>accesos relacionados</small></div></article>
+    </section>
+
+    <section class="directory-card" aria-label="Directorio de roles">
+      <div class="directory-head"><div><span class="section-kicker">PERFILES DE ACCESO</span><h2>Roles configurados</h2></div><span class="directory-count" id="resultsCount">0 registros</span></div>
+      <div class="directory-tools"><label class="search-box"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span class="sr-only">Buscar roles</span><input id="searchRoles" type="search" autocomplete="off" placeholder="Buscar por nombre o descripción..."></label><label class="filter-box"><i class="fa-solid fa-sliders" aria-hidden="true"></i><span class="sr-only">Filtrar por estado</span><select id="statusFilter"><option value="all">Todos los estados</option><option value="active">Activos</option><option value="inactive">Inactivos</option></select></label></div>
+      <div class="table-wrap"><table><caption class="sr-only">Roles registrados en Nodix</caption><thead><tr><th>Rol</th><th>Descripción</th><th>Usuarios</th><th>Estado</th><th><span class="sr-only">Acciones</span></th></tr></thead><tbody id="rolesRows"></tbody></table><div class="empty-state" id="emptyState" hidden><div class="empty-icon"><i class="fa-solid fa-key" aria-hidden="true"></i></div><strong id="emptyTitle">Aún no hay roles</strong><span id="emptyText">Crea el primer perfil para organizar los accesos.</span><button class="text-action" id="emptyAction" type="button">Crear rol</button></div></div>
+    </section>
+  </main>
+
+  <dialog class="user-dialog" id="roleDialog" aria-labelledby="dialogTitle"><div class="dialog-layout"><aside class="dialog-aside"><div class="dialog-brand"><span>N</span><small>Nodix</small></div><div class="dialog-aside-copy"><span class="eyebrow">NUEVO PERFIL</span><h2>Un acceso claro empieza con un rol.</h2><p>Define perfiles simples para que cada persona tenga el nivel de acceso que necesita.</p></div><div class="dialog-tip"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i><span>Usa nombres descriptivos y asigna responsabilidades concretas.</span></div></aside><section class="dialog-content"><div class="dialog-header"><div><span class="section-kicker">CONTROL DE ACCESO</span><h2 id="dialogTitle">Agregar rol</h2><p>Completa la información del perfil.</p></div><button class="close-button" id="closeDialog" type="button" aria-label="Cerrar formulario"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div><form id="roleForm" novalidate><input id="roleId" name="roleId" type="hidden"><div class="form-section"><span class="form-section-title">Información del rol</span><div class="form-grid"><label class="field-wide"><span>Nombre <b>*</b></span><input id="roleName" name="nombre" type="text" required placeholder="Ej. Administrador"></label><label class="field-wide"><span>Descripción</span><input id="roleDescription" name="descripcion" type="text" placeholder="Describe las responsabilidades de este perfil"></label></div></div><p class="form-message" id="formMessage" role="alert"></p><footer class="dialog-actions"><button class="secondary-button" id="cancelDialog" type="button">Cancelar</button><button class="primary-button" type="submit"><i class="fa-solid fa-check" aria-hidden="true"></i> Guardar rol</button></footer></form></section></div></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="Roles.js"></script>
+</body>
 </html>

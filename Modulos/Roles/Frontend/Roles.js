@@ -1,53 +1,120 @@
 "use strict";
 
-const STORAGE_KEY = "Nodix_roles_frontend_v1";
-const MODULES = ["Inicio", "Productos", "Estadísticas", "Usuarios", "Roles", "Auditoría", "Membresía", "Configuración"];
-const PERMISSIONS = ["Ver", "Registrar", "Editar", "Eliminar", "Activar/Inactivar"];
-const tabla = document.getElementById("tablaRoles");
-const estadoVacio = document.getElementById("estadoVacio");
-const buscador = document.getElementById("buscarRoles");
-const filtroEstado = document.getElementById("filtroEstado");
-const contador = document.getElementById("contadorRoles");
-const paginacion = document.getElementById("paginacion");
-const modal = document.getElementById("modalRol");
-const formulario = document.getElementById("formularioRol");
-const listaPermisos = document.getElementById("listaPermisos");
-const mensaje = document.getElementById("mensajeFormulario");
-const confirmacion = document.getElementById("confirmacionEliminar");
-const toast = document.getElementById("toastRoles");
-let roles = cargarRoles();
-let paginaActual = 1;
-let pendienteEliminar = null;
+const STORAGE_KEY = "Nodix_roles_v1";
+const dialog = document.getElementById("roleDialog");
+const form = document.getElementById("roleForm");
+const rows = document.getElementById("rolesRows");
+const emptyState = document.getElementById("emptyState");
+const search = document.getElementById("searchRoles");
+const statusFilter = document.getElementById("statusFilter");
+const message = document.getElementById("formMessage");
+const toast = document.getElementById("toast");
+let roles = readRoles();
+let editingId = "";
 let toastTimer;
 
-function cargarRoles() { try { const datos = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); return Array.isArray(datos) ? datos : []; } catch { return []; } }
-function guardarRoles() { localStorage.setItem(STORAGE_KEY, JSON.stringify(roles)); }
-function escapar(valor) { return String(valor ?? "").replace(/[&<>'"]/g, caracter => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[caracter])); }
-function permisosIniciales() { return Object.fromEntries(MODULES.map(modulo => [modulo, Object.fromEntries(PERMISSIONS.map(permiso => [permiso, true]))])); }
-function prepararPermisos(permisos) { const base = permisosIniciales(); return Object.fromEntries(MODULES.map(modulo => [modulo, { ...base[modulo], ...(permisos?.[modulo] || {}) }])); }
-function filtrados() { const termino = buscador.value.trim().toLowerCase(); return roles.filter(rol => (String(rol.nombre || "").toLowerCase().includes(termino) || String(rol.descripcion || "").toLowerCase().includes(termino)) && (filtroEstado.value === "all" || (filtroEstado.value === "active" ? rol.activo !== false : rol.activo === false))); }
-function resumenPermisos(rol) { const accesibles = MODULES.filter(modulo => Object.values(rol.permisos?.[modulo] || {}).some(Boolean)).length; const acciones = Object.values(rol.permisos || {}).reduce((total, permisos) => total + Object.values(permisos).filter(Boolean).length, 0); return `${accesibles} módulos · ${acciones} permisos`; }
-
-function renderizar() {
-    const lista = filtrados(); const totalPaginas = Math.max(1, Math.ceil(lista.length / 8)); paginaActual = Math.min(paginaActual, totalPaginas); const inicio = (paginaActual - 1) * 8;
-    tabla.innerHTML = lista.slice(inicio, inicio + 8).map(rol => `<tr><td><span class="role-name">${escapar(rol.nombre)}</span><span class="role-description">${escapar(rol.descripcion || "Sin descripción")}</span></td><td>${escapar(rol.permisos ? MODULES.filter(modulo => Object.values(rol.permisos[modulo] || {}).some(Boolean)).length : 0)} de ${MODULES.length}</td><td><span class="permission-summary">${escapar(resumenPermisos(rol))}</span></td><td><span class="status-badge ${rol.activo === false ? "inactive" : ""}"><span class="status-dot"></span>${rol.activo === false ? "Inactivo" : "Activo"}</span></td><td><div class="row-actions"><button class="row-action edit" type="button" data-action="edit" data-id="${escapar(rol.idRol)}" aria-label="Editar ${escapar(rol.nombre)}"><i class="fa-solid fa-pen" aria-hidden="true"></i></button><button class="row-action deactivate" type="button" data-action="toggle" data-id="${escapar(rol.idRol)}" aria-label="Cambiar estado de ${escapar(rol.nombre)}"><i class="fa-solid fa-power-off" aria-hidden="true"></i></button><button class="row-action delete" type="button" data-action="delete" data-id="${escapar(rol.idRol)}" aria-label="Eliminar ${escapar(rol.nombre)}"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></div></td></tr>`).join("");
-    estadoVacio.hidden = lista.length > 0; contador.textContent = `${lista.length} ${lista.length === 1 ? "rol" : "roles"}`; renderizarPaginacion(totalPaginas, lista.length);
+function readRoles() {
+    try {
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        return Array.isArray(stored) ? stored.map(normalizeRole) : [];
+    } catch { return []; }
 }
-function renderizarPaginacion(totalPaginas, totalRegistros) { paginacion.hidden = totalRegistros === 0; if (!totalRegistros) return; const inicio = Math.floor((paginaActual - 1) / 3) * 3 + 1; const fin = Math.min(inicio + 2, totalPaginas); paginacion.innerHTML = `<button class="page-button" type="button" data-page="${paginaActual - 1}" ${paginaActual === 1 ? "disabled" : ""} aria-label="Página anterior"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>${Array.from({ length: fin - inicio + 1 }, (_, indice) => { const pagina = inicio + indice; return `<button class="page-button ${pagina === paginaActual ? "active" : ""}" type="button" data-page="${pagina}">${pagina}</button>`; }).join("")}<button class="page-button" type="button" data-page="${paginaActual + 1}" ${paginaActual === totalPaginas ? "disabled" : ""} aria-label="Página siguiente"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>`; }
-function actualizarPermisosDependientes(modulo, activarTodos = false) { const ver = listaPermisos.querySelector(`input[data-module="${CSS.escape(modulo)}"][data-permission="Ver"]`); if (!ver) return; listaPermisos.querySelectorAll(`input[data-module="${CSS.escape(modulo)}"]`).forEach(caja => { if (caja.dataset.permission !== "Ver") { caja.disabled = !ver.checked; if (!ver.checked || activarTodos) caja.checked = ver.checked; } }); }
-function renderizarPermisos(permisos) { listaPermisos.innerHTML = MODULES.map(modulo => `<div class="permission-row"><span class="permission-module">${escapar(modulo)}</span>${PERMISSIONS.map(permiso => `<label class="permission-check ${permiso === "Ver" ? "permission-view" : ""}"><input type="checkbox" data-module="${escapar(modulo)}" data-permission="${escapar(permiso)}" ${permisos[modulo]?.[permiso] ? "checked" : ""}>${escapar(permiso)}</label>`).join("")}</div>`).join(""); MODULES.forEach(modulo => actualizarPermisosDependientes(modulo)); }
-function abrirModal(rol) { formulario.reset(); mensaje.textContent = ""; document.getElementById("tituloModal").textContent = rol ? "Editar rol" : "Agregar rol"; document.getElementById("idRol").value = rol?.idRol || ""; document.getElementById("nombreRol").value = rol?.nombre || ""; document.getElementById("descripcionRol").value = rol?.descripcion || ""; renderizarPermisos(prepararPermisos(rol?.permisos)); modal.hidden = false; document.getElementById("nombreRol").focus(); }
-function cerrarModal() { modal.hidden = true; }
-function mostrarToast(texto) { clearTimeout(toastTimer); toast.textContent = texto; toast.classList.add("show"); toastTimer = setTimeout(() => toast.classList.remove("show"), 2400); }
-function recopilarPermisos() { const permisos = permisosIniciales(); listaPermisos.querySelectorAll("input[type=checkbox]").forEach(caja => { permisos[caja.dataset.module][caja.dataset.permission] = caja.checked; }); return permisos; }
-document.getElementById("nuevoRol").addEventListener("click", () => abrirModal());
-document.getElementById("cerrarModal").addEventListener("click", cerrarModal); document.getElementById("cancelarModal").addEventListener("click", cerrarModal); modal.addEventListener("click", evento => { if (evento.target === modal) cerrarModal(); });
-document.getElementById("restablecerPermisos").addEventListener("click", () => renderizarPermisos(permisosIniciales()));
-listaPermisos.addEventListener("change", evento => { const caja = evento.target.closest("input[type=checkbox]"); if (!caja) return; actualizarPermisosDependientes(caja.dataset.module, caja.dataset.permission === "Ver"); });
-buscador.addEventListener("input", () => { paginaActual = 1; renderizar(); }); filtroEstado.addEventListener("change", () => { paginaActual = 1; renderizar(); });
-paginacion.addEventListener("click", evento => { const boton = evento.target.closest("button[data-page]"); if (!boton || boton.disabled) return; paginaActual = Number(boton.dataset.page); renderizar(); });
-formulario.addEventListener("submit", evento => { evento.preventDefault(); mensaje.textContent = ""; if (!formulario.reportValidity()) return; const id = document.getElementById("idRol").value; const nombre = document.getElementById("nombreRol").value.trim(); if (roles.some(rol => rol.nombre.toLowerCase() === nombre.toLowerCase() && String(rol.idRol) !== String(id))) { mensaje.textContent = "El nombre del rol ya está registrado."; return; } const datos = { idRol: id || crypto.randomUUID(), nombre, descripcion: document.getElementById("descripcionRol").value.trim(), permisos: recopilarPermisos(), activo: id ? roles.find(rol => String(rol.idRol) === String(id))?.activo !== false : true }; if (id) roles = roles.map(rol => String(rol.idRol) === String(id) ? datos : rol); else roles.push(datos); guardarRoles(); renderizar(); cerrarModal(); mostrarToast(id ? "Rol actualizado" : "Rol agregado"); });
-tabla.addEventListener("click", evento => { const boton = evento.target.closest("button[data-action]"); if (!boton) return; const rol = roles.find(item => String(item.idRol) === String(boton.dataset.id)); if (!rol) return; if (boton.dataset.action === "edit") abrirModal(rol); if (boton.dataset.action === "toggle") { rol.activo = rol.activo === false; guardarRoles(); renderizar(); mostrarToast(`Rol ${rol.activo ? "activado" : "inactivado"}`); } if (boton.dataset.action === "delete") { pendienteEliminar = rol; if (window.parent !== window) { window.parent.postMessage({ type: "fixelar-confirm-delete", message: `Vas a eliminar el rol ${rol.nombre}. Esta acción no se puede deshacer.` }, "*"); return; } document.getElementById("textoConfirmacion").textContent = `Vas a eliminar el rol ${rol.nombre}. Esta acción no se puede deshacer.`; confirmacion.hidden = false; } });
-document.getElementById("cancelarEliminacion").addEventListener("click", () => { pendienteEliminar = null; confirmacion.hidden = true; }); document.getElementById("confirmarEliminacion").addEventListener("click", () => { if (!pendienteEliminar) return; roles = roles.filter(rol => rol !== pendienteEliminar); guardarRoles(); renderizar(); pendienteEliminar = null; confirmacion.hidden = true; mostrarToast("Rol eliminado"); });
-window.addEventListener("message", event => { if (event.data?.type !== "fixelar-confirm-delete-result" || !pendienteEliminar) return; if (event.data.confirmed) { roles = roles.filter(rol => rol !== pendienteEliminar); guardarRoles(); renderizar(); mostrarToast("Rol eliminado"); } pendienteEliminar = null; });
-renderizar();
+
+function normalizeRole(role) {
+    return {
+        id: String(role.id || role.idRol || `ROL-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`),
+        nombre: String(role.nombre || "").trim(),
+        descripcion: String(role.descripcion || role.descripcionRol || "").trim(),
+        estado: role.estado === "inactive" ? "inactive" : "active"
+    };
+}
+
+function escapeHtml(value) {
+    return String(value || "").replace(/[&<>'"]/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[character]));
+}
+
+function getUsers() {
+    try {
+        const stored = JSON.parse(localStorage.getItem("Nodix_usuarios_v1") || "[]");
+        return Array.isArray(stored) ? stored : [];
+    } catch { return []; }
+}
+
+function assignedTo(role) {
+    return getUsers().filter(user => String(user.idRol || "").toLowerCase() === role.nombre.toLowerCase() || String(user.idRol || "") === role.id).length;
+}
+
+function filteredRoles() {
+    const query = search.value.trim().toLowerCase();
+    const state = statusFilter.value;
+    return roles.filter(role => `${role.nombre} ${role.descripcion}`.toLowerCase().includes(query) && (state === "all" || role.estado === state));
+}
+
+function render() {
+    const visibleRoles = filteredRoles();
+    const activeCount = roles.filter(role => role.estado === "active").length;
+    const assignedCount = roles.reduce((total, role) => total + assignedTo(role), 0);
+    document.getElementById("totalRoles").textContent = roles.length;
+    document.getElementById("activeRoles").textContent = activeCount;
+    document.getElementById("assignedUsers").textContent = assignedCount;
+    document.getElementById("resultsCount").textContent = `${visibleRoles.length} ${visibleRoles.length === 1 ? "registro" : "registros"}`;
+    rows.innerHTML = visibleRoles.map(role => `
+      <tr>
+        <td><div class="person-cell"><span class="avatar"><i class="fa-solid fa-key" aria-hidden="true"></i></span><span><strong>${escapeHtml(role.nombre || "Sin nombre")}</strong><small>${escapeHtml(role.id)}</small></span></div></td>
+        <td class="document-cell">${escapeHtml(role.descripcion || "Sin descripción")}</td>
+        <td><span class="role-pill"><i class="fa-solid fa-user-group" aria-hidden="true"></i> ${assignedTo(role)}</span></td>
+        <td><span class="status-pill ${role.estado === "inactive" ? "inactive" : ""}">${role.estado === "inactive" ? "Inactivo" : "Activo"}</span></td>
+        <td><div class="row-actions"><button class="icon-button" type="button" data-action="edit" data-id="${escapeHtml(role.id)}" title="Editar rol" aria-label="Editar rol"><i class="fa-solid fa-pen" aria-hidden="true"></i></button><button class="icon-button" type="button" data-action="toggle" data-id="${escapeHtml(role.id)}" title="Cambiar estado" aria-label="Cambiar estado"><i class="fa-solid fa-power-off" aria-hidden="true"></i></button></div></td>
+      </tr>`).join("");
+    const hasRows = visibleRoles.length > 0;
+    emptyState.hidden = hasRows;
+    if (!hasRows) {
+        const hasFilters = Boolean(search.value.trim()) || statusFilter.value !== "all";
+        document.getElementById("emptyTitle").textContent = hasFilters ? "No encontramos coincidencias" : "Aún no hay roles";
+        document.getElementById("emptyText").textContent = hasFilters ? "Prueba con otros términos o limpia los filtros." : "Crea el primer perfil para organizar los accesos.";
+        document.getElementById("emptyAction").hidden = hasFilters;
+    }
+}
+
+function showToast(text) { clearTimeout(toastTimer); toast.textContent = text; toast.classList.add("show"); toastTimer = setTimeout(() => toast.classList.remove("show"), 2300); }
+function resetForm() { editingId = ""; form.reset(); document.getElementById("dialogTitle").textContent = "Agregar rol"; message.textContent = ""; }
+function openDialog(role) { resetForm(); if (role) { editingId = role.id; document.getElementById("dialogTitle").textContent = "Editar rol"; document.getElementById("roleId").value = role.id; document.getElementById("roleName").value = role.nombre; document.getElementById("roleDescription").value = role.descripcion; } if (typeof dialog.showModal === "function") dialog.showModal(); else dialog.setAttribute("open", ""); setTimeout(() => document.getElementById("roleName").focus(), 0); }
+function closeDialog() { if (dialog.open && typeof dialog.close === "function") dialog.close(); else dialog.removeAttribute("open"); resetForm(); }
+
+document.getElementById("newRole").addEventListener("click", () => openDialog());
+document.getElementById("emptyAction").addEventListener("click", () => openDialog());
+document.getElementById("closeDialog").addEventListener("click", closeDialog);
+document.getElementById("cancelDialog").addEventListener("click", closeDialog);
+dialog.addEventListener("click", event => { if (event.target === dialog) closeDialog(); });
+search.addEventListener("input", render);
+statusFilter.addEventListener("change", render);
+
+rows.addEventListener("click", event => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+    const role = roles.find(item => item.id === button.dataset.id);
+    if (!role) return;
+    if (button.dataset.action === "edit") openDialog(role);
+    if (button.dataset.action === "toggle") { role.estado = role.estado === "active" ? "inactive" : "active"; persist(); render(); showToast(role.estado === "active" ? "Rol activado" : "Rol desactivado"); }
+});
+
+function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(roles)); }
+
+form.addEventListener("submit", event => {
+    event.preventDefault();
+    message.textContent = "";
+    if (!form.reportValidity()) return;
+    const values = Object.fromEntries(new FormData(form).entries());
+    const name = values.nombre.trim();
+    if (roles.some(role => role.nombre.toLowerCase() === name.toLowerCase() && role.id !== editingId)) { message.textContent = "Ya existe un rol con ese nombre."; return; }
+    const wasEditing = Boolean(editingId);
+    const current = roles.find(role => role.id === editingId);
+    const record = normalizeRole({ ...current, id: editingId || `ROL-${Date.now()}`, nombre: name, descripcion: values.descripcion.trim(), estado: current ? current.estado : "active" });
+    roles = wasEditing ? roles.map(role => role.id === editingId ? record : role) : [record, ...roles];
+    persist();
+    closeDialog();
+    render();
+    showToast(wasEditing ? "Rol actualizado" : "Rol creado");
+});
+
+render();

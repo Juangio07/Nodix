@@ -1,6 +1,8 @@
 "use strict";
 
 const STORAGE_KEY = "Nodix_gastos_v1";
+const LEGACY_STORAGE_KEY = "Nodix_gastos";
+const scopeApi = window.NodixBusinessScope;
 const currencyApi = window.NodixCurrencyInput;
 const dialog = document.getElementById("expenseDialog");
 const form = document.getElementById("expenseForm");
@@ -11,19 +13,21 @@ const message = document.getElementById("formMessage");
 const toast = document.getElementById("toast");
 const amountInput = document.getElementById("valorTotal");
 currencyApi.bind(amountInput);
+let business = scopeApi.getBusiness();
 let expenses = readExpenses();
 let editingId = "";
 let toastTimer;
 const money = value => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(Number(value) || 0);
 const safe = value => String(value || "").replace(/[&<>'"]/g, character => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", "'":"&#39;", '"':"&quot;" }[character]));
-function readExpenses() { try { const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); return Array.isArray(data) ? data.map(normalize) : []; } catch { return []; } }
-function normalize(item) { return { id: String(item.id || `GAS-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`), descripcion: String(item.descripcion || "").trim(), valorTotal: Number(item.valorTotal || item.valor) || 0, fecha: String(item.fecha || "").slice(0, 10) }; }
-function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses)); }
+const localDate = (date = new Date()) => { const copy = new Date(date); copy.setMinutes(copy.getMinutes() - copy.getTimezoneOffset()); return copy.toISOString().slice(0, 10); };
+function readExpenses() { const result = scopeApi.readScoped(STORAGE_KEY, LEGACY_STORAGE_KEY); business = result.business; return result.records.map(normalize); }
+function normalize(item) { return { id: String(item.id || `GAS-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`), descripcion: String(item.descripcion || "").trim(), valorTotal: Number(item.valorTotal || item.valor) || 0, fecha: String(item.fecha || "").slice(0, 10), negocioId: business.id, negocioNombre: business.name }; }
+function persist() { scopeApi.writeScoped(STORAGE_KEY, expenses.map(item => ({ ...item, negocioId: business.id, negocioNombre: business.name }))); }
 function filtered() { const query = search.value.trim().toLowerCase(); return expenses.filter(item => `${item.descripcion} ${item.fecha}`.toLowerCase().includes(query)); }
-function currentMonthTotal() { const month = new Date().toISOString().slice(0, 7); return expenses.filter(item => item.fecha.startsWith(month)).reduce((sum, item) => sum + item.valorTotal, 0); }
+function currentMonthTotal() { const month = localDate().slice(0, 7); return expenses.filter(item => item.fecha.startsWith(month)).reduce((sum, item) => sum + item.valorTotal, 0); }
 function render() { const visible = filtered(); document.getElementById("totalExpenses").textContent = expenses.length; document.getElementById("expensesValue").textContent = money(expenses.reduce((sum, item) => sum + item.valorTotal, 0)); document.getElementById("monthValue").textContent = money(currentMonthTotal()); document.getElementById("resultsCount").textContent = `${visible.length} ${visible.length === 1 ? "registro" : "registros"}`; rows.innerHTML = visible.map(item => `<tr><td class="document-cell"><strong>${safe(item.descripcion || "Sin descripción")}</strong></td><td class="phone-cell">${money(item.valorTotal)}</td><td class="phone-cell">${safe(item.fecha || "—")}</td><td><div class="row-actions"><button class="icon-button" type="button" data-action="edit" data-id="${safe(item.id)}" aria-label="Editar gasto"><i class="fa-solid fa-pen" aria-hidden="true"></i></button><button class="icon-button" type="button" data-action="delete" data-id="${safe(item.id)}" aria-label="Eliminar gasto"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></div></td></tr>`).join(""); emptyState.hidden = visible.length > 0; if (!visible.length) { const filteredBySearch = Boolean(search.value.trim()); document.getElementById("emptyTitle").textContent = filteredBySearch ? "No encontramos coincidencias" : "Aún no hay gastos"; document.getElementById("emptyText").textContent = filteredBySearch ? "Prueba con otra búsqueda." : "Registra el primer movimiento para comenzar."; document.getElementById("emptyAction").hidden = filteredBySearch; } }
 function showToast(text) { clearTimeout(toastTimer); toast.textContent = text; toast.classList.add("show"); toastTimer = setTimeout(() => toast.classList.remove("show"), 2300); }
-function resetForm() { editingId = ""; form.reset(); currencyApi.setValue(amountInput, 0); document.getElementById("dialogTitle").textContent = "Agregar gasto"; document.getElementById("fecha").value = new Date().toISOString().slice(0, 10); message.textContent = ""; }
+function resetForm() { editingId = ""; form.reset(); currencyApi.setValue(amountInput, 0); document.getElementById("dialogTitle").textContent = "Agregar gasto"; document.getElementById("fecha").value = localDate(); message.textContent = ""; }
 function openDialog(item) { resetForm(); if (item) { editingId = item.id; document.getElementById("dialogTitle").textContent = "Editar gasto"; document.getElementById("expenseId").value = item.id; document.getElementById("descripcion").value = item.descripcion; currencyApi.setValue(amountInput, item.valorTotal); document.getElementById("fecha").value = item.fecha; } if (dialog.showModal) dialog.showModal(); else dialog.setAttribute("open", ""); setTimeout(() => document.getElementById("descripcion").focus(), 0); }
 function closeDialog() { if (dialog.open && dialog.close) dialog.close(); else dialog.removeAttribute("open"); resetForm(); }
 document.getElementById("newExpense").addEventListener("click", () => openDialog()); document.getElementById("emptyAction").addEventListener("click", () => openDialog()); document.getElementById("closeDialog").addEventListener("click", closeDialog); document.getElementById("cancelDialog").addEventListener("click", closeDialog); dialog.addEventListener("click", event => { if (event.target === dialog) closeDialog(); }); search.addEventListener("input", render);

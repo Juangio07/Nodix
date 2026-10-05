@@ -3,8 +3,11 @@
 const ARTICLE_KEY = "Nodix_articulos_v2";
 const ARTICLE_LEGACY_KEY = "Nodix_articulos_v1";
 const CATEGORY_KEY = "Nodix_categorias_v1";
-const CLIENT_KEY = "Nodix_clientes_v2";
-const CLIENT_LEGACY_KEY = "Nodix_clientes_v1";
+// Clientes.js guarda los registros en v1. Ventas debe leer la misma fuente
+// para que el selector de clientes muestre exactamente los registros creados
+// desde el módulo Clientes, manteniendo compatibilidad con una versión previa.
+const CLIENT_KEY = "Nodix_clientes_v1";
+const CLIENT_LEGACY_KEY = "Nodix_clientes_v2";
 const SALE_KEY = "Nodix_ventas_v2";
 const SALE_LEGACY_KEY = "Nodix_ventas_v1";
 const scopeApi = window.NodixBusinessScope;
@@ -25,6 +28,16 @@ const clientSelect = document.getElementById("clientSelect");
 const confirmSale = document.getElementById("confirmSale");
 const formMessage = document.getElementById("formMessage");
 const toast = document.getElementById("toast");
+const newSaleView = document.getElementById("newSaleView");
+const historyView = document.getElementById("historyView");
+const historySearch = document.getElementById("salesHistorySearch");
+const historyStartDate = document.getElementById("historyStartDate");
+const historyEndDate = document.getElementById("historyEndDate");
+const historyStatus = document.getElementById("historyStatus");
+const historyPayment = document.getElementById("historyPayment");
+const historyRows = document.getElementById("salesHistoryRows");
+const historyEmpty = document.getElementById("salesHistoryEmpty");
+const saleDetailDialog = document.getElementById("saleDetailDialog");
 let business = scopeApi.getBusiness();
 let categories = [];
 let articles = [];
@@ -52,7 +65,7 @@ function records(key, legacyKey) {
 function categoryName(id) { const category = categories.find(item => item.id === String(id)); return category ? category.nombre : "Sin categoría"; }
 function normalizeArticle(item) { return { id: String(item.id || item.codigo || newId("ART")), codigo: String(item.codigo || item.code || "").trim(), descripcion: String(item.descripcion || item.nombre || item.name || "").trim(), categoriaId: String(item.categoriaId || item.categoryId || item.idCategoria || item.category || "").trim(), precioVenta: Number(item.precioVenta || item.precio || item.salePrice || 0) || 0, costo: Number(item.costo || item.cost || 0) || 0, estado: item.estado === "inactive" ? "inactive" : "active" }; }
 function normalizeClient(item) { return { id: String(item.id || item.documento || newId("CLI")), documento: String(item.documento || "").trim(), nombre: String(item.nombre || "").trim(), telefono: String(item.telefono || "").trim(), estado: item.estado === "inactive" ? "inactive" : "active" }; }
-function normalizeSale(item) { const lines = item.items || item.detalle || item.detalles || item.productos || item.articulos || item.lines || item.lineas || []; const normalizedLines = Array.isArray(lines) ? lines.map(line => ({ articuloId: String(line.articuloId || line.articleId || line.idArticulo || line.productId || ""), codigo: String(line.codigo || line.code || ""), descripcion: String(line.descripcion || line.nombre || line.description || ""), cantidad: Number(line.cantidad || line.quantity || line.qty || 0) || 0, precioVenta: Number(line.precioVenta || line.precio || line.unitPrice || line.valorUnitario || 0) || 0, subtotal: Number(line.subtotal || line.total || 0) || 0 })) : []; return { id: String(item.id || item.numero || newId("VEN")), numero: String(item.numero || item.numeroFactura || item.codigo || "Venta"), tipo: String(item.tipo || item.tipoFactura || "Venta de mostrador"), fecha: String(item.fecha || item.createdAt || localDate()).slice(0, 10), clienteId: String(item.clienteId || item.clientId || ""), clienteNombre: String(item.clienteNombre || item.clientName || "Consumidor final"), metodoPago: String(item.metodoPago || item.paymentMethod || "Efectivo"), items: normalizedLines, subtotal: Number(item.subtotal || item.total || 0) || 0, total: Number(item.total || item.valorTotal || item.subtotal || 0) || 0, estado: String(item.estado || "completed") }; }
+function normalizeSale(item) { const lines = item.items || item.detalle || item.detalles || item.productos || item.articulos || item.lines || item.lineas || []; const normalizedLines = Array.isArray(lines) ? lines.map(line => ({ articuloId: String(line.articuloId || line.articleId || line.idArticulo || line.productId || ""), codigo: String(line.codigo || line.code || ""), descripcion: String(line.descripcion || line.nombre || line.description || ""), categoriaId: String(line.categoriaId || line.categoryId || ""), categoriaNombre: String(line.categoriaNombre || line.categoryName || ""), cantidad: Number(line.cantidad || line.quantity || line.qty || 0) || 0, precioVenta: Number(line.precioVenta || line.precio || line.unitPrice || line.valorUnitario || 0) || 0, subtotal: Number(line.subtotal || line.total || 0) || 0 })) : []; return { id: String(item.id || item.numero || newId("VEN")), numero: String(item.numero || item.numeroFactura || item.codigo || "Venta"), tipo: String(item.tipo || item.tipoFactura || "Venta de mostrador"), fecha: String(item.fecha || item.createdAt || localDate()).slice(0, 10), fechaHora: String(item.fechaHora || item.createdAt || ""), clienteId: String(item.clienteId || item.clientId || ""), clienteNombre: String(item.clienteNombre || item.clientName || "Consumidor final"), clienteDocumento: String(item.clienteDocumento || item.clientDocument || ""), clienteTelefono: String(item.clienteTelefono || item.clientPhone || ""), usuarioId: String(item.usuarioId || item.userId || ""), usuarioNombre: String(item.usuarioNombre || item.userName || "Administrador"), metodoPago: String(item.metodoPago || item.paymentMethod || "Efectivo"), items: normalizedLines, subtotal: Number(item.subtotal || item.total || 0) || 0, total: Number(item.total || item.valorTotal || item.subtotal || 0) || 0, estado: String(item.estado || "completed") }; }
 
 function reloadData() {
     business = scopeApi.getBusiness();
@@ -61,7 +74,12 @@ function reloadData() {
     const storedSales = inventoryApi.readSales();
     articles = records(ARTICLE_KEY, ARTICLE_LEGACY_KEY).map(normalizeArticle).map(article => ({ ...article, stock: inventoryApi.availableStock(article.id, article.codigo, merchandise, storedSales) }));
     clients = records(CLIENT_KEY, CLIENT_LEGACY_KEY).map(normalizeClient).filter(client => client.estado === "active");
-    sales = records(SALE_KEY, SALE_LEGACY_KEY).map(normalizeSale).sort((first, second) => String(second.fecha).localeCompare(String(first.fecha)));
+    sales = records(SALE_KEY, SALE_LEGACY_KEY).map(normalizeSale).map(sale => {
+        // Completa ventas antiguas que todavía no guardaban el documento o
+        // teléfono del cliente, sin alterar los datos ya congelados de la venta.
+        const client = clients.find(item => item.id === sale.clienteId);
+        return { ...sale, clienteDocumento: sale.clienteDocumento || client?.documento || "", clienteTelefono: sale.clienteTelefono || client?.telefono || "", clienteNombre: sale.clienteNombre === "Consumidor final" && client ? client.nombre : sale.clienteNombre };
+    }).sort((first, second) => String(second.fecha).localeCompare(String(first.fecha)));
 }
 
 function renderCategoryOptions() {
@@ -127,7 +145,78 @@ function renderRecentSales() {
     const recent = sales.slice(0, 5);
     document.getElementById("salesCount").textContent = `${sales.length} ${sales.length === 1 ? "registro" : "registros"}`;
     document.getElementById("recentEmpty").hidden = recent.length > 0;
-    document.getElementById("recentSales").innerHTML = recent.map(sale => `<div class="recent-item"><div><strong>${safe(sale.numero)}</strong><small>${safe(dateLabel(sale.fecha))} · ${safe(sale.tipo)}</small></div><div><strong>${safe(sale.clienteNombre || "Consumidor final")}</strong><small>${number(sale.items.reduce((sum, line) => sum + line.cantidad, 0))} productos · ${safe(sale.metodoPago)}</small></div><strong class="recent-total">${money(sale.total)}</strong><span class="recent-status">Confirmada</span></div>`).join("");
+    document.getElementById("recentSales").innerHTML = recent.map(sale => `<button class="recent-item" type="button" data-sale-id="${safe(sale.id)}"><span><strong>${safe(sale.numero)}</strong><small>${safe(dateLabel(sale.fecha))} · ${safe(sale.tipo)}</small></span><span><strong>${safe(sale.clienteNombre || "Consumidor final")}</strong><small>${number(sale.items.reduce((sum, line) => sum + line.cantidad, 0))} productos · ${safe(sale.metodoPago)}</small></span><strong class="recent-total">${money(sale.total)}</strong><span class="recent-status ${saleStatus(sale)}">${statusLabel(sale)}</span></button>`).join("");
+}
+
+function saleStatus(sale) {
+    const value = String(sale.estado || "completed").toLowerCase();
+    if (["cancelled", "canceled", "anulada", "anulado"].includes(value)) return "cancelled";
+    if (["pending", "pendiente"].includes(value)) return "pending";
+    return "completed";
+}
+
+function statusLabel(sale) {
+    const status = saleStatus(sale);
+    return status === "cancelled" ? "Anulada" : status === "pending" ? "Pendiente" : "Confirmada";
+}
+
+function formatDateTime(sale) {
+    if (!sale.fechaHora) return dateLabel(sale.fecha);
+    const date = new Date(sale.fechaHora);
+    return Number.isNaN(date.getTime()) ? dateLabel(sale.fecha) : date.toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" });
+}
+
+function historyMatches(sale) {
+    const query = historySearch.value.trim().toLowerCase();
+    const searchable = [sale.numero, sale.clienteNombre, sale.clienteDocumento, sale.clienteTelefono, sale.usuarioNombre, ...sale.items.flatMap(line => [line.codigo, line.descripcion])].join(" ").toLowerCase();
+    const statusMatches = historyStatus.value === "all" || saleStatus(sale) === historyStatus.value;
+    const paymentMatches = historyPayment.value === "all" || sale.metodoPago === historyPayment.value;
+    const startMatches = !historyStartDate.value || sale.fecha >= historyStartDate.value;
+    const endMatches = !historyEndDate.value || sale.fecha <= historyEndDate.value;
+    return (!query || searchable.includes(query)) && statusMatches && paymentMatches && startMatches && endMatches;
+}
+
+function renderSalesHistory() {
+    const visible = sales.filter(historyMatches);
+    const totalProducts = visible.reduce((sum, sale) => sum + sale.items.reduce((lineSum, line) => lineSum + line.cantidad, 0), 0);
+    const totalAmount = visible.reduce((sum, sale) => sum + sale.total, 0);
+    document.getElementById("historyCount").textContent = number(visible.length);
+    document.getElementById("historyResults").textContent = number(visible.length);
+    document.getElementById("historyProducts").textContent = number(totalProducts);
+    const historyTotal = document.getElementById("historyTotal");
+    historyTotal.textContent = money(totalAmount);
+    historyTotal.style.color = "var(--warning)";
+    historyEmpty.hidden = visible.length > 0;
+    historyRows.innerHTML = visible.map(sale => {
+        const products = sale.items.reduce((sum, line) => sum + line.cantidad, 0);
+        return `<tr><td><strong class="invoice-number">${safe(sale.numero)}</strong><small>${safe(sale.tipo)}</small></td><td>${safe(dateLabel(sale.fecha))}<small>${safe(formatDateTime(sale).split(" · ").pop() || "")}</small></td><td><strong>${safe(sale.clienteNombre || "Consumidor final")}</strong><small>${safe(sale.clienteDocumento || "Sin documento")}</small></td><td>${number(products)} ${products === 1 ? "producto" : "productos"}</td><td>${safe(sale.metodoPago)}</td><td><strong>${money(sale.total)}</strong></td><td><span class="history-status ${saleStatus(sale)}">${statusLabel(sale)}</span></td><td><button class="detail-button" type="button" data-sale-id="${safe(sale.id)}" title="Ver detalle"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i><span>Ver detalle</span></button></td></tr>`;
+    }).join("");
+    historyRows.querySelectorAll(".invoice-number, .detail-button").forEach(element => { element.style.color = "var(--warning)"; });
+}
+
+function openSaleDetail(saleId) {
+    const sale = sales.find(item => item.id === saleId);
+    if (!sale) return;
+    document.getElementById("saleDetailTitle").textContent = sale.numero;
+    document.getElementById("saleDetailMeta").innerHTML = `<div><span>Fecha y hora</span><strong>${safe(formatDateTime(sale))}</strong></div><div><span>Tipo</span><strong>${safe(sale.tipo)}</strong></div><div><span>Estado</span><strong class="detail-state ${saleStatus(sale)}">${statusLabel(sale)}</strong></div>`;
+    document.getElementById("saleDetailCustomer").innerHTML = `<div class="customer-detail-icon"><i class="fa-solid fa-user" aria-hidden="true"></i></div><div><span>Cliente comprador</span><strong>${safe(sale.clienteNombre || "Consumidor final")}</strong><small>${safe(sale.clienteDocumento || "Sin documento")} · ${safe(sale.clienteTelefono || "Sin teléfono")}</small></div><div class="sale-operator"><span>Registrada por</span><strong>${safe(sale.usuarioNombre || "Administrador")}</strong></div>`;
+    document.getElementById("saleDetailRows").innerHTML = sale.items.map(line => `<tr><td><strong>${safe(line.descripcion || "Sin descripción")}</strong><small>${safe(line.codigo || "Sin código")}</small></td><td>${safe(line.categoriaNombre || categoryName(line.categoriaId))}</td><td>${number(line.cantidad)}</td><td>${money(line.precioVenta)}</td><td><strong>${money(line.subtotal)}</strong></td></tr>`).join("");
+    document.getElementById("saleDetailPayment").textContent = sale.metodoPago;
+    const saleDetailTotal = document.getElementById("saleDetailTotal");
+    saleDetailTotal.textContent = money(sale.total);
+    saleDetailTotal.style.color = "var(--warning)";
+    if (saleDetailDialog.showModal) saleDetailDialog.showModal();
+    else saleDetailDialog.setAttribute("open", "");
+}
+
+function closeSaleDetail() { if (saleDetailDialog.open && saleDetailDialog.close) saleDetailDialog.close(); else saleDetailDialog.removeAttribute("open"); }
+
+function setSalesView(view) {
+    const isHistory = view === "history";
+    newSaleView.hidden = isHistory;
+    historyView.hidden = !isHistory;
+    document.querySelectorAll("[data-sales-view]").forEach(button => { const selected = button.dataset.salesView === view; button.classList.toggle("active", selected); button.setAttribute("aria-selected", String(selected)); });
+    if (isHistory) renderSalesHistory();
 }
 
 function resetInvoice() { cart = []; selectedCategoryId = ""; selectedArticleId = ""; productSearch.value = ""; productQuantity.value = "1"; productMessage.textContent = ""; formMessage.textContent = ""; clientSelect.value = ""; document.getElementById("invoiceType").value = "Venta de mostrador"; document.getElementById("paymentMethod").value = "Efectivo"; document.getElementById("invoiceNumber").textContent = "Nueva"; renderCategoryOptions(); renderProductOptions(); renderCart(); }
@@ -170,7 +259,7 @@ function persistSale() {
     const selectedClient = clients.find(client => client.id === clientSelect.value);
     const subtotal = cart.reduce((sum, line) => sum + line.subtotal, 0);
     const nextNumber = String(sales.length + 1).padStart(4, "0");
-    const sale = { id: newId("VEN"), numero: `FAC-${new Date().getFullYear()}-${nextNumber}`, negocioId: business.id, negocioNombre: business.name, tipo: document.getElementById("invoiceType").value, fecha: localDate(), fechaHora: new Date().toISOString(), clienteId: selectedClient ? selectedClient.id : "", clienteNombre: selectedClient ? selectedClient.nombre : "Consumidor final", metodoPago: document.getElementById("paymentMethod").value, items: cart.map(line => ({ ...line })), subtotal, total: subtotal, estado: "completed" };
+    const sale = { id: newId("VEN"), numero: `FAC-${new Date().getFullYear()}-${nextNumber}`, negocioId: business.id, negocioNombre: business.name, tipo: document.getElementById("invoiceType").value, fecha: localDate(), fechaHora: new Date().toISOString(), clienteId: selectedClient ? selectedClient.id : "", clienteNombre: selectedClient ? selectedClient.nombre : "Consumidor final", clienteDocumento: selectedClient ? selectedClient.documento : "", clienteTelefono: selectedClient ? selectedClient.telefono : "", usuarioId: "USR-DEMO", usuarioNombre: "Administrador", metodoPago: document.getElementById("paymentMethod").value, items: cart.map(line => ({ ...line, categoriaNombre: line.categoriaNombre || categoryName(line.categoriaId) })), subtotal, total: subtotal, estado: "completed" };
     const stored = [...sales, sale];
     scopeApi.writeScoped(SALE_KEY, stored);
     sales = [sale, ...sales];
@@ -218,9 +307,34 @@ document.getElementById("clearSale").addEventListener("click", async () => {
     if (confirmed) resetInvoice();
 });
 
+document.querySelectorAll("[data-sales-view]").forEach(button => button.addEventListener("click", () => setSalesView(button.dataset.salesView)));
+[historySearch, historyStartDate, historyEndDate, historyStatus, historyPayment].forEach(control => control.addEventListener("input", renderSalesHistory));
+[historyStatus, historyPayment].forEach(control => control.addEventListener("change", renderSalesHistory));
+document.getElementById("clearHistoryFilters").addEventListener("click", () => {
+    historySearch.value = "";
+    historyStartDate.value = "";
+    historyEndDate.value = "";
+    historyStatus.value = "all";
+    historyPayment.value = "all";
+    renderSalesHistory();
+});
+document.getElementById("recentSales").addEventListener("click", event => {
+    const button = event.target.closest("[data-sale-id]");
+    if (button) openSaleDetail(button.dataset.saleId);
+});
+historyRows.addEventListener("click", event => {
+    const button = event.target.closest("[data-sale-id]");
+    if (button) openSaleDetail(button.dataset.saleId);
+});
+document.getElementById("closeSaleDetail").addEventListener("click", closeSaleDetail);
+saleDetailDialog.addEventListener("click", event => { if (event.target === saleDetailDialog) closeSaleDetail(); });
+saleDetailDialog.addEventListener("cancel", event => { event.preventDefault(); closeSaleDetail(); });
+window.addEventListener("storage", event => { if ([SALE_KEY, SALE_LEGACY_KEY, CLIENT_KEY, CLIENT_LEGACY_KEY].includes(event.key)) { reloadData(); renderClients(); renderRecentSales(); renderSalesHistory(); } });
+
 reloadData();
 renderClients();
 renderCategoryOptions();
 renderProductOptions();
 renderCart();
 renderRecentSales();
+renderSalesHistory();

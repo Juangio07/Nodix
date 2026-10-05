@@ -11,6 +11,11 @@
         return String(value || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 100);
     }
 
+    function belongsToBusiness(record, business) {
+        const recordBusiness = record && (record.negocioId || record.businessId || record.idNegocio);
+        return !recordBusiness || normalizeId(recordBusiness) === business.id;
+    }
+
     function getBusiness() {
         const config = parse(localStorage.getItem(CONFIG_KEY) || "{}", {});
         const name = String(config.nombreEmpresa || config.nombre || "Negocio demo").trim() || "Negocio demo";
@@ -25,6 +30,7 @@
         let records = Array.isArray(stored)
             ? stored
             : (Array.isArray(stored[business.id]) ? stored[business.id] : []);
+        records = records.filter(record => record && typeof record === "object" && belongsToBusiness(record, business));
         // Compatibilidad: las primeras versiones guardaban los registros como
         // un arreglo único. Se asocian al negocio activo y se migran una sola
         // vez al formato aislado por negocio.
@@ -49,7 +55,7 @@
         const stored = Array.isArray(storedValue)
             ? {}
             : (storedValue && typeof storedValue === "object" ? storedValue : {});
-        stored[business.id] = Array.isArray(records) ? records : [];
+        stored[business.id] = Array.isArray(records) ? records.filter(record => record && typeof record === "object" && belongsToBusiness(record, business)) : [];
         localStorage.setItem(key, JSON.stringify(stored));
         return business;
     }

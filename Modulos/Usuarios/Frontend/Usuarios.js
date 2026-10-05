@@ -1,6 +1,7 @@
 "use strict";
 
 const STORAGE_KEY = "Nodix_usuarios_v1";
+const scopeApi = window.NodixBusinessScope;
 const relationshipApi = window.NodixRelationshipGuard;
 const fields = ["idUsuario", "idRol", "documento", "nombre", "telefono", "usuario", "contrasena"];
 const form = document.getElementById("userForm");
@@ -14,27 +15,26 @@ const statusFilter = document.getElementById("statusFilter");
 const roleSelect = document.getElementById("idRol");
 const message = document.getElementById("formMessage");
 const toast = document.getElementById("toast");
+let business = scopeApi.getBusiness();
 let users = readUsers();
 let editingId = "";
 let toastTimer;
 
 function readUsers() {
-    try {
-        const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-        return Array.isArray(stored) ? stored.map(normalizeUser) : [];
-    } catch {
-        return [];
-    }
+    const result = scopeApi.readScoped(STORAGE_KEY);
+    business = result.business;
+    return result.records.map(normalizeUser);
 }
 
 function readRoles() {
     try {
-        const stored = JSON.parse(localStorage.getItem("Nodix_roles_v1") || "[]");
-        return Array.isArray(stored) ? stored.map(role => ({
+        const result = scopeApi.readScoped("Nodix_roles_v1");
+        business = result.business;
+        return result.records.map(role => ({
             id: String(role.id || role.idRol || "").trim(),
             nombre: String(role.nombre || "").trim(),
             estado: role.estado === "inactive" ? "inactive" : "active"
-        })).filter(role => role.id && role.nombre) : [];
+        })).filter(role => role.id && role.nombre);
     } catch {
         return [];
     }
@@ -78,7 +78,9 @@ function normalizeUser(user) {
         telefono: String(user.telefono || ""),
         usuario: String(user.usuario || ""),
         contrasena: String(user.contrasena || ""),
-        estado: user.estado === "inactive" ? "inactive" : "active"
+        estado: user.estado === "inactive" ? "inactive" : "active",
+        negocioId: business.id,
+        negocioNombre: business.name
     };
 }
 
@@ -92,7 +94,7 @@ function initials(name) {
 }
 
 function persist() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+    scopeApi.writeScoped(STORAGE_KEY, users.map(user => ({ ...user, negocioId: business.id, negocioNombre: business.name })));
 }
 
 function filteredUsers() {

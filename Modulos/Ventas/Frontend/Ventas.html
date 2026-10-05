@@ -20,8 +20,13 @@
         <h1>Ventas</h1>
         <p>Registra una venta de forma clara y descuenta automáticamente las unidades disponibles.</p>
       </div>
+      <div class="sales-view-switch" role="tablist" aria-label="Vistas de ventas">
+        <button class="view-tab active" type="button" data-sales-view="new" role="tab" aria-selected="true"><i class="fa-solid fa-plus" aria-hidden="true"></i>Nueva venta</button>
+        <button class="view-tab" type="button" data-sales-view="history" role="tab" aria-selected="false"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>Historial de ventas</button>
+      </div>
     </header>
 
+    <section class="sales-view" id="newSaleView" data-sales-panel="new">
     <section class="sales-steps" aria-label="Flujo de venta">
       <div class="step active"><span>1</span><div><strong>Agrega productos</strong><small>Elige artículos y cantidades</small></div></div>
       <i class="fa-solid fa-chevron-right step-arrow" aria-hidden="true"></i>
@@ -68,10 +73,11 @@
         </section>
 
         <section class="panel recent-panel" aria-labelledby="recentTitle">
-          <div class="panel-heading compact-heading"><div><span class="section-kicker">HISTORIAL LOCAL</span><h2 id="recentTitle">Últimas ventas</h2></div><span class="line-count" id="salesCount">0 registros</span></div>
+          <div class="panel-heading compact-heading"><div><span class="section-kicker">ÚLTIMAS VENTAS</span><h2 id="recentTitle">Últimas ventas</h2></div><span class="line-count" id="salesCount">0 registros</span></div>
           <div class="recent-list" id="recentSales"></div>
           <div class="recent-empty" id="recentEmpty"><i class="fa-solid fa-receipt" aria-hidden="true"></i><span>Aún no hay ventas confirmadas en este negocio.</span></div>
         </section>
+
       </div>
 
       <aside class="checkout-column">
@@ -91,9 +97,49 @@
         </section>
       </aside>
     </section>
+    </section>
+
+    <section class="sales-view history-view" id="historyView" data-sales-panel="history" hidden>
+      <section class="panel history-panel" aria-labelledby="historyTitle">
+        <div class="panel-heading history-heading">
+          <div><span class="section-kicker">ÚLTIMAS VENTAS</span><h2 id="historyTitle">Historial de ventas</h2><p>Consulta qué se vendió, cuándo, a quién y por qué valor.</p></div>
+          <span class="inventory-badge"><i class="fa-solid fa-database" aria-hidden="true"></i><b id="historyCount">0</b> facturas</span>
+        </div>
+        <div class="history-filters" aria-label="Filtros del historial de ventas">
+          <label class="field history-search"><span>Buscar factura o cliente</span><div class="input-with-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="salesHistorySearch" type="search" autocomplete="off" placeholder="Ej. FAC-2026-0001, nombre o documento"></div></label>
+          <label class="field"><span>Desde</span><input id="historyStartDate" type="date"></label>
+          <label class="field"><span>Hasta</span><input id="historyEndDate" type="date"></label>
+          <label class="field"><span>Estado</span><select id="historyStatus"><option value="all">Todos</option><option value="completed">Confirmadas</option><option value="cancelled">Anuladas</option><option value="pending">Pendientes</option></select></label>
+          <label class="field"><span>Medio de pago</span><select id="historyPayment"><option value="all">Todos</option><option value="Efectivo">Efectivo</option><option value="Tarjeta">Tarjeta</option><option value="Transferencia">Transferencia</option><option value="Otro">Otro</option></select></label>
+          <button class="secondary-button clear-history" id="clearHistoryFilters" type="button"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i>Limpiar</button>
+        </div>
+        <div class="history-summary" aria-live="polite">
+          <div><span>Resultados</span><strong id="historyResults">0</strong></div>
+          <div><span>Productos vendidos</span><strong id="historyProducts">0</strong></div>
+          <div><span>Total consultado</span><strong id="historyTotal">$ 0</strong></div>
+        </div>
+        <div class="history-table-wrap">
+          <table class="history-table">
+            <caption class="sr-only">Historial de ventas del negocio activo</caption>
+            <thead><tr><th>Factura</th><th>Fecha</th><th>Cliente</th><th>Productos</th><th>Medio de pago</th><th>Total</th><th>Estado</th><th><span class="sr-only">Acciones</span></th></tr></thead>
+            <tbody id="salesHistoryRows"></tbody>
+          </table>
+          <div class="history-empty" id="salesHistoryEmpty" hidden><div class="empty-icon"><i class="fa-solid fa-file-invoice" aria-hidden="true"></i></div><strong>No hay ventas para mostrar</strong><span>Prueba con otros filtros o confirma una nueva venta.</span></div>
+        </div>
+      </section>
+    </section>
   </main>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <dialog class="sale-detail-dialog" id="saleDetailDialog" aria-labelledby="saleDetailTitle">
+    <div class="sale-detail-card">
+      <div class="sale-detail-header"><div><span class="section-kicker">DETALLE DE VENTA</span><h2 id="saleDetailTitle">Factura</h2></div><button class="dialog-close" id="closeSaleDetail" type="button" aria-label="Cerrar detalle"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>
+      <div class="sale-detail-meta" id="saleDetailMeta"></div>
+      <div class="sale-detail-customer" id="saleDetailCustomer"></div>
+      <div class="sale-detail-table-wrap"><table class="sale-detail-table"><caption class="sr-only">Productos de la venta seleccionada</caption><thead><tr><th>Artículo</th><th>Categoría</th><th>Cantidad</th><th>Precio unitario</th><th>Subtotal</th></tr></thead><tbody id="saleDetailRows"></tbody></table></div>
+      <div class="sale-detail-footer"><div><span>Medio de pago</span><strong id="saleDetailPayment">—</strong></div><div><span>Total</span><strong id="saleDetailTotal">$ 0</strong></div></div>
+    </div>
+  </dialog>
   <script src="../../../Shared/Config/BusinessScope.js"></script>
   <script src="../../../Shared/Config/InventoryScope.js"></script>
   <script src="../../../Shared/Config/CurrencyInput.js"></script>

@@ -117,16 +117,19 @@ function aplicarTemaNegocio(tema) {
 
     const colorHover =
         tema.hover ||
+        tema.primaryHover ||
         colorPrincipal;
 
 
     const colorClaro =
         tema.light ||
+        tema.primaryLight ||
         colorPrincipal;
 
 
     const colorSuave =
         tema.soft ||
+        tema.primarySoft ||
         "#DBF7FF";
 
 
@@ -207,31 +210,23 @@ function cargarPersonalizacion() {
        originales de Nodix.
     */
 
-    if (!configuracionGuardada) {
-
-        return;
-
+    let configuracion = {};
+    if (configuracionGuardada) {
+        try {
+            configuracion = JSON.parse(configuracionGuardada);
+        } catch (error) {
+            console.error("Error cargando la personalización en Acceso:", error);
+        }
     }
 
+    const temaPersonalizado = configuracion.tema || configuracion.theme;
+    if (temaPersonalizado) aplicarTemaNegocio(temaPersonalizado);
 
-    try {
-
-        const configuracion =
-            JSON.parse(
-                configuracionGuardada
-            );
-
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Error cargando la personalización en Acceso:",
-            error
-        );
-
-    }
+    const aplicarTemaBase = () => {
+        if (!temaPersonalizado && window.FIXELAR_APP?.theme) aplicarTemaNegocio(window.FIXELAR_APP.theme);
+    };
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", aplicarTemaBase, { once: true });
+    else aplicarTemaBase();
 
 }
 

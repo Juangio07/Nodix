@@ -17,7 +17,7 @@
                     <button class="nodix-alert-close" type="button" data-alert-cancel aria-label="Cerrar alerta"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
                 </div>
                 <div class="nodix-alert-copy">
-                    <span class="nodix-alert-kicker" data-alert-kicker>AVISO NODIX</span>
+                    <span class="nodix-alert-kicker" data-alert-kicker>ADVERTENCIA</span>
                     <h2 id="nodixAlertTitle" data-alert-title>Acción bloqueada</h2>
                     <p id="nodixAlertMessage" data-alert-message></p>
                 </div>
@@ -56,12 +56,12 @@
         const target = ensureLayer();
         if (!target) {
             console.warn("NodixAlert no pudo montar la alerta:", config.message || "Ha ocurrido un problema.");
-            return Promise.resolve(true);
+            return Promise.resolve(config.type === "confirm" ? false : true);
         }
         if (!target.hidden) close(false);
         const type = ["warning", "error", "success", "info", "confirm"].includes(config.type) ? config.type : "warning";
         const icon = { warning: "fa-triangle-exclamation", error: "fa-circle-xmark", success: "fa-circle-check", info: "fa-circle-info", confirm: "fa-circle-question" }[type];
-        const kicker = { warning: "AVISO NODIX", error: "ERROR NODIX", success: "NODIX", info: "INFORMACIÓN", confirm: "CONFIRMA LA ACCIÓN" }[type];
+        const kicker = { warning: "ADVERTENCIA", error: "ERROR", success: "ÉXITO", info: "INFORMACIÓN", confirm: "CONFIRMACIÓN" }[type];
         target.dataset.type = type;
         target.querySelector("[data-alert-icon]").innerHTML = `<i class="fa-solid ${icon}" aria-hidden="true"></i>`;
         target.querySelector("[data-alert-kicker]").textContent = config.kicker || kicker;

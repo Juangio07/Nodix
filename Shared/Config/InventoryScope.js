@@ -11,6 +11,8 @@
     function readRecords(keys) {
         const business = scopeApi.getBusiness();
         for (const key of keys) {
+            const scoped = scopeApi.readScoped(key).records;
+            if (Array.isArray(scoped) && scoped.length) return scoped.filter(item => belongsToBusiness(item, business));
             const raw = parse(localStorage.getItem(key) || "[]", []);
             const records = Array.isArray(raw) ? raw : (Array.isArray(raw[business.id]) ? raw[business.id] : []);
             if (records.length) return records.filter(item => belongsToBusiness(item, business));

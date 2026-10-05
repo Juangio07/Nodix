@@ -1,6 +1,7 @@
 "use strict";
 
 const STORAGE_KEY = "Nodix_clientes_v1";
+const scopeApi = window.NodixBusinessScope;
 const relationshipApi = window.NodixRelationshipGuard;
 const dialog = document.getElementById("clientDialog");
 const form = document.getElementById("clientForm");
@@ -11,6 +12,7 @@ const message = document.getElementById("formMessage");
 const toast = document.getElementById("toast");
 function createStatusFilter() { const wrapper = document.createElement("label"); wrapper.className = "filter-box"; wrapper.innerHTML = '<i class="fa-solid fa-sliders" aria-hidden="true"></i><span class="sr-only">Filtrar por estado</span><select id="statusFilter"><option value="all">Todos los estados</option><option value="active">Activos</option><option value="inactive">Inactivos</option></select>'; document.querySelector(".directory-tools").appendChild(wrapper); return wrapper.querySelector("select"); }
 const statusFilter = createStatusFilter();
+let business = scopeApi.getBusiness();
 let clients = readClients();
 let editingId = "";
 let toastTimer;
@@ -19,9 +21,9 @@ const initials = name => String(name || "N").trim().split(/\s+/).slice(0, 2).map
 
 function setupStatusColumn() { const header = document.querySelector("thead tr"); const cell = document.createElement("th"); cell.textContent = "Estado"; header.insertBefore(cell, header.lastElementChild); }
 setupStatusColumn();
-function readClients() { try { const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); return Array.isArray(data) ? data.map(normalize) : []; } catch { return []; } }
-function normalize(item) { return { id: String(item.id || item.documento || `CLI-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`), documento: String(item.documento || "").trim(), nombre: String(item.nombre || "").trim(), telefono: String(item.telefono || "").trim(), estado: item.estado === "inactive" ? "inactive" : "active" }; }
-function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(clients)); }
+function readClients() { const result = scopeApi.readScoped(STORAGE_KEY); business = result.business; return result.records.map(normalize); }
+function normalize(item) { return { id: String(item.id || item.documento || `CLI-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`), documento: String(item.documento || "").trim(), nombre: String(item.nombre || "").trim(), telefono: String(item.telefono || "").trim(), estado: item.estado === "inactive" ? "inactive" : "active", negocioId: business.id, negocioNombre: business.name }; }
+function persist() { scopeApi.writeScoped(STORAGE_KEY, clients.map(item => ({ ...item, negocioId: business.id, negocioNombre: business.name }))); }
 function filtered() { const query = search.value.trim().toLowerCase(); return clients.filter(item => `${item.documento} ${item.nombre} ${item.telefono}`.toLowerCase().includes(query) && (statusFilter.value === "all" || item.estado === statusFilter.value)); }
 function render() { const visible = filtered(); document.getElementById("totalClients").textContent = clients.length; document.getElementById("clientsWithPhone").textContent = clients.filter(item => item.telefono).length; document.getElementById("lastClient").textContent = clients[0] ? (clients[0].nombre.split(" ")[0] || "—") : "—"; document.getElementById("resultsCount").textContent = `${visible.length} ${visible.length === 1 ? "registro" : "registros"}`; rows.innerHTML = visible.map(item => `<tr><td><div class="person-cell"><span class="avatar">${safe(initials(item.nombre))}</span><span><strong>${safe(item.nombre || "Sin nombre")}</strong><small>Cliente registrado</small></span></div></td><td class="document-cell">${safe(item.documento || "—")}</td><td class="phone-cell">${safe(item.telefono || "—")}</td><td><span class="status-pill ${item.estado === "inactive" ? "inactive" : ""}">${item.estado === "inactive" ? "Inactivo" : "Activo"}</span></td><td><div class="row-actions"><button class="icon-button" type="button" data-action="edit" data-id="${safe(item.id)}" title="Editar cliente" aria-label="Editar cliente"><i class="fa-solid fa-pen" aria-hidden="true"></i></button><button class="icon-button" type="button" data-action="toggle" data-id="${safe(item.id)}" title="${item.estado === "inactive" ? "Activar cliente" : "Desactivar cliente"}" aria-label="${item.estado === "inactive" ? "Activar cliente" : "Desactivar cliente"}"><i class="fa-solid fa-power-off" aria-hidden="true"></i></button><button class="icon-button" type="button" data-action="delete" data-id="${safe(item.id)}" title="Eliminar cliente" aria-label="Eliminar cliente"><i class="fa-solid fa-trash" aria-hidden="true"></i></button></div></td></tr>`).join(""); emptyState.hidden = visible.length > 0; if (!visible.length) { const filteredBySearch = Boolean(search.value.trim()) || statusFilter.value !== "all"; document.getElementById("emptyTitle").textContent = filteredBySearch ? "No encontramos coincidencias" : "Aún no hay clientes"; document.getElementById("emptyText").textContent = filteredBySearch ? "Prueba con otros términos o limpia el filtro." : "Crea el primer registro para comenzar."; document.getElementById("emptyAction").hidden = filteredBySearch; } }
 function showToast(text) { clearTimeout(toastTimer); toast.textContent = text; toast.classList.add("show"); toastTimer = setTimeout(() => toast.classList.remove("show"), 2300); }

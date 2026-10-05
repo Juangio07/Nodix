@@ -1,6 +1,7 @@
 "use strict";
 
 const STORAGE_KEY = "Nodix_roles_v1";
+const scopeApi = window.NodixBusinessScope;
 const relationshipApi = window.NodixRelationshipGuard;
 const PERMISSION_MODULES = [
     { key: "ventas", label: "Ventas", icon: "fa-receipt" },
@@ -31,6 +32,7 @@ const toast = document.getElementById("toast");
 const roleType = document.getElementById("roleType");
 const permissionsGrid = document.getElementById("permissionsGrid");
 const permissionNote = document.getElementById("permissionNote");
+let business = scopeApi.getBusiness();
 let roles = readRoles();
 let editingId = "";
 let toastTimer;
@@ -71,12 +73,9 @@ function normalizePermissions(value, type = "custom") {
 }
 
 function readRoles() {
-    try {
-        const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-        return Array.isArray(stored) ? stored.map(normalizeRole) : [];
-    } catch {
-        return [];
-    }
+    const result = scopeApi.readScoped(STORAGE_KEY);
+    business = result.business;
+    return result.records.map(normalizeRole);
 }
 
 function normalizeRole(role) {
@@ -89,7 +88,9 @@ function normalizeRole(role) {
         estado: role.estado === "inactive" ? "inactive" : "active",
         tipo: owner ? "owner" : "custom",
         protegido: owner,
-        permisos: normalizePermissions(role.permisos, owner ? "owner" : "custom")
+        permisos: normalizePermissions(role.permisos, owner ? "owner" : "custom"),
+        negocioId: business.id,
+        negocioNombre: business.name
     };
 }
 
@@ -98,12 +99,7 @@ function escapeHtml(value) {
 }
 
 function getUsers() {
-    try {
-        const stored = JSON.parse(localStorage.getItem("Nodix_usuarios_v1") || "[]");
-        return Array.isArray(stored) ? stored : [];
-    } catch {
-        return [];
-    }
+    try { return scopeApi.readScoped("Nodix_usuarios_v1").records; } catch { return []; }
 }
 
 function assignedTo(role) {
@@ -221,7 +217,7 @@ function closeDialog() {
 }
 
 function persist() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(roles));
+    scopeApi.writeScoped(STORAGE_KEY, roles.map(role => ({ ...role, negocioId: business.id, negocioNombre: business.name })));
 }
 
 document.getElementById("newRole").addEventListener("click", () => openDialog());

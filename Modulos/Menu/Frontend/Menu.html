@@ -23,7 +23,7 @@
             class="Nodix-imagotipo"
             src="../../../Assets/Logos/ImagotipoOscuro.png"
             alt="Nodix"
-          /><span>ENTERPRISE</span>
+          />
         </div>
         <div class="side-workspace">
           <span id="businessInitial">N</span>
@@ -55,7 +55,7 @@
             <div><b>Estado del sistema</b><small>Nodix POS Global</small></div>
             <em>En línea<br /><strong>99.9%</strong></em>
           </div>
-          <button class="logout">
+          <button class="logout" type="button">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>Cerrar sesión
           </button>
         </div>
@@ -64,9 +64,9 @@
         <header class="main-top">
           <label class="global-search"
             ><i class="fa-solid fa-magnifying-glass"></i
-            ><input
+            ><input id="globalSearch" type="search" aria-label="Buscar módulos de Nodix" autocomplete="off"
               placeholder="Buscar ventas, artículos, clientes o usuarios..." /></label
-          ><button class="notification">
+          ><button class="notification" id="notificationsButton" type="button" aria-label="Ver notificaciones">
             <i class="fa-regular fa-bell"></i><b></b></button>
           <div class="profile">
             <span>V</span>
@@ -84,13 +84,13 @@
               <p>Resumen integral de tu operación</p>
             </div>
             <div class="hero-actions">
-              <button>
+              <button type="button" data-dashboard-action="period">
                 <i class="fa-regular fa-calendar"></i>Últimos 30 días
                 <i class="fa-solid fa-chevron-down"></i>
               </button>
               <div>
-                <button><i class="fa-solid fa-download"></i>Exportar</button
-                ><button><i class="fa-solid fa-sliders"></i>Filtros</button>
+                <button type="button" data-dashboard-action="export"><i class="fa-solid fa-download"></i>Exportar</button
+                ><button type="button" data-dashboard-action="filters"><i class="fa-solid fa-sliders"></i>Filtros</button>
               </div>
             </div>
           </div>
@@ -107,50 +107,50 @@
               <i class="fa-solid fa-boxes-stacked"></i>
               <div>
                 <small>INVENTARIO UNIFICADO</small
-                ><b>450 Referencias Sincronizadas</b>
+                ><b id="dashboardReferences">0 referencias sincronizadas</b>
               </div>
             </article>
-            <button><i class="fa-solid fa-receipt"></i>Cierre de Turno</button
-            ><button>
+            <button type="button" data-dashboard-action="shift"><i class="fa-solid fa-receipt"></i>Cierre de Turno</button
+            ><button type="button" data-dashboard-action="reconciliation">
               <i class="fa-solid fa-building-columns"></i>Reconciliación
             </button>
           </section>
           <section class="metric-grid">
             <article class="data-card sales-card">
               <header>
-                <small><i></i> INGRESOS DEL DÍA</small><b>↗ +12.8%</b>
+                <small><i></i> INGRESOS DEL DÍA</small><b id="dashboardRevenueChange">Hoy</b>
               </header>
-              <strong>$48.260.000 <small>COP</small></strong>
-              <p>Meta mensual: $52.000.000</p>
-              <div class="tiny-bars">
+              <strong id="dashboardRevenue">$ 0 <small>COP</small></strong>
+              <p id="dashboardRevenueHint">Ingresos registrados hoy</p>
+              <div class="tiny-bars" id="dashboardRevenueBars">
                 <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
               </div>
             </article>
             <article class="data-card">
               <header>
-                <small><i></i> TICKETS EMITIDOS</small><b>↗ +8.4%</b>
+                <small><i></i> TICKETS EMITIDOS</small><b id="dashboardTicketChange">Hoy</b>
               </header>
-              <strong>1.428 <small>transacciones</small></strong>
+              <strong id="dashboardTickets">0 <small>transacciones</small></strong>
               <p>Ticket promedio en mostrador</p>
-              <div class="soft-value">Promedio compra <b>$33.800 COP</b></div>
+              <div class="soft-value">Promedio compra <b id="dashboardTicketAverage">$ 0</b></div>
             </article>
             <article class="data-card">
               <header>
                 <small><i></i> INVENTARIO ACTIVO</small
-                ><b class="warn">△ 12 bajas</b>
+                ><b id="dashboardStockChange" class="warn">0 sin stock</b>
               </header>
-              <strong>8.940 <small>uds en bodega</small></strong>
-              <p>Distribuidas en 450 SKUs únicos</p>
-              <div class="stock-line"><i></i><i></i><i></i></div>
+              <strong id="dashboardInventory">0 <small>uds en bodega</small></strong>
+              <p id="dashboardInventoryHint">Sin artículos registrados</p>
+              <div class="stock-line" id="dashboardStockLine"><i></i><i></i><i></i></div>
             </article>
             <article class="data-card">
               <header>
-                <small><i></i> MARGEN BRUTO</small><b>↗ +2.3%</b>
+                <small><i></i> MARGEN BRUTO</small><b id="dashboardMarginChange">30 días</b>
               </header>
-              <strong>41.6% <small>margen.</small></strong>
-              <p>Utilidad calculada estimada</p>
+              <strong id="dashboardMargin">0% <small>margen.</small></strong>
+              <p>Utilidad calculada sobre ventas</p>
               <div class="soft-value">
-                <span>Ganancia neta</span><b>$20.076.000</b>
+                <span>Ganancia neta</span><b id="dashboardNet">$ 0</b>
               </div>
             </article>
           </section>
@@ -162,34 +162,26 @@
                   <h2>Evolución de Ventas Semanal &amp; Diaria</h2>
                 </div>
                 <div class="period-tabs">
-                  <button class="selected">Semana<br />Actual</button
-                  ><button>Semana<br />Pasada</button><button>Mes</button>
+                  <button type="button" class="selected" data-dashboard-action="period-tab">Semana<br />Actual</button
+                  ><button type="button" data-dashboard-action="period-tab">Semana<br />Pasada</button><button type="button" data-dashboard-action="period-tab">Mes</button>
                 </div>
               </header>
               <div class="legend">
                 <span><i></i>Ventas Reales</span
                 ><span><i></i>Objetivo Diario</span
-                ><b>◉ Pico: Sábado ($9.450.000 COP)</b>
+                  ><b id="dashboardPeak">Sin ventas en el periodo</b>
               </div>
               <div class="large-chart">
-                <span>$10M</span><span>$7.5M</span><span>$5M</span
-                ><span>$2.5M</span>
-                <div class="chart-bars">
-                  <i style="height: 42%"><b>Lun</b></i
-                  ><i style="height: 56%"><b>Mar</b></i
-                  ><i style="height: 51%"><b>Mié</b></i
-                  ><i style="height: 73%"><b>Jue</b></i
-                  ><i style="height: 90%"><b>Vie</b></i
-                  ><i class="peak" style="height: 100%"><b>Sáb</b></i
-                  ><i style="height: 78%"><b>Dom</b></i>
-                </div>
+                <span id="dashboardAxisHigh">$ 0</span><span id="dashboardAxisMid">$ 0</span><span>$ 0</span
+                ><span>$ 0</span>
+                <div class="chart-bars" id="dashboardChartBars"></div>
               </div>
               <footer>
                 <i class="fa-regular fa-lightbulb"></i
                 ><span
                   ><b>Mayor afluencia detectada:</b> Sábados entre 3:00 PM y
                   7:30 PM.</span
-                ><button>Ver turnos&nbsp;›</button>
+                ><button type="button" data-dashboard-action="turns">Ver turnos&nbsp;›</button>
               </footer>
             </article>
             <article class="analytics-card mix-card">
@@ -200,30 +192,10 @@
                 </div>
                 <i class="fa-solid fa-ellipsis"></i>
               </header>
-              <div class="donut">
-                <strong>100%<small>CONSOLIDADO</small></strong>
+              <div class="donut" id="dashboardDonut">
+                <strong id="dashboardMixTotal">$ 0<small>SIN VENTAS</small></strong>
               </div>
-              <div class="category">
-                <i class="fa-solid fa-shirt"></i
-                ><span
-                  ><b>Ropa &amp; Textiles</b
-                  ><small>780 artículos vendidos</small></span
-                ><strong>$23.164.800<small>48% PARTICIPACIÓN</small></strong>
-              </div>
-              <div class="category">
-                <i class="fa-solid fa-shoe-prints"></i
-                ><span
-                  ><b>Calzado &amp; Zapatillas</b
-                  ><small>420 pares vendidos</small></span
-                ><strong>$15.443.200<small>32% PARTICIPACIÓN</small></strong>
-              </div>
-              <div class="category">
-                <i class="fa-solid fa-bag-shopping"></i
-                ><span
-                  ><b>Bolsos &amp; Accesorios</b
-                  ><small>228 unidades</small></span
-                ><strong>$9.652.000<small>20% PARTICIPACIÓN</small></strong>
-              </div>
+              <div class="dashboard-mix-list" id="dashboardMixList"></div>
             </article>
           </section>
         </section>
@@ -231,6 +203,8 @@
       </main>
     </div>
         <script src="../../../Shared/Config/NodixAlert.js"></script>
+        <script src="../../../Shared/Config/BusinessScope.js"></script>
+        <script src="../../../Shared/Config/InventoryScope.js"></script>
         <script src="Menu.js"></script>
   </body>
 </html>

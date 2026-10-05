@@ -9,10 +9,17 @@
     }
 
     function recordsFrom(key) {
+        if (window.NodixBusinessScope?.readScoped) {
+            const scoped = window.NodixBusinessScope.readScoped(key).records;
+            if (Array.isArray(scoped)) return scoped;
+        }
         const stored = parse(localStorage.getItem(key) || "[]");
         const filterBusiness = records => {
             const id = businessId();
-            return id ? records.filter(record => !record.negocioId || record.negocioId === id) : records;
+            return id ? records.filter(record => {
+                const recordBusiness = record && (record.negocioId || record.businessId || record.idNegocio);
+                return !recordBusiness || normalize(recordBusiness) === normalize(id);
+            }) : records;
         };
         if (Array.isArray(stored)) return filterBusiness(stored);
         const id = businessId();

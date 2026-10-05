@@ -2,6 +2,7 @@
 
 const STORAGE_KEY = "Nodix_categorias_v1";
 const scopeApi = window.NodixBusinessScope;
+const relationshipApi = window.NodixRelationshipGuard;
 const dialog = document.getElementById("categoryDialog");
 const form = document.getElementById("categoryForm");
 const rows = document.getElementById("categoriesRows");
@@ -50,6 +51,17 @@ dialog.addEventListener("click", event => { if (event.target === dialog) closeDi
 search.addEventListener("input", render);
 statusFilter.addEventListener("change", render);
 rows.addEventListener("click", event => {
+    const button = event.target.closest('button[data-action="toggle"], button[data-action="delete"]');
+    if (!button) return;
+    const category = categories.find(item => item.id === button.dataset.id);
+    if (!category || (button.dataset.action === "toggle" && category.estado !== "active")) return;
+    const restriction = relationshipApi?.checkBeforeDeactivate("categorias", category, button.dataset.action === "delete" ? "delete" : "deactivate");
+    if (!restriction) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    relationshipApi?.notify(restriction);
+}, true);
+rows.addEventListener("click", async event => {
     const button = event.target.closest("button[data-action]");
     if (!button || button.disabled) return;
     const category = categories.find(item => item.id === button.dataset.id);
@@ -59,7 +71,15 @@ rows.addEventListener("click", event => {
     if (button.dataset.action === "delete") {
         const assigned = articleCount(category.id);
         if (assigned > 0) { showToast("No puedes eliminar una categoría con artículos asignados."); return; }
-        if (!window.confirm(`¿Eliminar la categoría ${category.nombre}?`)) return;
+        const confirmed = window.NodixAlert?.confirm
+            ? await window.NodixAlert.confirm({
+                type: "confirm",
+                title: "¿Eliminar categoría?",
+                message: `Se eliminará la categoría “${category.nombre}”. Esta acción no se puede deshacer.`,
+                confirmText: "Eliminar categoría"
+            })
+            : false;
+        if (!confirmed) return;
         categories = categories.filter(item => item.id !== category.id);
         reindex(); persist(); render(); showToast("Categoría eliminada");
     }

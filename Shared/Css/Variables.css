@@ -54,6 +54,10 @@
   --shadow-lg: 0 18px 45px rgb(7 20 38 / 14%);
   --shadow-brand: 0 8px 24px rgb(245 158 11 / 24%);
   --focus-brand: 0 0 0 3px rgb(245 158 11 / 18%);
+  --nodix-primary-gradient: linear-gradient(105deg, #ffdf00 0%, #ffc400 48%, #ff6a00 100%);
+  --nodix-primary-gradient-hover: linear-gradient(105deg, #ffe500 0%, #ffca00 48%, #ff6a00 100%);
+  --nodix-primary-border: #ffbd00;
+  --nodix-primary-shadow: 0 10px 24px rgb(255 106 0 / 18%);
 }
 /* Alias semánticos usados por los módulos nuevos. Mantienen una única identidad. */
 :root{--brand-primary:var(--warning);--brand-primary-hover:var(--orange);--brand-primary-light:var(--success-light);--brand-on-primary:var(--text-white);--primary-soft:var(--warning-light);--app-dark:#172238;--app-dark-soft:#2c4265}

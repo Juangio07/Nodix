@@ -61,7 +61,30 @@ search.addEventListener("input", render);
 categorySelect.addEventListener("change", () => loadArticles(categorySelect.value));
 quantityInput.addEventListener("input", updateTotal);
 costInput.addEventListener("input", updateTotal);
-rows.addEventListener("click", event => { const button = event.target.closest("button[data-action]"); if (!button) return; const item = entries.find(entry => entry.id === button.dataset.id); if (!item) return; if (button.dataset.action === "edit") openDialog(item); if (button.dataset.action === "delete" && window.confirm("¿Eliminar esta entrada de mercancía? El stock del artículo será recalculado.")) { const affectedId = item.articuloId; entries = entries.filter(entry => entry.id !== item.id); persist(); recalculateArticles([affectedId]); render(); showToast("Entrada eliminada y stock actualizado"); } });
+rows.addEventListener("click", async event => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+    const item = entries.find(entry => entry.id === button.dataset.id);
+    if (!item) return;
+    if (button.dataset.action === "edit") openDialog(item);
+    if (button.dataset.action === "delete") {
+        const confirmed = window.NodixAlert?.confirm
+            ? await window.NodixAlert.confirm({
+                type: "confirm",
+                title: "¿Eliminar entrada?",
+                message: "Se eliminará esta entrada de mercancía y se recalculará el stock del artículo.",
+                confirmText: "Eliminar entrada"
+            })
+            : false;
+        if (!confirmed) return;
+        const affectedId = item.articuloId;
+        entries = entries.filter(entry => entry.id !== item.id);
+        persist();
+        recalculateArticles([affectedId]);
+        render();
+        showToast("Entrada eliminada y stock actualizado");
+    }
+});
 form.addEventListener("submit", event => { event.preventDefault(); message.textContent = ""; if (!form.reportValidity()) return; const values = Object.fromEntries(new FormData(form).entries()); const category = categories.find(item => item.id === values.categoriaId); const article = articles.find(item => item.id === values.articuloId && item.categoriaId === values.categoriaId); const current = entries.find(item => item.id === editingId); const unitCost = currencyApi.number(costInput); const totalValue = (Number(values.cantidad) || 0) * unitCost; if (!category) { message.textContent = "Selecciona una categoría válida del negocio activo."; return; } if (!article) { message.textContent = "Selecciona un artículo de la categoría elegida."; return; } const isExistingInactiveCategory = current && current.categoriaId === category.id; const isExistingInactiveArticle = current && current.articuloId === article.id; if ((category.estado === "inactive" && !isExistingInactiveCategory) || (article.estado === "inactive" && !isExistingInactiveArticle)) { message.textContent = "Solo puedes registrar mercancía nueva en categorías y artículos activos."; return; } const wasEditing = Boolean(editingId); const record = normalize({ ...current, id: editingId || `MER-${Date.now()}`, categoriaId: category.id, articuloId: article.id, articuloCodigo: article.codigo, articuloNombre: article.descripcion, descripcion: article.descripcion, cantidad: values.cantidad, costo: unitCost, valorTotal: totalValue, fecha: values.fecha }); entries = wasEditing ? entries.map(item => item.id === editingId ? record : item) : [record, ...entries]; persist(); recalculateArticles([current && current.articuloId, record.articuloId]); closeDialog(); render(); showToast(wasEditing ? "Entrada actualizada y stock recalculado" : "Entrada creada y stock actualizado"); });
 
 loadCategories();

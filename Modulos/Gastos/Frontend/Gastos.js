@@ -27,6 +27,27 @@ function resetForm() { editingId = ""; form.reset(); currencyApi.setValue(amount
 function openDialog(item) { resetForm(); if (item) { editingId = item.id; document.getElementById("dialogTitle").textContent = "Editar gasto"; document.getElementById("expenseId").value = item.id; document.getElementById("descripcion").value = item.descripcion; currencyApi.setValue(amountInput, item.valorTotal); document.getElementById("fecha").value = item.fecha; } if (dialog.showModal) dialog.showModal(); else dialog.setAttribute("open", ""); setTimeout(() => document.getElementById("descripcion").focus(), 0); }
 function closeDialog() { if (dialog.open && dialog.close) dialog.close(); else dialog.removeAttribute("open"); resetForm(); }
 document.getElementById("newExpense").addEventListener("click", () => openDialog()); document.getElementById("emptyAction").addEventListener("click", () => openDialog()); document.getElementById("closeDialog").addEventListener("click", closeDialog); document.getElementById("cancelDialog").addEventListener("click", closeDialog); dialog.addEventListener("click", event => { if (event.target === dialog) closeDialog(); }); search.addEventListener("input", render);
-rows.addEventListener("click", event => { const button = event.target.closest("button[data-action]"); if (!button) return; const item = expenses.find(expense => expense.id === button.dataset.id); if (!item) return; if (button.dataset.action === "edit") openDialog(item); if (button.dataset.action === "delete" && window.confirm("¿Eliminar este gasto?")) { expenses = expenses.filter(expense => expense.id !== item.id); persist(); render(); showToast("Gasto eliminado"); } });
+rows.addEventListener("click", async event => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+    const item = expenses.find(expense => expense.id === button.dataset.id);
+    if (!item) return;
+    if (button.dataset.action === "edit") openDialog(item);
+    if (button.dataset.action === "delete") {
+        const confirmed = window.NodixAlert?.confirm
+            ? await window.NodixAlert.confirm({
+                type: "confirm",
+                title: "¿Eliminar gasto?",
+                message: "Se eliminará este gasto. Esta acción no se puede deshacer.",
+                confirmText: "Eliminar gasto"
+            })
+            : false;
+        if (!confirmed) return;
+        expenses = expenses.filter(expense => expense.id !== item.id);
+        persist();
+        render();
+        showToast("Gasto eliminado");
+    }
+});
 form.addEventListener("submit", event => { event.preventDefault(); message.textContent = ""; if (!form.reportValidity()) return; const values = Object.fromEntries(new FormData(form).entries()); const current = expenses.find(item => item.id === editingId); const wasEditing = Boolean(editingId); const record = normalize({ ...current, id: editingId || `GAS-${Date.now()}`, descripcion: values.descripcion.trim(), valorTotal: currencyApi.number(amountInput), fecha: values.fecha }); expenses = wasEditing ? expenses.map(item => item.id === editingId ? record : item) : [record, ...expenses]; persist(); closeDialog(); render(); showToast(wasEditing ? "Gasto actualizado" : "Gasto creado"); });
 render();

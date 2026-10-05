@@ -10,13 +10,17 @@
     />
     <link rel="stylesheet" href="../../../Shared/Css/Variables.css" />
     <link rel="stylesheet" href="../../../Shared/Css/Global.css" />
+    <link rel="stylesheet" href="../../../Shared/Css/NodixAlert.css" />
     <link rel="stylesheet" href="Menu.css" />
+    <script defer src="../../../Shared/Config/AppConfig.js"></script>
+    <script defer src="../../../Shared/Config/FixelarGlobal.js"></script>
   </head>
   <body>
     <div class="nodix-app">
       <aside class="side">
         <div class="side-brand">
           <img
+            class="Nodix-imagotipo"
             src="../../../Assets/Logos/ImagotipoOscuro.png"
             alt="Nodix"
           /><span>ENTERPRISE</span>
@@ -62,15 +66,8 @@
             ><i class="fa-solid fa-magnifying-glass"></i
             ><input
               placeholder="Buscar ventas, artículos, clientes o usuarios..." /></label
-          ><button class="branch">
-            <i class="fa-solid fa-store"></i
-            ><span>Sucursal Central - Bogotá</span
-            ><i class="fa-solid fa-chevron-down"></i></button
           ><button class="notification">
-            <i class="fa-regular fa-bell"></i><b></b></button
-          ><button class="new-sale">
-            <i class="fa-solid fa-plus"></i>Nueva venta
-          </button>
+            <i class="fa-regular fa-bell"></i><b></b></button>
           <div class="profile">
             <span>V</span>
             <div><b>Valeria Sotomayor</b><small>Super Admin</small></div>
@@ -233,6 +230,7 @@
         <iframe id="moduleFrame" title="Módulo Nodix"></iframe>
       </main>
     </div>
-    <script src="Menu.js"></script>
+        <script src="../../../Shared/Config/NodixAlert.js"></script>
+        <script src="Menu.js"></script>
   </body>
 </html>

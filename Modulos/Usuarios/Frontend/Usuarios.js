@@ -1,6 +1,7 @@
 "use strict";
 
 const STORAGE_KEY = "Nodix_usuarios_v1";
+const relationshipApi = window.NodixRelationshipGuard;
 const fields = ["idUsuario", "idRol", "documento", "nombre", "telefono", "usuario", "contrasena"];
 const form = document.getElementById("userForm");
 const dialog = document.getElementById("userDialog");
@@ -177,6 +178,18 @@ dialog.addEventListener("click", event => { if (event.target === dialog) closeDi
 search.addEventListener("input", render);
 statusFilter.addEventListener("change", render);
 
+rows.addEventListener("click", event => {
+    const button = event.target.closest('button[data-action="toggle"], button[data-action="delete"]');
+    if (!button) return;
+    const user = users.find(item => item.idUsuario === button.dataset.id);
+    if (!user || (button.dataset.action === "toggle" && user.estado !== "active")) return;
+    const restriction = relationshipApi?.checkBeforeDeactivate("usuarios", user, button.dataset.action === "delete" ? "delete" : "deactivate");
+    if (!restriction) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    relationshipApi?.notify(restriction);
+}, true);
+
 document.getElementById("togglePassword").addEventListener("click", () => {
     const input = document.getElementById("contrasena");
     const icon = document.querySelector("#togglePassword i");
@@ -184,7 +197,7 @@ document.getElementById("togglePassword").addEventListener("click", () => {
     icon.className = input.type === "password" ? "fa-solid fa-eye" : "fa-solid fa-eye-slash";
 });
 
-rows.addEventListener("click", event => {
+rows.addEventListener("click", async event => {
     const button = event.target.closest("button[data-action]");
     if (!button) return;
     const user = users.find(item => item.idUsuario === button.dataset.id);
@@ -196,7 +209,16 @@ rows.addEventListener("click", event => {
         render();
         showToast(user.estado === "active" ? "Usuario activado" : "Usuario desactivado");
     }
-    if (button.dataset.action === "delete" && window.confirm(`¿Eliminar al usuario ${user.nombre || "seleccionado"}?`)) {
+    if (button.dataset.action === "delete") {
+        const confirmed = window.NodixAlert?.confirm
+            ? await window.NodixAlert.confirm({
+                type: "confirm",
+                title: "¿Eliminar usuario?",
+                message: `Se eliminará el usuario “${user.nombre || "seleccionado"}”. Esta acción no se puede deshacer.`,
+                confirmText: "Eliminar usuario"
+            })
+            : false;
+        if (!confirmed) return;
         users = users.filter(item => item.idUsuario !== user.idUsuario);
         persist();
         render();

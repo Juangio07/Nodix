@@ -42,9 +42,6 @@ document.querySelectorAll(".side-link").forEach(link => {
     link.addEventListener("click", () => section === "Inicio" ? showInicio() : showModule(section));
 });
 
-const newSaleButton = document.querySelector(".new-sale");
-if (newSaleButton) newSaleButton.addEventListener("click", () => showModule("Ventas"));
-
 frame.addEventListener("load", () => {
     try {
         const doc = frame.contentDocument;

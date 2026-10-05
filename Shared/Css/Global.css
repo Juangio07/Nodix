@@ -39,3 +39,45 @@ button {
     outline: 3px solid rgb(255 106 0 / 28%);
     outline-offset: 2px;
 }
+
+/* Acciones principales de Nodix: una sola identidad para todo el proyecto. */
+.primary-button,
+.confirm-button,
+.nodix-alert-primary {
+    background: var(--nodix-primary-gradient) !important;
+    background-image: var(--nodix-primary-gradient) !important;
+    border-color: var(--nodix-primary-border) !important;
+    color: var(--app-dark) !important;
+    box-shadow: var(--nodix-primary-shadow) !important;
+}
+
+.nodix-app .new-sale {
+    background: var(--nodix-primary-gradient) !important;
+    background-image: var(--nodix-primary-gradient) !important;
+    border-color: var(--nodix-primary-border) !important;
+    color: var(--app-dark) !important;
+    box-shadow: var(--nodix-primary-shadow) !important;
+}
+
+.primary-button:hover,
+.confirm-button:hover:not(:disabled),
+.nodix-alert-primary:hover,
+.nodix-app .new-sale:hover {
+    background: var(--nodix-primary-gradient-hover) !important;
+    background-image: var(--nodix-primary-gradient-hover) !important;
+    box-shadow: 0 12px 26px rgb(255 106 0 / 23%) !important;
+    filter: none !important;
+    transform: translateY(-1px) !important;
+}
+
+.primary-button i,
+.confirm-button i,
+.nodix-alert-primary i,
+.nodix-app .new-sale i {
+    color: currentColor !important;
+}
+
+.primary-button:disabled,
+.confirm-button:disabled {
+    box-shadow: none !important;
+}

@@ -7,9 +7,12 @@
   <link rel="stylesheet" href="../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
   <link rel="stylesheet" href="../../../Shared/Css/Variables.css">
   <link rel="stylesheet" href="../../../Shared/Css/Global.css">
+  <link rel="stylesheet" href="../../../Shared/Css/NodixAlert.css">
   <link rel="stylesheet" href="Roles.css">
   <script defer src="../../../Shared/Config/AppConfig.js"></script>
   <script defer src="../../../Shared/Config/FixelarGlobal.js"></script>
+  <script src="../../../Shared/Config/NodixAlert.js"></script>
+  <script src="../../../Shared/Config/RelationshipGuard.js"></script>
 </head>
 <body>
   <main class="users-page roles-page">
@@ -35,7 +38,25 @@
     </section>
   </main>
 
-  <dialog class="user-dialog" id="roleDialog" aria-labelledby="dialogTitle"><div class="dialog-layout"><aside class="dialog-aside"><div class="dialog-brand"><span>N</span><small>Nodix</small></div><div class="dialog-aside-copy"><span class="eyebrow">NUEVO PERFIL</span><h2>Un acceso claro empieza con un rol.</h2><p>Define perfiles simples para que cada persona tenga el nivel de acceso que necesita.</p></div><div class="dialog-tip"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i><span>Usa nombres descriptivos y asigna responsabilidades concretas.</span></div></aside><section class="dialog-content"><div class="dialog-header"><div><span class="section-kicker">CONTROL DE ACCESO</span><h2 id="dialogTitle">Agregar rol</h2><p>Completa la información del perfil.</p></div><button class="close-button" id="closeDialog" type="button" aria-label="Cerrar formulario"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div><form id="roleForm" novalidate><input id="roleId" name="roleId" type="hidden"><div class="form-section"><span class="form-section-title">Información del rol</span><div class="form-grid"><label class="field-wide"><span>Nombre <b>*</b></span><input id="roleName" name="nombre" type="text" required placeholder="Ej. Administrador"></label><label class="field-wide"><span>Descripción</span><input id="roleDescription" name="descripcion" type="text" placeholder="Describe las responsabilidades de este perfil"></label></div></div><p class="form-message" id="formMessage" role="alert"></p><footer class="dialog-actions"><button class="secondary-button" id="cancelDialog" type="button">Cancelar</button><button class="primary-button" type="submit"><i class="fa-solid fa-check" aria-hidden="true"></i> Guardar rol</button></footer></form></section></div></dialog>
+  <dialog class="user-dialog role-dialog" id="roleDialog" aria-labelledby="dialogTitle">
+    <div class="dialog-layout">
+      <aside class="dialog-aside">
+        <div class="dialog-brand"><span>N</span><small>Nodix</small></div>
+        <div class="dialog-aside-copy"><span class="eyebrow">NUEVO PERFIL</span><h2>Un acceso claro empieza con un rol.</h2><p>Define perfiles simples para que cada persona tenga el nivel de acceso que necesita.</p></div>
+        <div class="dialog-tip"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i><span>Si un usuario no puede ver un módulo, tampoco podrá realizar acciones dentro de él.</span></div>
+      </aside>
+      <section class="dialog-content">
+        <div class="dialog-header"><div><span class="section-kicker">CONTROL DE ACCESO</span><h2 id="dialogTitle">Agregar rol</h2><p>Completa la información y define sus permisos.</p></div><button class="close-button" id="closeDialog" type="button" aria-label="Cerrar formulario"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>
+        <form id="roleForm" novalidate>
+          <input id="roleId" name="roleId" type="hidden">
+          <div class="form-section"><span class="form-section-title">Información del rol</span><div class="form-grid"><label class="field-wide"><span>Nombre <b>*</b></span><input id="roleName" name="nombre" type="text" required placeholder="Ej. Cajero"></label><label class="field-wide"><span>Descripción</span><input id="roleDescription" name="descripcion" type="text" placeholder="Describe las responsabilidades de este perfil"></label><label class="field-wide"><span>Nivel de acceso <b>*</b></span><select id="roleType" name="tipo" required><option value="custom">Rol personalizado</option><option value="owner">Administrador / Dueño</option></select></label></div></div>
+          <div class="form-section permission-section"><div class="permission-section-head"><div><span class="form-section-title">Permisos por módulo</span><p class="permission-helper">Activa primero “Ver módulo”. Después podrás habilitar las acciones permitidas.</p></div><div class="permission-tools"><button id="selectAllPermissions" type="button">Seleccionar todo</button><button id="clearPermissions" type="button">Limpiar</button></div></div><div id="permissionsGrid" class="permissions-grid" aria-label="Permisos por módulo"></div><p class="permission-note" id="permissionNote" role="status">Los permisos se guardan dentro del rol y se aplican a cada usuario asignado.</p></div>
+          <p class="form-message" id="formMessage" role="alert"></p>
+          <footer class="dialog-actions"><button class="secondary-button" id="cancelDialog" type="button">Cancelar</button><button class="primary-button" type="submit"><i class="fa-solid fa-check" aria-hidden="true"></i> Guardar rol</button></footer>
+        </form>
+      </section>
+    </div>
+  </dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="Roles.js"></script>
 </body>

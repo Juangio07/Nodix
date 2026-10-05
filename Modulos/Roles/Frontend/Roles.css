@@ -1,2 +1,32 @@
 /* Roles comparte el mismo lenguaje visual que Usuarios para que la navegación se sienta como un solo producto. */
 @import url("../../Usuarios/Frontend/Usuarios.css");
+
+.roles-page .role-dialog{width:min(980px,calc(100% - 28px))!important;max-height:calc(100% - 28px)!important}
+.role-dialog .dialog-layout{grid-template-columns:220px minmax(0,1fr);min-height:0}
+.role-dialog .dialog-content{max-height:calc(100vh - 28px);overflow-y:auto}
+.permission-section{padding-bottom:8px}
+.permission-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:14px}
+.permission-section-head .form-section-title{margin-bottom:5px}
+.permission-helper{max-width:530px;margin:0;color:#8a9ab0;font-size:11px;line-height:1.5}
+.permission-tools{display:flex;gap:6px;flex-shrink:0}
+.permission-tools button{padding:7px 9px;border:1px solid #dfe7ef;border-radius:8px;background:#fff;color:#687990;font-size:10px;font-weight:800;cursor:pointer}
+.permission-tools button:hover{border-color:#ffcf00;background:#fffbe1;color:#a16d00}
+.permissions-grid{display:grid;gap:8px}
+.permission-row{display:grid;grid-template-columns:minmax(190px,.92fr) minmax(0,1.55fr);align-items:center;gap:12px;padding:10px 12px;border:1px solid #e5ebf2;border-radius:12px;background:#fbfcfe;transition:border-color .16s ease,background .16s ease}
+.permission-row:has(input[data-permission-action="ver"]:checked){border-color:#f1d454;background:#fffdf4}
+.permission-module{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0}
+.permission-module-title{display:flex;align-items:center;gap:9px;min-width:0}
+.permission-module-title>i{display:grid;place-items:center;flex:0 0 29px;width:29px;height:29px;border-radius:9px;background:#fff2b8;color:#a77a00;font-size:11px}
+.permission-module-title strong,.permission-module-title small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.permission-module-title strong{color:#31435d;font-size:11px}
+.permission-module-title small{margin-top:2px;color:#9aa8b9;font-size:9px}
+.permission-check{display:inline-flex;align-items:center;gap:6px;color:#687990;font-size:10px;font-weight:800;white-space:nowrap;cursor:pointer}
+.permission-check input{width:16px;height:16px;margin:0;accent-color:#ffe000;cursor:pointer}
+.permission-check input:disabled{cursor:not-allowed;opacity:.45}
+.permission-check input:disabled+span{color:#aab4c1}
+.permission-view{margin-left:38px;padding:6px 8px;border-radius:8px;background:#f3f5f9}
+.permission-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px 13px}
+.permission-actions .permission-check{font-weight:700}
+.permission-note{margin:12px 0 0;color:#9aa8b9;font-size:10px;line-height:1.45}
+.role-dialog .dialog-actions{position:sticky;bottom:-25px;margin:15px -32px -25px;padding:15px 32px 25px;border-top:1px solid #edf1f5;background:#fff}
+@media(max-width:760px){.role-dialog .dialog-layout{grid-template-columns:1fr}.role-dialog .dialog-aside{display:none!important}.permission-section-head{align-items:flex-start;flex-direction:column}.permission-tools{width:100%}.permission-tools button{flex:1}.permission-row{grid-template-columns:1fr;gap:10px}.permission-actions{justify-content:flex-start;padding-left:38px}.role-dialog .dialog-actions{margin-right:-19px;margin-left:-19px;padding-right:19px;padding-left:19px}}

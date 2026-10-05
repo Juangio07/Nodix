@@ -1,6 +1,7 @@
 "use strict";
 
 const STORAGE_KEY = "Nodix_clientes_v1";
+const relationshipApi = window.NodixRelationshipGuard;
 const dialog = document.getElementById("clientDialog");
 const form = document.getElementById("clientForm");
 const rows = document.getElementById("clientsRows");
@@ -28,6 +29,34 @@ function resetForm() { editingId = ""; form.reset(); document.getElementById("di
 function openDialog(item) { resetForm(); if (item) { editingId = item.id; document.getElementById("dialogTitle").textContent = "Editar cliente"; document.getElementById("clientId").value = item.id; document.getElementById("documento").value = item.documento; document.getElementById("nombre").value = item.nombre; document.getElementById("telefono").value = item.telefono; } if (dialog.showModal) dialog.showModal(); else dialog.setAttribute("open", ""); setTimeout(() => document.getElementById("nombre").focus(), 0); }
 function closeDialog() { if (dialog.open && dialog.close) dialog.close(); else dialog.removeAttribute("open"); resetForm(); }
 document.getElementById("newClient").addEventListener("click", () => openDialog()); document.getElementById("emptyAction").addEventListener("click", () => openDialog()); document.getElementById("closeDialog").addEventListener("click", closeDialog); document.getElementById("cancelDialog").addEventListener("click", closeDialog); dialog.addEventListener("click", event => { if (event.target === dialog) closeDialog(); }); search.addEventListener("input", render); statusFilter.addEventListener("change", render);
-rows.addEventListener("click", event => { const button = event.target.closest("button[data-action]"); if (!button) return; const item = clients.find(client => client.id === button.dataset.id); if (!item) return; if (button.dataset.action === "edit") openDialog(item); if (button.dataset.action === "toggle") { item.estado = item.estado === "active" ? "inactive" : "active"; persist(); render(); showToast(item.estado === "active" ? "Cliente activado" : "Cliente desactivado"); } if (button.dataset.action === "delete" && window.confirm(`¿Eliminar a ${item.nombre || "este cliente"}?`)) { clients = clients.filter(client => client.id !== item.id); persist(); render(); showToast("Cliente eliminado"); } });
+rows.addEventListener("click", event => { const button = event.target.closest('button[data-action="toggle"], button[data-action="delete"]'); if (!button) return; const client = clients.find(item => item.id === button.dataset.id); if (!client || (button.dataset.action === "toggle" && client.estado !== "active")) return; const restriction = relationshipApi?.checkBeforeDeactivate("clientes", client, button.dataset.action === "delete" ? "delete" : "deactivate"); if (!restriction) return; event.preventDefault(); event.stopImmediatePropagation(); relationshipApi?.notify(restriction); }, true);
+rows.addEventListener("click", async event => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+    const item = clients.find(client => client.id === button.dataset.id);
+    if (!item) return;
+    if (button.dataset.action === "edit") openDialog(item);
+    if (button.dataset.action === "toggle") {
+        item.estado = item.estado === "active" ? "inactive" : "active";
+        persist();
+        render();
+        showToast(item.estado === "active" ? "Cliente activado" : "Cliente desactivado");
+    }
+    if (button.dataset.action === "delete") {
+        const confirmed = window.NodixAlert?.confirm
+            ? await window.NodixAlert.confirm({
+                type: "confirm",
+                title: "¿Eliminar cliente?",
+                message: `Se eliminará a “${item.nombre || "este cliente"}”. Esta acción no se puede deshacer.`,
+                confirmText: "Eliminar cliente"
+            })
+            : false;
+        if (!confirmed) return;
+        clients = clients.filter(client => client.id !== item.id);
+        persist();
+        render();
+        showToast("Cliente eliminado");
+    }
+});
 form.addEventListener("submit", event => { event.preventDefault(); message.textContent = ""; if (!form.reportValidity()) return; const values = Object.fromEntries(new FormData(form).entries()); const documentValue = values.documento.trim(); if (clients.some(item => item.documento.toLowerCase() === documentValue.toLowerCase() && item.id !== editingId)) { message.textContent = "Ya existe un cliente con ese documento."; return; } const current = clients.find(item => item.id === editingId); const wasEditing = Boolean(editingId); const record = normalize({ ...current, id: editingId || `CLI-${Date.now()}`, documento: documentValue, nombre: values.nombre.trim(), telefono: values.telefono.trim() }); clients = wasEditing ? clients.map(item => item.id === editingId ? record : item) : [record, ...clients]; persist(); closeDialog(); render(); showToast(wasEditing ? "Cliente actualizado" : "Cliente creado"); });
 render();

@@ -3,6 +3,7 @@
 const STORAGE_KEY = "Nodix_articulos_v2";
 const LEGACY_STORAGE_KEY = "Nodix_articulos_v1";
 const scopeApi = window.NodixBusinessScope;
+const relationshipApi = window.NodixRelationshipGuard;
 const inventoryApi = window.NodixInventoryScope;
 const currencyApi = window.NodixCurrencyInput;
 const dialog = document.getElementById("articleDialog");
@@ -79,7 +80,45 @@ document.getElementById("cancelDialog").addEventListener("click", closeDialog);
 dialog.addEventListener("click", event => { if (event.target === dialog) closeDialog(); });
 search.addEventListener("input", render);
 statusFilter.addEventListener("change", render);
-rows.addEventListener("click", event => { const button = event.target.closest("button[data-action]"); if (!button) return; const item = articles.find(article => article.id === button.dataset.id); if (!item) return; if (button.dataset.action === "edit") openDialog(item); if (button.dataset.action === "toggle") { item.estado = item.estado === "active" ? "inactive" : "active"; persist(); render(); showToast(item.estado === "active" ? "Artículo activado" : "Artículo desactivado"); } if (button.dataset.action === "delete" && window.confirm(`¿Eliminar el artículo ${item.descripcion || item.codigo}?`)) { articles = articles.filter(article => article.id !== item.id); persist(); render(); showToast("Artículo eliminado"); } });
+rows.addEventListener("click", event => {
+    const button = event.target.closest('button[data-action="toggle"], button[data-action="delete"]');
+    if (!button) return;
+    const article = articles.find(item => item.id === button.dataset.id);
+    if (!article || (button.dataset.action === "toggle" && article.estado !== "active")) return;
+    const restriction = relationshipApi?.checkBeforeDeactivate("articulos", article, button.dataset.action === "delete" ? "delete" : "deactivate");
+    if (!restriction) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    relationshipApi?.notify(restriction);
+}, true);
+rows.addEventListener("click", async event => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+    const item = articles.find(article => article.id === button.dataset.id);
+    if (!item) return;
+    if (button.dataset.action === "edit") openDialog(item);
+    if (button.dataset.action === "toggle") {
+        item.estado = item.estado === "active" ? "inactive" : "active";
+        persist();
+        render();
+        showToast(item.estado === "active" ? "Artículo activado" : "Artículo desactivado");
+    }
+    if (button.dataset.action === "delete") {
+        const confirmed = window.NodixAlert?.confirm
+            ? await window.NodixAlert.confirm({
+                type: "confirm",
+                title: "¿Eliminar artículo?",
+                message: `Se eliminará el artículo “${item.descripcion || item.codigo}”. Esta acción no se puede deshacer.`,
+                confirmText: "Eliminar artículo"
+            })
+            : false;
+        if (!confirmed) return;
+        articles = articles.filter(article => article.id !== item.id);
+        persist();
+        render();
+        showToast("Artículo eliminado");
+    }
+});
 form.addEventListener("submit", event => { event.preventDefault(); message.textContent = ""; if (!form.reportValidity()) return; const values = Object.fromEntries(new FormData(form).entries()); if (!values.categoriaId) { message.textContent = "Selecciona una categoría del negocio activo."; return; } if (!categories.some(category => category.id === values.categoriaId)) { message.textContent = "La categoría seleccionada no pertenece al negocio activo."; return; } const code = values.codigo.trim(); if (articles.some(item => item.codigo.toLowerCase() === code.toLowerCase() && item.id !== editingId)) { message.textContent = "Ya existe un artículo con ese código."; return; } const current = articles.find(item => item.id === editingId); const wasEditing = Boolean(editingId); const record = normalize({ ...current, id: editingId || `ART-${Date.now()}`, codigo: code, descripcion: values.descripcion.trim(), costo: current ? current.costo : 0, precioVenta: currencyApi.number(salePriceInput), stock: current ? current.stock : 0, categoriaId: values.categoriaId }); articles = wasEditing ? articles.map(item => item.id === editingId ? record : item) : [record, ...articles]; persist(); closeDialog(); render(); showToast(wasEditing ? "Artículo actualizado" : "Artículo creado"); });
 
 loadCategories();

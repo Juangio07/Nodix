@@ -50,13 +50,13 @@ function records(key, legacyKey) {
     } catch { return []; }
 }
 function categoryName(id) { const category = categories.find(item => item.id === String(id)); return category ? category.nombre : "Sin categoría"; }
-function normalizeArticle(item) { return { id: String(item.id || item.codigo || newId("ART")), codigo: String(item.codigo || "").trim(), descripcion: String(item.descripcion || item.nombre || "").trim(), categoriaId: String(item.categoriaId || ""), precioVenta: Number(item.precioVenta || item.precio || 0) || 0, costo: Number(item.costo || 0) || 0, estado: item.estado === "inactive" ? "inactive" : "active" }; }
+function normalizeArticle(item) { return { id: String(item.id || item.codigo || newId("ART")), codigo: String(item.codigo || item.code || "").trim(), descripcion: String(item.descripcion || item.nombre || item.name || "").trim(), categoriaId: String(item.categoriaId || item.categoryId || item.idCategoria || item.category || "").trim(), precioVenta: Number(item.precioVenta || item.precio || item.salePrice || 0) || 0, costo: Number(item.costo || item.cost || 0) || 0, estado: item.estado === "inactive" ? "inactive" : "active" }; }
 function normalizeClient(item) { return { id: String(item.id || item.documento || newId("CLI")), documento: String(item.documento || "").trim(), nombre: String(item.nombre || "").trim(), telefono: String(item.telefono || "").trim(), estado: item.estado === "inactive" ? "inactive" : "active" }; }
 function normalizeSale(item) { const lines = item.items || item.detalle || item.detalles || item.productos || item.articulos || item.lines || item.lineas || []; const normalizedLines = Array.isArray(lines) ? lines.map(line => ({ articuloId: String(line.articuloId || line.articleId || line.idArticulo || line.productId || ""), codigo: String(line.codigo || line.code || ""), descripcion: String(line.descripcion || line.nombre || line.description || ""), cantidad: Number(line.cantidad || line.quantity || line.qty || 0) || 0, precioVenta: Number(line.precioVenta || line.precio || line.unitPrice || line.valorUnitario || 0) || 0, subtotal: Number(line.subtotal || line.total || 0) || 0 })) : []; return { id: String(item.id || item.numero || newId("VEN")), numero: String(item.numero || item.numeroFactura || item.codigo || "Venta"), tipo: String(item.tipo || item.tipoFactura || "Venta de mostrador"), fecha: String(item.fecha || item.createdAt || localDate()).slice(0, 10), clienteId: String(item.clienteId || item.clientId || ""), clienteNombre: String(item.clienteNombre || item.clientName || "Consumidor final"), metodoPago: String(item.metodoPago || item.paymentMethod || "Efectivo"), items: normalizedLines, subtotal: Number(item.subtotal || item.total || 0) || 0, total: Number(item.total || item.valorTotal || item.subtotal || 0) || 0, estado: String(item.estado || "completed") }; }
 
 function reloadData() {
     business = scopeApi.getBusiness();
-    categories = records(CATEGORY_KEY).map(item => ({ id: String(item.id || ""), nombre: String(item.nombre || "").trim(), estado: item.estado === "inactive" ? "inactive" : "active" }));
+    categories = records(CATEGORY_KEY).map(item => ({ id: String(item.id || item.idCategoria || item.categoriaId || "").trim(), nombre: String(item.nombre || item.name || "").trim(), estado: item.estado === "inactive" ? "inactive" : "active" }));
     const merchandise = inventoryApi.readMerchandise();
     const storedSales = inventoryApi.readSales();
     articles = records(ARTICLE_KEY, ARTICLE_LEGACY_KEY).map(normalizeArticle).map(article => ({ ...article, stock: inventoryApi.availableStock(article.id, article.codigo, merchandise, storedSales) }));
@@ -73,12 +73,16 @@ function renderCategoryOptions() {
 
 function renderProductOptions() {
     const query = productSearch.value.trim().toLowerCase();
-    const activeArticles = articles.filter(article => article.estado === "active" && article.categoriaId === selectedCategoryId && `${article.codigo} ${article.descripcion}`.toLowerCase().includes(query));
+    const activeArticles = articles.filter(article => article.estado === "active" && String(article.categoriaId).trim() === String(selectedCategoryId).trim() && `${article.codigo} ${article.descripcion}`.toLowerCase().includes(query));
     const categoryReady = Boolean(selectedCategoryId);
     productSearch.disabled = !categoryReady;
     productSearch.placeholder = categoryReady ? "Escribe código o descripción..." : "Selecciona una categoría primero...";
-    productSelect.innerHTML = `<option value="">${!categoryReady ? "Primero selecciona una categoría" : activeArticles.length ? "Selecciona un artículo" : "No hay artículos en esta categoría"}</option>${activeArticles.map(article => `<option value="${safe(article.id)}" ${article.stock <= 0 ? "disabled" : ""}>${safe(article.codigo || "Sin código")} · ${safe(article.descripcion || "Sin descripción")} · ${money(article.precioVenta)} · ${number(article.stock)} disp.</option>`).join("")}`;
-    if (selectedArticleId && activeArticles.some(article => article.id === selectedArticleId && article.stock > 0)) productSelect.value = selectedArticleId;
+    const articleOptions = activeArticles.map(article => {
+        const stockLabel = article.stock > 0 ? `${number(article.stock)} disp.` : "Sin stock";
+        return `<option value="${safe(article.id)}">${safe(article.codigo || "Sin código")} · ${safe(article.descripcion || "Sin descripción")} · ${money(article.precioVenta)} · ${stockLabel}</option>`;
+    }).join("");
+    productSelect.innerHTML = `<option value="">${!categoryReady ? "Primero selecciona una categoría" : activeArticles.length ? "Selecciona un artículo" : "No hay artículos en esta categoría"}</option>${articleOptions}`;
+    if (selectedArticleId && activeArticles.some(article => article.id === selectedArticleId)) productSelect.value = selectedArticleId;
     else { selectedArticleId = ""; productSelect.value = ""; }
     document.getElementById("availableReferences").textContent = articles.filter(article => article.estado === "active" && article.stock > 0).length;
     const availableInCategory = activeArticles.some(article => article.stock > 0);
@@ -92,7 +96,7 @@ function renderProductOptions() {
 function renderSelectedProduct() {
     const article = articles.find(item => item.id === selectedArticleId);
     productMessage.textContent = "";
-    if (!article) { productPreview.hidden = true; return; }
+    if (!article) { productPreview.hidden = true; addProduct.disabled = true; return; }
     productPreview.hidden = false;
     document.getElementById("selectedProductName").textContent = article.descripcion || "Sin descripción";
     document.getElementById("selectedProductMeta").textContent = `${article.codigo || "Sin código"} · ${categoryName(article.categoriaId)}`;
@@ -100,7 +104,9 @@ function renderSelectedProduct() {
     document.getElementById("selectedProductStock").textContent = `${number(article.stock)} und.`;
     productQuantity.max = String(article.stock);
     productQuantity.value = Math.min(Math.max(Number(productQuantity.value) || 1, 1), Math.max(article.stock, 1));
-    addProduct.disabled = article.stock <= 0 || article.precioVenta <= 0;
+    // El botón debe seguir disponible sin stock para que la validación
+    // muestre la alerta Nodix al presionarlo.
+    addProduct.disabled = false;
 }
 
 function renderClients() { const current = clientSelect.value; clientSelect.innerHTML = `<option value="">Consumidor final</option>${clients.map(client => `<option value="${safe(client.id)}">${safe(client.nombre || "Cliente sin nombre")} · ${safe(client.documento || "sin documento")}</option>`).join("")}`; if (clients.some(client => client.id === current)) clientSelect.value = current; }
@@ -129,10 +135,20 @@ function addSelectedProduct() {
     const article = articles.find(item => item.id === selectedArticleId);
     const quantity = Math.floor(Number(productQuantity.value) || 0);
     if (!article) { productMessage.textContent = "Selecciona un artículo para continuar."; return; }
+    if (article.stock <= 0) {
+        const message = `La referencia ${article.descripcion || article.codigo || "seleccionada"} no tiene unidades disponibles. Registra mercancía antes de agregarla a la factura.`;
+        showStockAlert(message);
+        return;
+    }
     if (article.precioVenta <= 0) { productMessage.textContent = "Este artículo todavía no tiene un precio de venta configurado."; return; }
     const existingQuantity = lineQuantity(article.id);
     if (quantity < 1) { productMessage.textContent = "La cantidad debe ser de al menos una unidad."; return; }
-    if (existingQuantity + quantity > article.stock) { productMessage.textContent = `Solo hay ${number(article.stock - existingQuantity)} unidades disponibles para agregar.`; return; }
+    if (existingQuantity + quantity > article.stock) {
+        const available = Math.max(0, article.stock - existingQuantity);
+        const message = available ? `Solo hay ${number(available)} unidades disponibles para agregar.` : "Esta referencia ya no tiene unidades disponibles para agregar.";
+        showStockAlert(message);
+        return;
+    }
     const existing = cart.find(line => line.articuloId === article.id);
     if (existing) { existing.cantidad += quantity; existing.subtotal = existing.cantidad * existing.precioVenta; }
     else cart.push({ articuloId: article.id, codigo: article.codigo, descripcion: article.descripcion, categoriaId: article.categoriaId, cantidad: quantity, precioVenta: article.precioVenta, costo: article.costo, subtotal: quantity * article.precioVenta });
@@ -175,6 +191,7 @@ function confirmCurrentSale() {
     showToast(`${sale.numero} confirmada correctamente`);
 }
 
+function showStockAlert(message) { if (window.NodixAlert?.show) window.NodixAlert.show({ type: "warning", title: "Stock no disponible", message, confirmText: "Entendido" }); }
 function showToast(text) { clearTimeout(toastTimer); toast.textContent = text; toast.classList.add("show"); toastTimer = setTimeout(() => toast.classList.remove("show"), 2500); }
 
 categorySelect.addEventListener("change", () => { selectedCategoryId = categorySelect.value; selectedArticleId = ""; productSearch.value = ""; productQuantity.value = "1"; productMessage.textContent = ""; renderProductOptions(); });
@@ -184,8 +201,22 @@ productQuantity.addEventListener("input", () => { const article = articles.find(
 addProduct.addEventListener("click", addSelectedProduct);
 cartRows.addEventListener("click", handleCartAction);
 confirmSale.addEventListener("click", confirmCurrentSale);
-document.getElementById("clearSale").addEventListener("click", () => { if (!cart.length || window.confirm("¿Limpiar los productos de la factura actual?")) resetInvoice(); });
-document.getElementById("newSale").addEventListener("click", resetInvoice);
+document.getElementById("clearSale").addEventListener("click", async () => {
+    if (!cart.length) {
+        resetInvoice();
+        return;
+    }
+    const confirmed = window.NodixAlert?.confirm
+        ? await window.NodixAlert.confirm({
+            type: "confirm",
+            title: "¿Limpiar la factura?",
+            message: "Se quitarán todos los productos de la factura actual.",
+            confirmText: "Limpiar factura",
+            cancelText: "Conservar factura"
+        })
+        : false;
+    if (confirmed) resetInvoice();
+});
 
 reloadData();
 renderClients();

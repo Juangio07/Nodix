@@ -37,3 +37,6 @@ button,input,select{font:inherit}button{cursor:pointer}
 .sales-page .detail-button,
 .sales-page .detail-button:hover,
 .sales-page .sale-detail-footer div:last-child strong{color:var(--warning)!important}
+
+/* Los identificadores de factura se leen en negro; el naranja se reserva para acciones y totales. */
+.sales-page .history-table .invoice-number{color:#111827!important}

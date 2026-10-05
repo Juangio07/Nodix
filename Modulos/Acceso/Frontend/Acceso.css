@@ -467,7 +467,7 @@ body { background:#edf1f5; }
 /* Ajustes finales de identidad Nodix. */
 .acceso-web-hero .acceso-showcase-logo { width:178px;max-height:60px; }
 .acceso-auth-overline { color:#ff6a00; }
-.btn-ingresar { color:#fff; }.btn-ingresar i { color:#fff; }
+.btn-ingresar { color:var(--app-dark); }.btn-ingresar i { color:currentColor; }
 
 /* Corrección cromática: elimina dorados residuales y concentra el naranja en acciones. */
 .acceso-auth-overline { color:#ff6a00!important; }

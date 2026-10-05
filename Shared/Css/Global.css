@@ -81,3 +81,8 @@ button {
 .confirm-button:disabled {
     box-shadow: none !important;
 }
+
+/* Respeta siempre el estado dinámico hidden de tarjetas y mensajes vacíos. */
+[hidden] {
+    display: none !important;
+}

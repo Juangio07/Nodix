@@ -48,13 +48,13 @@
             <label class="field field-product"><span>2. Artículo <b>*</b></span><select id="productSelect" required disabled><option value="">Primero selecciona una categoría</option></select></label>
             <label class="field field-search"><span>Buscar dentro de la categoría</span><div class="input-with-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="productSearch" type="search" autocomplete="off" placeholder="Selecciona una categoría primero..." disabled></div></label>
           </div>
-          <div class="product-preview" id="productPreview" hidden>
+          <div class="product-preview is-empty" id="productPreview">
             <div class="product-icon"><i class="fa-solid fa-box-open" aria-hidden="true"></i></div>
-            <div class="product-copy"><strong id="selectedProductName">Selecciona un artículo</strong><span id="selectedProductMeta">Código · Categoría</span></div>
-            <div class="product-fact"><small>Precio de venta</small><strong id="selectedProductPrice">$ 0</strong></div>
-            <div class="product-fact"><small>Disponible</small><strong id="selectedProductStock">0 und.</strong></div>
-            <label class="quantity-field"><span>Cantidad</span><input id="productQuantity" type="number" min="1" value="1" inputmode="numeric"></label>
-            <button class="primary-button add-product" id="addProduct" type="button"><i class="fa-solid fa-cart-plus" aria-hidden="true"></i>Agregar</button>
+            <div class="product-copy"><strong id="selectedProductName"></strong><span id="selectedProductMeta"></span></div>
+            <div class="product-fact"><small>Precio de venta</small><strong id="selectedProductPrice">—</strong></div>
+            <div class="product-fact"><small>Disponible</small><strong id="selectedProductStock">—</strong></div>
+            <label class="quantity-field"><span>Cantidad</span><input id="productQuantity" type="number" min="1" value="" inputmode="numeric" disabled></label>
+            <button class="primary-button add-product" id="addProduct" type="button" disabled><i class="fa-solid fa-cart-plus" aria-hidden="true"></i>Agregar</button>
           </div>
           <div class="product-empty" id="productEmpty" hidden><i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i><strong>Primero registra artículos</strong><span>Cuando existan artículos activos con stock, podrás agregarlos a la factura.</span></div>
           <p class="inline-message" id="productMessage" role="alert"></p>

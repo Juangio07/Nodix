@@ -114,14 +114,28 @@ function renderProductOptions() {
 function renderSelectedProduct() {
     const article = articles.find(item => item.id === selectedArticleId);
     productMessage.textContent = "";
-    if (!article) { productPreview.hidden = true; addProduct.disabled = true; return; }
+    if (!article) {
+        productPreview.hidden = false;
+        productPreview.classList.add("is-empty");
+        document.getElementById("selectedProductName").textContent = "";
+        document.getElementById("selectedProductMeta").textContent = "";
+        document.getElementById("selectedProductPrice").textContent = "—";
+        document.getElementById("selectedProductStock").textContent = "—";
+        productQuantity.value = "";
+        productQuantity.removeAttribute("max");
+        productQuantity.disabled = true;
+        addProduct.disabled = true;
+        return;
+    }
     productPreview.hidden = false;
+    productPreview.classList.remove("is-empty");
     document.getElementById("selectedProductName").textContent = article.descripcion || "Sin descripción";
     document.getElementById("selectedProductMeta").textContent = `${article.codigo || "Sin código"} · ${categoryName(article.categoriaId)}`;
     document.getElementById("selectedProductPrice").textContent = money(article.precioVenta);
     document.getElementById("selectedProductStock").textContent = `${number(article.stock)} und.`;
     productQuantity.max = String(article.stock);
     productQuantity.value = Math.min(Math.max(Number(productQuantity.value) || 1, 1), Math.max(article.stock, 1));
+    productQuantity.disabled = false;
     // El botón debe seguir disponible sin stock para que la validación
     // muestre la alerta Nodix al presionarlo.
     addProduct.disabled = false;
@@ -191,7 +205,7 @@ function renderSalesHistory() {
         const products = sale.items.reduce((sum, line) => sum + line.cantidad, 0);
         return `<tr><td><strong class="invoice-number">${safe(sale.numero)}</strong><small>${safe(sale.tipo)}</small></td><td>${safe(dateLabel(sale.fecha))}<small>${safe(formatDateTime(sale).split(" · ").pop() || "")}</small></td><td><strong>${safe(sale.clienteNombre || "Consumidor final")}</strong><small>${safe(sale.clienteDocumento || "Sin documento")}</small></td><td>${number(products)} ${products === 1 ? "producto" : "productos"}</td><td>${safe(sale.metodoPago)}</td><td><strong>${money(sale.total)}</strong></td><td><span class="history-status ${saleStatus(sale)}">${statusLabel(sale)}</span></td><td><button class="detail-button" type="button" data-sale-id="${safe(sale.id)}" title="Ver detalle"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i><span>Ver detalle</span></button></td></tr>`;
     }).join("");
-    historyRows.querySelectorAll(".invoice-number, .detail-button").forEach(element => { element.style.color = "var(--warning)"; });
+    historyRows.querySelectorAll(".detail-button").forEach(element => { element.style.color = "var(--warning)"; });
 }
 
 function openSaleDetail(saleId) {

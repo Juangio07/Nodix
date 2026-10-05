@@ -40,3 +40,18 @@ html,body,.nodix-app{height:100%;max-height:100%;overflow:hidden!important}.work
 @media(max-width:700px){.main-top{grid-template-columns:minmax(0,1fr) 38px auto!important}}
 .dashboard-mix-list{display:grid;gap:7px}.dashboard-mix-list:empty::after{content:"Aún no hay ventas por categoría";display:block;padding:18px;border-radius:9px;background:#f7f8fc;color:#98a3b3;font-size:9px;text-align:center}.dashboard-mix-list .category{margin-top:0}.dashboard-mix-list .category>i{flex:0 0 25px}.dashboard-mix-list .category strong{white-space:nowrap}
 .legend b,.category strong small{color:var(--warning)!important}
+
+/* Navegación lateral: grupos claros, botones uniformes y estados fáciles de identificar. */
+.side-nav{display:flex!important;flex-direction:column!important;gap:3px!important;padding:2px 0 8px!important}
+.side-nav small{display:flex!important;align-items:center!important;gap:9px!important;margin:18px 10px 7px!important;color:#9aa7b8!important;font-size:9px!important;font-weight:800!important;letter-spacing:.16em!important;line-height:1!important}
+.side-nav small:first-child{margin-top:4px!important}
+.side-nav small::after{content:"";flex:1;height:1px;background:#eef1f4}
+.side-link{display:flex!important;align-items:center!important;gap:12px!important;min-height:44px!important;margin:0!important;padding:0 12px!important;border-radius:12px!important;background:transparent!important;color:#64758c!important;font-size:12px!important;font-weight:600!important;letter-spacing:0!important;transform:none!important;transition:background .18s ease,color .18s ease,box-shadow .18s ease!important}
+.side-link-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.side-link i{flex:0 0 30px!important;width:30px!important;height:30px!important;border-radius:9px!important;background:#f5f7fa!important;color:#9aa7b8!important;font-size:12px!important;transition:background .18s ease,color .18s ease!important}
+.side-link:hover{background:#fffdf0!important;color:#364a66!important;transform:none!important}
+.side-link:hover i{background:#fff5c9!important;color:#a47b00!important}
+.side-link.active{background:#fff8d6!important;color:#172238!important;font-weight:800!important;box-shadow:inset 3px 0 #ffe000!important}
+.side-link.active i{background:#ffe000!important;color:#172238!important;box-shadow:none!important}
+.side-link:focus-visible{outline:2px solid #ffd200!important;outline-offset:2px}
+@media(max-width:700px){.side-nav{gap:6px!important}.side-nav small{display:none!important}.side-link{justify-content:center!important;padding:0!important}.side-link-label{display:none!important}}

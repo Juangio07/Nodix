@@ -5,11 +5,11 @@ const dashboard = document.getElementById("dashboard");
 const routes = { Ventas: "../../Ventas/Frontend/Ventas.html", Articulos: "../../Articulos/Frontend/Articulos.html", Categorias: "../../Categorias/Frontend/Categorias.html", Clientes: "../../Clientes/Frontend/Clientes.html", Gastos: "../../Gastos/Frontend/Gastos.html", Mercancia: "../../Mercancia/Frontend/Mercancia.html", Estadisticas: "../../Estadisticas/Frontend/Estadisticas.html", Usuarios: "../../Usuarios/Frontend/Usuarios.html", Roles: "../../Roles/Frontend/Roles.html", Configuración: "../../Configuracion/Frontend/Configuracion.html" };
 const labels = { Inicio: "Inicio", Ventas: "Ventas", Articulos: "Artículos", Categorias: "Categorías", Clientes: "Clientes", Gastos: "Gastos", Mercancia: "Mercancía", Estadisticas: "Estadísticas", Usuarios: "Usuarios", Roles: "Roles", Configuración: "Configuración" };
 const icons = { Inicio: "fa-house", Ventas: "fa-receipt", Articulos: "fa-boxes-stacked", Categorias: "fa-layer-group", Clientes: "fa-address-book", Gastos: "fa-money-bill-wave", Mercancia: "fa-truck-ramp-box", Estadisticas: "fa-chart-line", Usuarios: "fa-user", Roles: "fa-key", Configuración: "fa-gear" };
-const menuGroups = [{ title: "OPERACIÓN", items: ["Inicio", "Ventas", "Articulos", "Categorias", "Clientes", "Gastos", "Mercancia"] }, { title: "ANÁLISIS", items: ["Estadisticas"] }, { title: "ADMINISTRACIÓN", items: ["Usuarios", "Roles", "Configuración"] }];
+const menuGroups = [{ title: "VISTA GENERAL", items: ["Inicio"] }, { title: "OPERACIÓN", items: ["Ventas", "Clientes"] }, { title: "INVENTARIO", items: ["Articulos", "Categorias", "Mercancia"] }, { title: "FINANZAS", items: ["Gastos"] }, { title: "ANÁLISIS", items: ["Estadisticas"] }, { title: "ADMINISTRACIÓN", items: ["Usuarios", "Roles", "Configuración"] }];
 const normalizeSearch = value => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
 function setVisible(element, visible) { element.hidden = !visible; element.style.setProperty("display", visible ? "block" : "none", "important"); }
-function setActive(section) { document.querySelectorAll(".side-link").forEach(link => link.classList.toggle("active", link.dataset.section === section)); }
+function setActive(section) { document.querySelectorAll(".side-link").forEach(link => { const active = link.dataset.section === section; link.classList.toggle("active", active); link.setAttribute("aria-current", active ? "page" : "false"); }); }
 function showInicio() { setActive("Inicio"); setVisible(dashboard, true); setVisible(frame, false); frame.removeAttribute("src"); frame.classList.remove("active"); }
 function showModule(section) { const route = routes[section]; if (!route) { showInicio(); return; } setActive(section); setVisible(dashboard, false); setVisible(frame, true); frame.classList.add("active"); frame.src = `${route}?v=${Date.now()}`; }
 
@@ -26,7 +26,8 @@ function buildNavigation() {
             link.className = "side-link";
             link.dataset.section = section;
             link.type = "button";
-            link.innerHTML = `<i class="fa-solid ${icons[section]}" aria-hidden="true"></i>${labels[section]}`;
+            link.setAttribute("aria-label", labels[section]);
+            link.innerHTML = `<i class="fa-solid ${icons[section]}" aria-hidden="true"></i><span class="side-link-label">${labels[section]}</span>`;
             navigation.appendChild(link);
         });
     });

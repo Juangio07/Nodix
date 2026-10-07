@@ -181,4 +181,10 @@ document.getElementById("calculateClosure")?.addEventListener("click", () => { c
 document.getElementById("confirmClosure")?.addEventListener("click", confirmCashClosure);
 window.addEventListener("storage", event => { if ([...saleKeys, ...expenseKeys, ...articleKeys, ...categoryKeys, ...refundKeys, closureKey].includes(event.key)) render(); });
 render();
-if (new URLSearchParams(window.location.search).get("view") === "closure") setTimeout(() => document.getElementById("cashClosureSection")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+
+const shouldOpenClosure = new URLSearchParams(window.location.search).get("view") === "closure";
+if (shouldOpenClosure) {
+  const closureArea = document.getElementById("closureArea");
+  if (closureArea) closureArea.open = true;
+  setTimeout(() => document.getElementById("cashClosureSection")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+}

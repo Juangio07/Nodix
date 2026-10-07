@@ -3,3 +3,16 @@
 .form-grid .readonly-field{background:#f3f5f8;color:#7d8da3;cursor:not-allowed}.form-grid .field-hint{margin-top:-3px;color:#9aa8b9;font-size:10px;font-weight:500}
 @media(max-width:1100px){.overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .overview-grid>.overview-card:nth-child(4){display:none!important}
+/* Lectura de catálogo: descripciones destacadas y estado visual diferenciado. */
+.table-wrap td.document-cell{color:#26364e;font-weight:800}
+.table-wrap td:nth-last-child(2) .status-pill{background:#e9f7f0;color:#138364}
+.table-wrap td:nth-last-child(2) .status-pill:before{background:#13ae7b}
+.table-wrap td:nth-last-child(2) .status-pill.inactive{background:#fff0ee;color:#c75c4c}
+.table-wrap td:nth-last-child(2) .status-pill.inactive:before{background:#dc6a5a}
+/* El margen es un indicador financiero, no un estado de disponibilidad. */
+.table-wrap td:nth-child(7) .status-pill{background:#fff8d6;color:#9b7700}
+.table-wrap td:nth-child(7) .status-pill:before{background:#ffd900}
+.table-wrap td:nth-child(7) .status-pill.inactive{background:#fff0ee;color:#c75c4c}
+.table-wrap td:nth-child(7) .status-pill.inactive:before{background:#dc6a5a}
+/* El peso visual coincide con el nombre de artículo en Mercancía. */
+.table-wrap td.document-cell{color:#40536d;font-weight:650}

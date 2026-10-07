@@ -483,3 +483,10 @@ body { background:#edf1f5; }
 .acceso-web-hero .brand-status-dot { background:#ffcf00; box-shadow:0 0 0 5px rgb(255 207 0 / 18%); }
 .acceso-product-preview { border-top:3px solid #ffcf00; }.preview-dot { background:#ff6a00; }.preview-chart i { background:linear-gradient(180deg,#ffe000 0%,#ff6a00 100%); }
 .btn-ingresar { background:linear-gradient(105deg,#ffdf00 0%,#ffc400 48%,#ff6a00 100%); box-shadow:0 10px 24px rgb(255 106 0 / 22%); }.btn-ingresar:hover { background:linear-gradient(105deg,#ffe500 0%,#ffca00 48%,#ff6a00 100%); }
+
+/* El acceso mantiene la misma jerarquía ligera del resto del producto. */
+.acceso-brand-copy .eyebrow,
+.acceso-mobile-intro .eyebrow,
+.acceso-kicker,
+.acceso-auth-overline,
+.acceso-mobile-brand { font-weight:var(--data-font-weight,650); }

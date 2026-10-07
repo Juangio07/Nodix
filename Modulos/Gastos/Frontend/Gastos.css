@@ -1,1 +1,5 @@
 @import url("../../Usuarios/Frontend/Usuarios.css");
+/* Lectura financiera: la descripción es el dato principal del movimiento. */
+.table-wrap td.document-cell,.table-wrap td.document-cell strong{color:#26364e;font-weight:800}
+/* El peso visual coincide con el nombre de artículo en Mercancía. */
+.table-wrap td.document-cell,.table-wrap td.document-cell strong{color:#40536d;font-weight:650}

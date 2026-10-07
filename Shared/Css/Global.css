@@ -90,3 +90,91 @@ textarea {
 [hidden] {
     display: none !important;
 }
+
+/* Tipografía común para datos destacados en listados, detalles y tarjetas. */
+.person-cell strong,
+.category-name,
+.document-cell strong,
+.product-copy strong,
+.cart-product strong,
+.recent-item strong,
+.history-table td strong,
+.product-cell strong,
+.mix-item strong,
+.expense-item strong {
+    color: var(--data-text);
+    font-weight: var(--data-font-weight, 650);
+}
+
+/* Los valores ingresados conservan el resaltado natural de la interfaz. */
+input,
+select,
+textarea {
+    /* Evita que un reset local del formulario vuelva a heredar 800 de la etiqueta. */
+    font-weight: var(--data-font-weight, 650) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+    font-weight: 400;
+}
+
+/* Las búsquedas son controles auxiliares y deben permanecer visualmente ligeras. */
+.global-search input,
+.search-box input,
+input[type="search"] {
+    font-weight: 400 !important;
+}
+
+/* Jerarquía de interacción: resaltada, pero sin el peso visual de 800/900. */
+button,
+label,
+strong,
+b {
+    font-weight: var(--data-font-weight, 650) !important;
+}
+
+/* Etiquetas de campos y datos tabulares comparten el mismo seminegrita. */
+.document-cell,
+.category-name,
+.order-cell,
+.eyebrow,
+.section-kicker,
+.form-section-title,
+.field > span,
+.quantity-field span,
+.closure-field,
+.date-fields label,
+.sale-number small,
+.table-wrap th,
+.cart-table th,
+.history-table th,
+.report-table-wrap th,
+.closure-history-table th,
+.saved-indicator,
+.category-scope,
+.inventory-badge,
+.line-count,
+.draft-pill,
+.panel-tag,
+.table-count,
+.business-badge,
+.metric-card em,
+.closure-status,
+.closure-summary-status,
+.closure-history-status {
+    font-weight: var(--data-font-weight, 650) !important;
+}
+
+/* Valores y etiquetas secundarias que antes heredaban un peso demasiado alto. */
+.metric-card span,
+.closure-metrics span,
+.cart-table td:nth-child(2),
+.cart-table td:nth-child(4),
+.quantity-control span,
+.overview-label,
+.directory-count,
+.role-pill,
+.status-pill {
+    font-weight: var(--data-font-weight, 650) !important;
+}

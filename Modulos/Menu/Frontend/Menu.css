@@ -55,3 +55,12 @@ html,body,.nodix-app{height:100%;max-height:100%;overflow:hidden!important}.work
 .side-link.active i{background:#ffe000!important;color:#172238!important;box-shadow:none!important}
 .side-link:focus-visible{outline:2px solid #ffd200!important;outline-offset:2px}
 @media(max-width:700px){.side-nav{gap:6px!important}.side-nav small{display:none!important}.side-link{justify-content:center!important;padding:0!important}.side-link-label{display:none!important}}
+
+/* El menú conserva énfasis sin convertir la opción activa en un bloque pesado. */
+.side-link.active{font-weight:var(--data-font-weight,650)!important}
+.side-nav small{font-weight:var(--data-font-weight,650)!important}
+
+/* El peso intermedio se aplica por igual a opciones normales y activas. */
+.side-link,
+.side-link.active,
+.side-nav small { font-weight:var(--data-font-weight,650)!important; }

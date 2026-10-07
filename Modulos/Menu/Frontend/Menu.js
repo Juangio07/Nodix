@@ -11,7 +11,7 @@ const normalizeSearch = value => String(value || "").normalize("NFD").replace(/[
 function setVisible(element, visible) { element.hidden = !visible; element.style.setProperty("display", visible ? "block" : "none", "important"); }
 function setActive(section) { document.querySelectorAll(".side-link").forEach(link => { const active = link.dataset.section === section; link.classList.toggle("active", active); link.setAttribute("aria-current", active ? "page" : "false"); }); }
 function showInicio() { setActive("Inicio"); setVisible(dashboard, true); setVisible(frame, false); frame.removeAttribute("src"); frame.classList.remove("active"); }
-function showModule(section) { const route = routes[section]; if (!route) { showInicio(); return; } setActive(section); setVisible(dashboard, false); setVisible(frame, true); frame.classList.add("active"); frame.src = `${route}?v=${Date.now()}`; }
+function showModule(section, params = "") { const route = routes[section]; if (!route) { showInicio(); return; } setActive(section); setVisible(dashboard, false); setVisible(frame, true); frame.classList.add("active"); const query = params ? `${params}&` : ""; frame.src = `${route}?${query}v=${Date.now()}`; }
 
 function buildNavigation() {
     const navigation = document.querySelector(".side-nav");
@@ -205,6 +205,7 @@ document.getElementById("notificationsButton")?.addEventListener("click", () => 
 
 document.querySelectorAll("[data-dashboard-action]").forEach(button => {
     button.addEventListener("click", () => {
+        if (button.dataset.dashboardAction === "shift") { showModule("Estadisticas", "view=closure"); return; }
         if (button.dataset.dashboardAction === "period-tab") {
             document.querySelectorAll(".period-tabs button").forEach(tab => tab.classList.toggle("selected", tab === button));
             return;

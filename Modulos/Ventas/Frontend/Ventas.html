@@ -109,7 +109,7 @@
           <label class="field history-search"><span>Buscar factura o cliente</span><div class="input-with-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input id="salesHistorySearch" type="search" autocomplete="off" placeholder="Ej. FAC-2026-0001, nombre o documento"></div></label>
           <label class="field"><span>Desde</span><input id="historyStartDate" type="date"></label>
           <label class="field"><span>Hasta</span><input id="historyEndDate" type="date"></label>
-          <label class="field"><span>Estado</span><select id="historyStatus"><option value="all">Todos</option><option value="completed">Confirmadas</option><option value="cancelled">Anuladas</option><option value="pending">Pendientes</option></select></label>
+          <label class="field"><span>Estado</span><select id="historyStatus"><option value="all">Todos</option><option value="completed">Confirmadas</option><option value="partial_returned">Devolución parcial</option><option value="returned">Devueltas</option><option value="cancelled">Anuladas</option><option value="pending">Pendientes</option></select></label>
           <label class="field"><span>Medio de pago</span><select id="historyPayment"><option value="all">Todos</option><option value="Efectivo">Efectivo</option><option value="Tarjeta">Tarjeta</option><option value="Transferencia">Transferencia</option><option value="Otro">Otro</option></select></label>
           <button class="secondary-button clear-history" id="clearHistoryFilters" type="button"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i>Limpiar</button>
         </div>
@@ -133,12 +133,57 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <dialog class="sale-detail-dialog" id="saleDetailDialog" aria-labelledby="saleDetailTitle">
     <div class="sale-detail-card">
-      <div class="sale-detail-header"><div><span class="section-kicker">DETALLE DE VENTA</span><h2 id="saleDetailTitle">Factura</h2></div><button class="dialog-close" id="closeSaleDetail" type="button" aria-label="Cerrar detalle"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>
+      <div class="sale-detail-header"><div><span class="section-kicker">DETALLE DE VENTA</span><h2 id="saleDetailTitle">Factura</h2></div><div class="sale-detail-header-actions"><button class="secondary-button return-sale-button" id="startReturn" type="button"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i>Procesar devolución</button><button class="dialog-close" id="closeSaleDetail" type="button" aria-label="Cerrar detalle"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div></div>
       <div class="sale-detail-meta" id="saleDetailMeta"></div>
       <div class="sale-detail-customer" id="saleDetailCustomer"></div>
       <div class="sale-detail-table-wrap"><table class="sale-detail-table"><caption class="sr-only">Productos de la venta seleccionada</caption><thead><tr><th>Artículo</th><th>Categoría</th><th>Cantidad</th><th>Precio unitario</th><th>Subtotal</th></tr></thead><tbody id="saleDetailRows"></tbody></table></div>
+      <div class="sale-detail-return-note" id="saleDetailReturnNote" hidden></div>
       <div class="sale-detail-footer"><div><span>Medio de pago</span><strong id="saleDetailPayment">—</strong></div><div><span>Total</span><strong id="saleDetailTotal">$ 0</strong></div></div>
     </div>
+  </dialog>
+  <dialog class="return-dialog" id="returnDialog" aria-labelledby="returnDialogTitle">
+    <form class="return-card" id="returnForm" method="dialog">
+      <header class="return-header">
+        <div><span class="section-kicker">EVOLUCIÓN DE FACTURA</span><h2 id="returnDialogTitle">Procesar devolución</h2><p id="returnSaleSummary">Factura seleccionada</p></div>
+        <button class="dialog-close" id="closeReturnDialog" type="button" aria-label="Cerrar devolución"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+      </header>
+      <div class="return-body">
+        <section class="return-section">
+          <div class="return-section-heading"><div><h3>1. Productos que regresan</h3><p>Indica qué artículos y cantidades devuelve el cliente.</p></div><span class="return-amount-pill" id="returnSelectedTotal">$ 0</span></div>
+          <div class="return-items" id="returnItems"></div>
+        </section>
+        <section class="return-section">
+          <div class="return-section-heading"><div><h3>2. Motivo de la devolución</h3><p>Esta información quedará registrada en el movimiento.</p></div></div>
+          <div class="return-fields return-reason-fields">
+            <label class="field"><span>Motivo <b>*</b></span><select id="returnReason" required><option value="">Selecciona un motivo</option><option value="Cliente no desea el producto">Cliente no desea el producto</option><option value="Producto defectuoso">Producto defectuoso</option><option value="Producto equivocado">Producto equivocado</option><option value="Cambio de talla o referencia">Cambio de talla o referencia</option><option value="Otro">Otro</option></select></label>
+            <label class="field"><span>Detalle adicional</span><textarea id="returnReasonDetail" rows="2" maxlength="240" placeholder="Describe brevemente la situación (opcional)"></textarea></label>
+          </div>
+        </section>
+        <section class="return-section">
+          <div class="return-section-heading"><div><h3>3. Resolución</h3><p>Elige cómo se resolverá esta devolución.</p></div></div>
+          <div class="return-type-grid" role="radiogroup" aria-label="Tipo de resolución">
+            <label class="return-type-option is-selected"><input type="radio" name="returnType" value="refund" checked><span><i class="fa-solid fa-money-bill-transfer" aria-hidden="true"></i><strong>Devolver dinero</strong><small>Registra el reembolso al cliente.</small></span></label>
+            <label class="return-type-option"><input type="radio" name="returnType" value="exchange"><span><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i><strong>Cambiar por otro producto</strong><small>Entrega una o más referencias nuevas.</small></span></label>
+          </div>
+          <div class="return-money-fields" id="returnMoneyFields">
+            <label class="field"><span id="returnMoneySourceLabel">¿De dónde sale el dinero? <b>*</b></span><select id="returnMoneySource"><option value="Efectivo">Efectivo de caja</option><option value="Transferencia">Cuenta bancaria / transferencia</option><option value="Tarjeta">Reverso a tarjeta</option><option value="Otro">Otro medio</option></select></label>
+          </div>
+          <div class="exchange-fields" id="exchangeFields" hidden>
+            <div class="return-fields exchange-picker">
+              <label class="field"><span>Categoría del producto nuevo <b>*</b></span><select id="returnCategorySelect"><option value="">Selecciona una categoría</option></select></label>
+              <label class="field"><span>Artículo nuevo <b>*</b></span><select id="returnProductSelect" disabled><option value="">Primero selecciona una categoría</option></select></label>
+              <label class="field return-quantity"><span>Cantidad</span><input id="returnProductQuantity" type="number" min="1" value="1" inputmode="numeric"></label>
+              <button class="secondary-button add-replacement" id="addReplacementProduct" type="button"><i class="fa-solid fa-plus" aria-hidden="true"></i>Agregar</button>
+            </div>
+            <div class="replacement-list" id="replacementList"></div>
+            <div class="exchange-summary"><div><span>Valor devuelto</span><strong id="exchangeReturnedTotal">$ 0</strong></div><div><span>Producto nuevo</span><strong id="exchangeReplacementTotal">$ 0</strong></div><div class="exchange-difference"><span id="exchangeDifferenceLabel">Diferencia</span><strong id="exchangeDifference">$ 0</strong></div></div>
+            <div class="return-money-fields" id="exchangeMoneyFields" hidden><label class="field"><span id="exchangeMoneySourceLabel">Medio para la diferencia <b>*</b></span><select id="exchangeMoneySource"><option value="Efectivo">Efectivo de caja</option><option value="Transferencia">Cuenta bancaria / transferencia</option><option value="Tarjeta">Reverso a tarjeta</option><option value="Otro">Otro medio</option></select></label></div>
+          </div>
+        </section>
+        <p class="return-form-message" id="returnFormMessage" role="alert"></p>
+      </div>
+      <footer class="return-footer"><button class="secondary-button" id="cancelReturn" type="button">Cancelar</button><button class="primary-button" id="confirmReturn" type="submit"><i class="fa-solid fa-check" aria-hidden="true"></i>Registrar devolución</button></footer>
+    </form>
   </dialog>
   <script src="../../../Shared/Config/BusinessScope.js"></script>
   <script src="../../../Shared/Config/InventoryScope.js"></script>

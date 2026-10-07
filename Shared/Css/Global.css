@@ -35,6 +35,10 @@ button {
     cursor: pointer;
 }
 
+textarea {
+    resize: none;
+}
+
 :focus-visible {
     outline: 3px solid rgb(255 106 0 / 28%);
     outline-offset: 2px;

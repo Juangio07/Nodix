@@ -10,6 +10,7 @@ const CLIENT_KEY = "Nodix_clientes_v1";
 const CLIENT_LEGACY_KEY = "Nodix_clientes_v2";
 const SALE_KEY = "Nodix_ventas_v2";
 const SALE_LEGACY_KEY = "Nodix_ventas_v1";
+const RETURN_KEY = "Nodix_devoluciones_v1";
 const scopeApi = window.NodixBusinessScope;
 const inventoryApi = window.NodixInventoryScope;
 const currencyApi = window.NodixCurrencyInput;
@@ -38,14 +39,25 @@ const historyPayment = document.getElementById("historyPayment");
 const historyRows = document.getElementById("salesHistoryRows");
 const historyEmpty = document.getElementById("salesHistoryEmpty");
 const saleDetailDialog = document.getElementById("saleDetailDialog");
+const returnDialog = document.getElementById("returnDialog");
+const returnForm = document.getElementById("returnForm");
+const returnItems = document.getElementById("returnItems");
+const returnCategorySelect = document.getElementById("returnCategorySelect");
+const returnProductSelect = document.getElementById("returnProductSelect");
+const returnProductQuantity = document.getElementById("returnProductQuantity");
+const replacementList = document.getElementById("replacementList");
+const returnTypeFields = document.querySelectorAll('input[name="returnType"]');
 let business = scopeApi.getBusiness();
 let categories = [];
 let articles = [];
 let clients = [];
 let sales = [];
+let returns = [];
 let cart = [];
 let selectedCategoryId = "";
 let selectedArticleId = "";
+let activeSaleForReturn = null;
+let replacementCart = [];
 let toastTimer;
 
 function safe(value) { return String(value ?? "").replace(/[&<>'"]/g, character => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", "'":"&#39;", '"':"&quot;" }[character])); }
@@ -65,7 +77,8 @@ function records(key, legacyKey) {
 function categoryName(id) { const category = categories.find(item => item.id === String(id)); return category ? category.nombre : "Sin categoría"; }
 function normalizeArticle(item) { return { id: String(item.id || item.codigo || newId("ART")), codigo: String(item.codigo || item.code || "").trim(), descripcion: String(item.descripcion || item.nombre || item.name || "").trim(), categoriaId: String(item.categoriaId || item.categoryId || item.idCategoria || item.category || "").trim(), precioVenta: Number(item.precioVenta || item.precio || item.salePrice || 0) || 0, costo: Number(item.costo || item.cost || 0) || 0, estado: item.estado === "inactive" ? "inactive" : "active" }; }
 function normalizeClient(item) { return { id: String(item.id || item.documento || newId("CLI")), documento: String(item.documento || "").trim(), nombre: String(item.nombre || "").trim(), telefono: String(item.telefono || "").trim(), estado: item.estado === "inactive" ? "inactive" : "active" }; }
-function normalizeSale(item) { const lines = item.items || item.detalle || item.detalles || item.productos || item.articulos || item.lines || item.lineas || []; const normalizedLines = Array.isArray(lines) ? lines.map(line => ({ articuloId: String(line.articuloId || line.articleId || line.idArticulo || line.productId || ""), codigo: String(line.codigo || line.code || ""), descripcion: String(line.descripcion || line.nombre || line.description || ""), categoriaId: String(line.categoriaId || line.categoryId || ""), categoriaNombre: String(line.categoriaNombre || line.categoryName || ""), cantidad: Number(line.cantidad || line.quantity || line.qty || 0) || 0, precioVenta: Number(line.precioVenta || line.precio || line.unitPrice || line.valorUnitario || 0) || 0, subtotal: Number(line.subtotal || line.total || 0) || 0 })) : []; return { id: String(item.id || item.numero || newId("VEN")), numero: String(item.numero || item.numeroFactura || item.codigo || "Venta"), tipo: String(item.tipo || item.tipoFactura || "Venta de mostrador"), fecha: String(item.fecha || item.createdAt || localDate()).slice(0, 10), fechaHora: String(item.fechaHora || item.createdAt || ""), clienteId: String(item.clienteId || item.clientId || ""), clienteNombre: String(item.clienteNombre || item.clientName || "Consumidor final"), clienteDocumento: String(item.clienteDocumento || item.clientDocument || ""), clienteTelefono: String(item.clienteTelefono || item.clientPhone || ""), usuarioId: String(item.usuarioId || item.userId || ""), usuarioNombre: String(item.usuarioNombre || item.userName || "Administrador"), metodoPago: String(item.metodoPago || item.paymentMethod || "Efectivo"), items: normalizedLines, subtotal: Number(item.subtotal || item.total || 0) || 0, total: Number(item.total || item.valorTotal || item.subtotal || 0) || 0, estado: String(item.estado || "completed") }; }
+function normalizeSale(item) { const lines = item.items || item.detalle || item.detalles || item.productos || item.articulos || item.lines || item.lineas || []; const normalizedLines = Array.isArray(lines) ? lines.map(line => { const cantidad = Number(line.cantidad || line.quantity || line.qty || 0) || 0; const precioVenta = Number(line.precioVenta || line.precio || line.unitPrice || line.valorUnitario || 0) || 0; return { articuloId: String(line.articuloId || line.articleId || line.idArticulo || line.productId || ""), codigo: String(line.codigo || line.code || ""), descripcion: String(line.descripcion || line.nombre || line.description || ""), categoriaId: String(line.categoriaId || line.categoryId || ""), categoriaNombre: String(line.categoriaNombre || line.categoryName || ""), cantidad, precioVenta, subtotal: Number(line.subtotal || line.total || 0) || precioVenta * cantidad }; }) : []; return { id: String(item.id || item.numero || newId("VEN")), negocioId: String(item.negocioId || item.businessId || business.id), negocioNombre: String(item.negocioNombre || item.businessName || business.name), numero: String(item.numero || item.numeroFactura || item.codigo || "Venta"), tipo: String(item.tipo || item.tipoFactura || "Venta de mostrador"), fecha: String(item.fecha || item.createdAt || localDate()).slice(0, 10), fechaHora: String(item.fechaHora || item.createdAt || ""), clienteId: String(item.clienteId || item.clientId || ""), clienteNombre: String(item.clienteNombre || item.clientName || "Consumidor final"), clienteDocumento: String(item.clienteDocumento || item.clientDocument || ""), clienteTelefono: String(item.clienteTelefono || item.clientPhone || ""), usuarioId: String(item.usuarioId || item.userId || ""), usuarioNombre: String(item.usuarioNombre || item.userName || "Administrador"), metodoPago: String(item.metodoPago || item.paymentMethod || "Efectivo"), items: normalizedLines, subtotal: Number(item.subtotal || item.total || 0) || 0, total: Number(item.total || item.valorTotal || item.subtotal || 0) || 0, estado: String(item.estado || "completed") }; }
+function normalizeReturn(item) { const normalizeLine = line => { const quantity = Number(line.cantidad || line.quantity || line.qty || 0) || 0; const price = Number(line.precioVenta || line.precio || line.unitPrice || line.valorUnitario || 0) || 0; return { articuloId: String(line.articuloId || line.articleId || line.idArticulo || line.productId || ""), codigo: String(line.codigo || line.code || ""), descripcion: String(line.descripcion || line.nombre || line.description || ""), categoriaId: String(line.categoriaId || line.categoryId || ""), categoriaNombre: String(line.categoriaNombre || line.categoryName || ""), cantidad: quantity, precioVenta: price, subtotal: Number(line.subtotal || line.total || 0) || price * quantity }; }; return { id: String(item.id || newId("DEV")), negocioId: String(item.negocioId || item.businessId || business.id), ventaId: String(item.ventaId || item.saleId || ""), ventaNumero: String(item.ventaNumero || item.saleNumber || ""), fecha: String(item.fecha || item.createdAt || localDate()).slice(0, 10), fechaHora: String(item.fechaHora || item.createdAt || ""), motivo: String(item.motivo || item.reason || ""), detalleMotivo: String(item.detalleMotivo || item.reasonDetail || ""), tipo: String(item.tipo || item.type || "refund"), estado: String(item.estado || item.status || "completed"), source: String(item.source || item.refundSource || ""), amount: Number(item.amount || item.monto || item.valor || 0) || 0, difference: Number(item.difference || item.diferencia || 0) || 0, paymentMethod: String(item.paymentMethod || item.metodoPago || ""), items: Array.isArray(item.items || item.returnedItems || item.productosDevueltos) ? (item.items || item.returnedItems || item.productosDevueltos).map(normalizeLine) : [], replacementItems: Array.isArray(item.replacementItems || item.itemsEntregados || item.productosCambio) ? (item.replacementItems || item.itemsEntregados || item.productosCambio).map(normalizeLine) : [] }; }
 
 function reloadData() {
     business = scopeApi.getBusiness();
@@ -80,6 +93,7 @@ function reloadData() {
         const client = clients.find(item => item.id === sale.clienteId);
         return { ...sale, clienteDocumento: sale.clienteDocumento || client?.documento || "", clienteTelefono: sale.clienteTelefono || client?.telefono || "", clienteNombre: sale.clienteNombre === "Consumidor final" && client ? client.nombre : sale.clienteNombre };
     }).sort((first, second) => String(second.fecha).localeCompare(String(first.fecha)));
+    returns = records(RETURN_KEY).map(normalizeReturn);
 }
 
 function renderCategoryOptions() {
@@ -162,16 +176,26 @@ function renderRecentSales() {
     document.getElementById("recentSales").innerHTML = recent.map(sale => `<button class="recent-item" type="button" data-sale-id="${safe(sale.id)}"><span><strong>${safe(sale.numero)}</strong><small>${safe(dateLabel(sale.fecha))} · ${safe(sale.tipo)}</small></span><span><strong>${safe(sale.clienteNombre || "Consumidor final")}</strong><small>${number(sale.items.reduce((sum, line) => sum + line.cantidad, 0))} productos · ${safe(sale.metodoPago)}</small></span><strong class="recent-total">${money(sale.total)}</strong><span class="recent-status ${saleStatus(sale)}">${statusLabel(sale)}</span></button>`).join("");
 }
 
+function completedReturnsForSale(saleId) { return returns.filter(item => item.ventaId === String(saleId) && !["pending", "pendiente", "rejected", "rechazada", "cancelled", "cancelada"].includes(String(item.estado || "completed").toLowerCase())); }
+function returnedQuantity(saleId, articleId, articleCode) { return completedReturnsForSale(saleId).reduce((sum, item) => sum + item.items.filter(line => String(line.articuloId) === String(articleId) || (!line.articuloId && String(line.codigo).toLowerCase() === String(articleCode || "").toLowerCase())).reduce((total, line) => total + line.cantidad, 0), 0); }
+function returnableLines(sale) { return sale.items.map(line => ({ ...line, returned: returnedQuantity(sale.id, line.articuloId, line.codigo), returnable: Math.max(0, line.cantidad - returnedQuantity(sale.id, line.articuloId, line.codigo)) })).filter(line => line.returnable > 0); }
+function saleReturnSummary(sale) { const lines = sale.items; const total = lines.reduce((sum, line) => sum + line.cantidad, 0); const returned = lines.reduce((sum, line) => sum + returnedQuantity(sale.id, line.articuloId, line.codigo), 0); return { total, returned, remaining: Math.max(0, total - returned) }; }
+
 function saleStatus(sale) {
     const value = String(sale.estado || "completed").toLowerCase();
     if (["cancelled", "canceled", "anulada", "anulado"].includes(value)) return "cancelled";
     if (["pending", "pendiente"].includes(value)) return "pending";
+    if (["returned", "devuelta", "devuelto"].includes(value)) return "returned";
+    if (["partial_returned", "devolución parcial", "devolucion parcial"].includes(value)) return "partial_returned";
+    const summary = saleReturnSummary(sale);
+    if (summary.returned > 0 && summary.remaining === 0) return "returned";
+    if (summary.returned > 0) return "partial_returned";
     return "completed";
 }
 
 function statusLabel(sale) {
     const status = saleStatus(sale);
-    return status === "cancelled" ? "Anulada" : status === "pending" ? "Pendiente" : "Confirmada";
+    return status === "cancelled" ? "Anulada" : status === "pending" ? "Pendiente" : status === "returned" ? "Devuelta" : status === "partial_returned" ? "Devolución parcial" : "Confirmada";
 }
 
 function formatDateTime(sale) {
@@ -211,6 +235,7 @@ function renderSalesHistory() {
 function openSaleDetail(saleId) {
     const sale = sales.find(item => item.id === saleId);
     if (!sale) return;
+    activeSaleForReturn = sale;
     document.getElementById("saleDetailTitle").textContent = sale.numero;
     document.getElementById("saleDetailMeta").innerHTML = `<div><span>Fecha y hora</span><strong>${safe(formatDateTime(sale))}</strong></div><div><span>Tipo</span><strong>${safe(sale.tipo)}</strong></div><div><span>Estado</span><strong class="detail-state ${saleStatus(sale)}">${statusLabel(sale)}</strong></div>`;
     document.getElementById("saleDetailCustomer").innerHTML = `<div class="customer-detail-icon"><i class="fa-solid fa-user" aria-hidden="true"></i></div><div><span>Cliente comprador</span><strong>${safe(sale.clienteNombre || "Consumidor final")}</strong><small>${safe(sale.clienteDocumento || "Sin documento")} · ${safe(sale.clienteTelefono || "Sin teléfono")}</small></div><div class="sale-operator"><span>Registrada por</span><strong>${safe(sale.usuarioNombre || "Administrador")}</strong></div>`;
@@ -219,11 +244,173 @@ function openSaleDetail(saleId) {
     const saleDetailTotal = document.getElementById("saleDetailTotal");
     saleDetailTotal.textContent = money(sale.total);
     saleDetailTotal.style.color = "var(--warning)";
+    const summary = saleReturnSummary(sale);
+    const returnButton = document.getElementById("startReturn");
+    const returnNote = document.getElementById("saleDetailReturnNote");
+    const canReturn = !["cancelled", "pending", "returned"].includes(saleStatus(sale)) && summary.remaining > 0;
+    returnButton.hidden = !canReturn;
+    returnNote.hidden = summary.returned === 0;
+    const latestReturn = completedReturnsForSale(sale.id).sort((first, second) => String(second.fechaHora || second.fecha).localeCompare(String(first.fechaHora || first.fecha)))[0];
+    const returnText = summary.remaining ? `Ya se devolvieron ${number(summary.returned)} de ${number(summary.total)} unidades. Quedan ${number(summary.remaining)} disponibles para devolución.` : "Esta factura ya fue devuelta completamente.";
+    returnNote.innerHTML = `<i class="fa-solid fa-rotate-left" aria-hidden="true"></i><span>${returnText}${latestReturn ? ` Motivo registrado: ${safe(latestReturn.motivo)}.` : ""}</span>`;
     if (saleDetailDialog.showModal) saleDetailDialog.showModal();
     else saleDetailDialog.setAttribute("open", "");
 }
 
 function closeSaleDetail() { if (saleDetailDialog.open && saleDetailDialog.close) saleDetailDialog.close(); else saleDetailDialog.removeAttribute("open"); }
+
+function currentReturnType() { return document.querySelector('input[name="returnType"]:checked')?.value || "refund"; }
+function selectedReturnLines() {
+    if (!activeSaleForReturn) return [];
+    return Array.from(returnItems.querySelectorAll("[data-return-qty]")).map(input => {
+        const source = activeSaleForReturn.items.find(line => String(line.articuloId) === String(input.dataset.id) && String(line.codigo) === String(input.dataset.code)) || activeSaleForReturn.items.find(line => String(line.articuloId) === String(input.dataset.id));
+        const quantity = Math.min(Math.max(Math.floor(Number(input.value) || 0), 0), Number(input.max) || 0);
+        return source && quantity ? { ...source, cantidad: quantity, subtotal: quantity * source.precioVenta } : null;
+    }).filter(Boolean);
+}
+function returnedSelectionByArticle() { return selectedReturnLines().reduce((result, line) => { result[line.articuloId] = (result[line.articuloId] || 0) + line.cantidad; return result; }, {}); }
+function selectedReturnAmount() { return selectedReturnLines().reduce((sum, line) => sum + line.subtotal, 0); }
+
+function renderReturnItems() {
+    const lines = returnableLines(activeSaleForReturn || { items: [], id: "" });
+    returnItems.innerHTML = lines.length ? lines.map(line => `<div class="return-item-row"><div class="return-item-copy"><strong>${safe(line.descripcion || "Sin descripción")}</strong><small>${safe(line.codigo || "Sin código")} · ${safe(line.categoriaNombre || categoryName(line.categoriaId))} · ${money(line.precioVenta)} unidad</small></div><span class="return-available">${number(line.returnable)} ${line.returnable === 1 ? "disponible" : "disponibles"}</span><label class="return-quantity"><span>Devuelve</span><input type="number" min="0" max="${line.returnable}" value="0" data-return-qty data-id="${safe(line.articuloId)}" data-code="${safe(line.codigo)}" inputmode="numeric"></label></div>`).join("") : `<div class="return-items-empty"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>Todos los productos de esta factura ya fueron devueltos.</span></div>`;
+    renderReturnFinancials();
+}
+
+function renderReturnCategoryOptions() {
+    const activeCategories = categories.filter(category => category.estado === "active");
+    const current = returnCategorySelect.value;
+    returnCategorySelect.innerHTML = `<option value="">Selecciona una categoría</option>${activeCategories.map(category => `<option value="${safe(category.id)}">${safe(category.nombre || "Sin nombre")}</option>`).join("")}`;
+    if (activeCategories.some(category => category.id === current)) returnCategorySelect.value = current;
+}
+
+function provisionalReplacementStock(article) {
+    const returned = returnedSelectionByArticle()[article.id] || 0;
+    const alreadySelected = replacementCart.filter(line => line.articuloId === article.id).reduce((sum, line) => sum + line.cantidad, 0);
+    return Math.max(0, article.stock + returned - alreadySelected);
+}
+
+function renderReturnProductOptions() {
+    const categoryId = returnCategorySelect.value;
+    const current = returnProductSelect.value;
+    const options = articles.filter(article => article.estado === "active" && article.categoriaId === categoryId && provisionalReplacementStock(article) > 0);
+    returnProductSelect.innerHTML = `<option value="">${categoryId ? (options.length ? "Selecciona un artículo" : "No hay stock disponible") : "Primero selecciona una categoría"}</option>${options.map(article => `<option value="${safe(article.id)}">${safe(article.codigo || "Sin código")} · ${safe(article.descripcion || "Sin descripción")} · ${money(article.precioVenta)} · ${number(provisionalReplacementStock(article))} disp.</option>`).join("")}`;
+    returnProductSelect.disabled = !categoryId || !options.length;
+    if (options.some(article => article.id === current)) returnProductSelect.value = current;
+}
+
+function renderReplacementList() {
+    replacementList.innerHTML = replacementCart.length ? replacementCart.map((line, index) => `<div class="replacement-row"><div><strong>${safe(line.descripcion)}</strong><small>${safe(line.codigo || "Sin código")} · ${number(line.cantidad)} ${line.cantidad === 1 ? "unidad" : "unidades"}</small></div><strong>${money(line.subtotal)}</strong><button type="button" data-remove-replacement="${index}" aria-label="Quitar producto de cambio"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>`).join("") : `<div class="replacement-empty"><i class="fa-solid fa-box-open" aria-hidden="true"></i><span>Agrega el producto que recibirá el cliente.</span></div>`;
+    renderReturnFinancials();
+}
+
+function renderReturnFinancials() {
+    const returnedAmount = selectedReturnAmount();
+    const replacementAmount = replacementCart.reduce((sum, line) => sum + line.subtotal, 0);
+    const difference = replacementAmount - returnedAmount;
+    document.getElementById("returnSelectedTotal").textContent = money(returnedAmount);
+    document.getElementById("exchangeReturnedTotal").textContent = money(returnedAmount);
+    document.getElementById("exchangeReplacementTotal").textContent = money(replacementAmount);
+    const label = document.getElementById("exchangeDifferenceLabel");
+    const value = document.getElementById("exchangeDifference");
+    label.textContent = difference > 0 ? "Saldo por cobrar" : difference < 0 ? "Dinero a devolver" : "Diferencia";
+    value.textContent = money(Math.abs(difference));
+    value.classList.toggle("is-charge", difference > 0);
+    value.classList.toggle("is-refund", difference < 0);
+    const type = currentReturnType();
+    document.getElementById("returnMoneyFields").hidden = type !== "refund";
+    document.getElementById("exchangeFields").hidden = type !== "exchange";
+    document.getElementById("exchangeMoneyFields").hidden = type !== "exchange" || difference === 0;
+    document.getElementById("exchangeMoneySourceLabel").innerHTML = `${difference < 0 ? "Origen del reembolso" : "Medio de pago del excedente"} <b>*</b>`;
+}
+
+function openReturnDialog() {
+    if (!activeSaleForReturn || !returnableLines(activeSaleForReturn).length) return;
+    closeSaleDetail();
+    returnForm.reset();
+    replacementCart = [];
+    document.querySelectorAll(".return-type-option").forEach(option => option.classList.toggle("is-selected", option.querySelector("input")?.checked));
+    document.getElementById("returnDialogTitle").textContent = `Devolución · ${activeSaleForReturn.numero}`;
+    document.getElementById("returnSaleSummary").textContent = `${activeSaleForReturn.clienteNombre || "Consumidor final"} · ${dateLabel(activeSaleForReturn.fecha)}`;
+    document.getElementById("returnFormMessage").textContent = "";
+    renderReturnItems();
+    renderReturnCategoryOptions();
+    returnCategorySelect.value = "";
+    renderReturnProductOptions();
+    renderReplacementList();
+    if (returnDialog.showModal) returnDialog.showModal();
+    else returnDialog.setAttribute("open", "");
+}
+
+function closeReturnDialog() { if (returnDialog.open && returnDialog.close) returnDialog.close(); else returnDialog.removeAttribute("open"); }
+
+function addReplacementProduct() {
+    const article = articles.find(item => item.id === returnProductSelect.value);
+    const quantity = Math.floor(Number(returnProductQuantity.value) || 0);
+    const message = document.getElementById("returnFormMessage");
+    if (!article) { message.textContent = "Selecciona el artículo que recibirá el cliente."; return; }
+    if (quantity < 1) { message.textContent = "La cantidad del producto nuevo debe ser de al menos una unidad."; return; }
+    if (article.precioVenta <= 0) { message.textContent = "El artículo seleccionado no tiene un precio de venta configurado."; return; }
+    if (quantity > provisionalReplacementStock(article)) { showStockAlert(`Solo hay ${number(provisionalReplacementStock(article))} unidades disponibles de ${article.descripcion || article.codigo}.`); return; }
+    const existing = replacementCart.find(line => line.articuloId === article.id);
+    if (existing) { existing.cantidad += quantity; existing.subtotal = existing.cantidad * existing.precioVenta; }
+    else replacementCart.push({ articuloId: article.id, codigo: article.codigo, descripcion: article.descripcion, categoriaId: article.categoriaId, categoriaNombre: categoryName(article.categoriaId), cantidad: quantity, precioVenta: article.precioVenta, subtotal: quantity * article.precioVenta });
+    message.textContent = "";
+    returnProductQuantity.value = "1";
+    renderReplacementList();
+    renderReturnProductOptions();
+}
+
+function persistReturn() {
+    const selectedItems = selectedReturnLines();
+    const returnAmount = selectedItems.reduce((sum, line) => sum + line.subtotal, 0);
+    const replacementAmount = replacementCart.reduce((sum, line) => sum + line.subtotal, 0);
+    const type = currentReturnType();
+    const difference = replacementAmount - returnAmount;
+    const source = type === "refund" ? document.getElementById("returnMoneySource").value : difference < 0 ? document.getElementById("exchangeMoneySource").value : "";
+    const paymentMethod = type === "exchange" && difference > 0 ? document.getElementById("exchangeMoneySource").value : "";
+    const record = { id: newId("DEV"), negocioId: business.id, negocioNombre: business.name, ventaId: activeSaleForReturn.id, ventaNumero: activeSaleForReturn.numero, fecha: localDate(), fechaHora: new Date().toISOString(), motivo: document.getElementById("returnReason").value, detalleMotivo: document.getElementById("returnReasonDetail").value.trim(), tipo: type, estado: "completed", source, paymentMethod, amount: type === "refund" ? returnAmount : Math.max(0, -difference), difference, items: selectedItems, replacementItems: replacementCart.map(line => ({ ...line })) };
+    const summary = saleReturnSummary(activeSaleForReturn);
+    const returnedAfter = summary.returned + selectedItems.reduce((sum, line) => sum + line.cantidad, 0);
+    const nextStatus = returnedAfter >= summary.total ? "returned" : "partial_returned";
+    const nextSales = sales.map(sale => sale.id === activeSaleForReturn.id ? { ...sale, estado: nextStatus, ultimaDevolucionId: record.id, ultimaDevolucionFecha: record.fecha } : sale);
+    scopeApi.writeScoped(RETURN_KEY, [record, ...returns]);
+    scopeApi.writeScoped(SALE_KEY, nextSales);
+    returns = [normalizeReturn(record), ...returns];
+    sales = nextSales;
+    return { record, difference, nextStatus };
+}
+
+async function confirmReturn(event) {
+    event.preventDefault();
+    const message = document.getElementById("returnFormMessage");
+    message.textContent = "";
+    const selectedItems = selectedReturnLines();
+    const reason = document.getElementById("returnReason").value;
+    const type = currentReturnType();
+    const returnAmount = selectedItems.reduce((sum, line) => sum + line.subtotal, 0);
+    const replacementAmount = replacementCart.reduce((sum, line) => sum + line.subtotal, 0);
+    const difference = replacementAmount - returnAmount;
+    if (!selectedItems.length) { message.textContent = "Selecciona al menos un producto y una cantidad para devolver."; return; }
+    if (!reason) { message.textContent = "Selecciona el motivo de la devolución."; return; }
+    if (type === "exchange" && !replacementCart.length) { message.textContent = "Agrega el producto que recibirá el cliente para continuar."; return; }
+    if (type === "exchange" && difference !== 0 && !document.getElementById("exchangeMoneySource").value) { message.textContent = "Selecciona el medio para registrar la diferencia."; return; }
+    const actionText = type === "refund" ? `Se devolverán ${money(returnAmount)} desde ${document.getElementById("returnMoneySource").selectedOptions[0].textContent}.` : difference > 0 ? `El cliente pagará un excedente de ${money(difference)}.` : difference < 0 ? `Se devolverán ${money(Math.abs(difference))} al cliente.` : "El cambio queda igualado, sin diferencia.";
+    const confirmed = window.NodixAlert?.confirm ? await window.NodixAlert.confirm({ type: "confirm", title: "¿Registrar esta devolución?", message: `${actionText} El inventario y la factura se actualizarán.`, confirmText: "Registrar devolución", cancelText: "Revisar datos" }) : true;
+    if (!confirmed) return;
+    const result = persistReturn();
+    closeReturnDialog();
+    reloadData();
+    renderClients();
+    renderCategoryOptions();
+    renderProductOptions();
+    renderCart();
+    renderRecentSales();
+    renderSalesHistory();
+    showToast(`${activeSaleForReturn.numero} actualizada correctamente`);
+    activeSaleForReturn = sales.find(sale => sale.id === activeSaleForReturn.id) || null;
+    if (window.NodixAlert?.show) window.NodixAlert.show({ type: "success", title: "Devolución registrada", message: result.nextStatus === "returned" ? "La factura quedó completamente devuelta y las unidades regresaron al inventario." : "La devolución quedó registrada y las unidades regresaron al inventario.", confirmText: "Entendido" });
+}
 
 function setSalesView(view) {
     const isHistory = view === "history";
@@ -343,7 +530,18 @@ historyRows.addEventListener("click", event => {
 document.getElementById("closeSaleDetail").addEventListener("click", closeSaleDetail);
 saleDetailDialog.addEventListener("click", event => { if (event.target === saleDetailDialog) closeSaleDetail(); });
 saleDetailDialog.addEventListener("cancel", event => { event.preventDefault(); closeSaleDetail(); });
-window.addEventListener("storage", event => { if ([SALE_KEY, SALE_LEGACY_KEY, CLIENT_KEY, CLIENT_LEGACY_KEY].includes(event.key)) { reloadData(); renderClients(); renderRecentSales(); renderSalesHistory(); } });
+document.getElementById("startReturn").addEventListener("click", openReturnDialog);
+document.getElementById("closeReturnDialog").addEventListener("click", closeReturnDialog);
+document.getElementById("cancelReturn").addEventListener("click", closeReturnDialog);
+returnDialog.addEventListener("click", event => { if (event.target === returnDialog) closeReturnDialog(); });
+returnDialog.addEventListener("cancel", event => { event.preventDefault(); closeReturnDialog(); });
+returnForm.addEventListener("submit", confirmReturn);
+returnItems.addEventListener("input", event => { const input = event.target.closest("[data-return-qty]"); if (!input) return; input.value = String(Math.min(Math.max(Math.floor(Number(input.value) || 0), 0), Number(input.max) || 0)); renderReturnFinancials(); renderReturnProductOptions(); });
+returnTypeFields.forEach(input => input.addEventListener("change", () => { document.querySelectorAll(".return-type-option").forEach(option => option.classList.toggle("is-selected", option.querySelector("input")?.checked)); renderReturnFinancials(); }));
+returnCategorySelect.addEventListener("change", () => { returnProductSelect.value = ""; renderReturnProductOptions(); });
+document.getElementById("addReplacementProduct").addEventListener("click", addReplacementProduct);
+replacementList.addEventListener("click", event => { const button = event.target.closest("[data-remove-replacement]"); if (!button) return; replacementCart.splice(Number(button.dataset.removeReplacement), 1); renderReplacementList(); renderReturnProductOptions(); });
+window.addEventListener("storage", event => { if ([SALE_KEY, SALE_LEGACY_KEY, RETURN_KEY, CLIENT_KEY, CLIENT_LEGACY_KEY].includes(event.key)) { reloadData(); renderClients(); renderRecentSales(); renderSalesHistory(); if (activeSaleForReturn && returnDialog.open) { activeSaleForReturn = sales.find(sale => sale.id === activeSaleForReturn.id) || null; if (activeSaleForReturn) renderReturnItems(); } } });
 
 reloadData();
 renderClients();

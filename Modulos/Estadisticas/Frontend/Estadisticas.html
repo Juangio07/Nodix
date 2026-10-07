@@ -46,6 +46,57 @@
       <p class="report-feedback" id="reportFeedback" role="status" aria-live="polite"></p>
     </section>
 
+    <section class="cash-closure report-panel" id="cashClosureSection" aria-labelledby="cashClosureTitle">
+      <header class="panel-header closure-panel-header">
+        <div>
+          <span class="section-kicker">CONTROL DE CAJA</span>
+          <h2 id="cashClosureTitle">Cierre de caja</h2>
+          <p>Revisa los ingresos, las salidas y el efectivo esperado antes de cerrar la jornada.</p>
+        </div>
+        <span class="closure-status pending" id="closureStatus"><i class="fa-solid fa-clock" aria-hidden="true"></i> Pendiente de conteo</span>
+      </header>
+      <div class="closure-controls">
+        <label class="closure-field"><span>Fecha del cierre</span><input id="closureDate" type="date"></label>
+        <label class="closure-field"><span>Saldo inicial en efectivo</span><div class="closure-money-input"><b>$</b><input id="cashOpening" type="number" min="0" step="100" inputmode="decimal" placeholder="0"></div></label>
+        <label class="closure-field"><span>Efectivo contado</span><div class="closure-money-input"><b>$</b><input id="cashCounted" type="number" min="0" step="100" inputmode="decimal" placeholder="Ingresa el conteo"></div></label>
+        <button class="primary-button closure-action" id="calculateClosure" type="button"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>Actualizar cierre</button>
+        <button class="secondary-button closure-action" id="confirmClosure" type="button"><i class="fa-solid fa-lock" aria-hidden="true"></i>Confirmar cierre</button>
+      </div>
+      <p class="closure-feedback" id="closureFeedback" role="status" aria-live="polite"></p>
+      <div class="closure-metrics" aria-label="Resumen del cierre de caja">
+        <article><span>Ingresos del día</span><strong id="closureIncome">$ 0</strong><small id="closureIncomeCount">0 ventas</small></article>
+        <article><span>Devoluciones</span><strong id="closureRefunds">$ 0</strong><small id="closureRefundCount">0 movimientos</small></article>
+        <article><span>Gastos del día</span><strong id="closureExpenses">$ 0</strong><small>salidas registradas</small></article>
+        <article class="closure-total"><span>Efectivo esperado</span><strong id="closureExpected">$ 0</strong><small>saldo inicial + ingresos − salidas</small></article>
+        <article class="closure-difference"><span>Diferencia</span><strong id="closureDifference">—</strong><small id="closureDifferenceHint">Ingresa el efectivo contado</small></article>
+      </div>
+      <div class="closure-columns">
+        <div class="closure-breakdown">
+          <div class="closure-breakdown-heading"><h3>Ingresos por medio de pago</h3><span>Ventas confirmadas</span></div>
+          <div class="closure-row"><span><i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i>Efectivo</span><strong id="closureCashSales">$ 0</strong></div>
+          <div class="closure-row"><span><i class="fa-solid fa-building-columns" aria-hidden="true"></i>Transferencias</span><strong id="closureTransferSales">$ 0</strong></div>
+          <div class="closure-row"><span><i class="fa-solid fa-credit-card" aria-hidden="true"></i>Tarjetas</span><strong id="closureCardSales">$ 0</strong></div>
+          <div class="closure-row"><span><i class="fa-solid fa-ellipsis" aria-hidden="true"></i>Otros medios</span><strong id="closureOtherSales">$ 0</strong></div>
+        </div>
+        <div class="closure-breakdown">
+          <div class="closure-breakdown-heading"><h3>Salidas y devoluciones</h3><span>Movimientos del día</span></div>
+          <div class="closure-row"><span><i class="fa-solid fa-rotate-left" aria-hidden="true"></i>Devoluciones en efectivo</span><strong id="closureCashRefunds">$ 0</strong></div>
+          <div class="closure-row"><span><i class="fa-solid fa-building-columns" aria-hidden="true"></i>Devoluciones desde cuenta</span><strong id="closureTransferRefunds">$ 0</strong></div>
+          <div class="closure-row"><span><i class="fa-solid fa-receipt" aria-hidden="true"></i>Gastos registrados</span><strong id="closureExpenseOutflow">$ 0</strong></div>
+          <div class="closure-row closure-pending-row"><span><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i>Reembolsos pendientes</span><strong id="closurePendingRefunds">$ 0</strong></div>
+        </div>
+      </div>
+      <div class="closure-note"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><span>Las devoluciones se reflejan en la fecha en que se realizan, aunque estén relacionadas con una venta anterior. Los gastos actuales se consideran salidas de efectivo mientras no tengan un medio de pago configurado.</span></div>
+    </section>
+
+    <section class="report-panel closure-history-panel" aria-labelledby="closureHistoryTitle">
+      <header class="panel-header"><div><span class="section-kicker">HISTORIAL DE CIERRES</span><h2 id="closureHistoryTitle">Cierres registrados</h2><p>Consulta cómo terminó cada jornada y las diferencias encontradas.</p></div><span class="table-count" id="closureCount">0 cierres</span></header>
+      <div class="closure-history-wrap">
+        <table class="closure-history-table"><caption class="sr-only">Historial de cierres de caja</caption><thead><tr><th>Fecha</th><th>Ingresos</th><th>Devoluciones</th><th>Gastos</th><th>Efectivo esperado</th><th>Efectivo contado</th><th>Diferencia</th><th>Estado</th></tr></thead><tbody id="closureRows"></tbody></table>
+        <div class="panel-empty compact" id="closureHistoryEmpty"><i class="fa-solid fa-lock" aria-hidden="true"></i><span>Aún no hay cierres de caja registrados.</span></div>
+      </div>
+    </section>
+
     <section class="report-metrics" aria-label="Resumen del periodo">
       <article class="metric-card metric-card-primary"><div class="metric-icon"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i></div><div><span>Ingresos por ventas</span><strong id="totalSales">$0</strong><small>total del periodo</small></div><em id="salesChange">—</em></article>
       <article class="metric-card"><div class="metric-icon blue"><i class="fa-solid fa-receipt" aria-hidden="true"></i></div><div><span>Ventas realizadas</span><strong id="transactionCount">0</strong><small>transacciones registradas</small></div></article>
